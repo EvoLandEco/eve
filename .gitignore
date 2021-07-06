@@ -2,4 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-eve.Rproj
+*.Rproj
+*.RData
