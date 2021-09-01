@@ -72,7 +72,7 @@ match_raw <- function(x = NULL, y = NULL){
 #' @export edd_sim_rep
 edd_sim_rep <-
   function(nrep = 5,
-           pars = c(0.5, 0.1, -0.001, -0.001, 0, 001, 0, 001),
+           pars = c(0.5, 0.1, -0.001, -0.001, 0.001, 0.001),
            age = 5,
            model = "dsde2",
            metric = "ed",
