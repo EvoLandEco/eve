@@ -51,7 +51,7 @@ bind_raw <- function(raw_data = NULL, nrep = NULL) {
 #' @keywords phylogenetics
 #' @export match_raw
 match_raw <- function(x = NULL, y = NULL){
- purrr:::modify2(x, y, ~if(is_list(.x)) fun(.x, .y)
+ purrr::modify2(x, y, ~if(is_list(.x)) fun(.x, .y)
                   else purrr::set_names(.x, paste0('t', abs(.y))))
 }
 

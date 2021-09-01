@@ -4,7 +4,14 @@
 \alias{edd_sim_rep}
 \title{Running a replicated edd simulation}
 \usage{
-edd_sim_rep(nrep, pars, age, model, metric, offset)
+edd_sim_rep(
+  nrep = 5,
+  pars = c(0.5, 0.1, -0.001, -0.001, 0, 1, 0, 1),
+  age = 5,
+  model = "dsde2",
+  metric = "ed",
+  offset = "none"
+)
 }
 \arguments{
 \item{nrep}{the number of replication}

@@ -244,7 +244,7 @@ edd_plot_nltt <- function(raw_data = NULL, plot_options = NA, ...){
     nltt <- dplyr::bind_rows(nltt)
   }
 
-  if ( == TRUE) {
+  if (plot_options == TRUE) {
     plot_nltt <-
       ggplot2::ggplot(nltt, ggplot2::aes(time, num, group = as.factor(nrep), color = as.factor(nrep))) +
       ggplot2::geom_line() + ggplot2::coord_cartesian(xlim = c(0, age)) +
