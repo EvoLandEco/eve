@@ -186,12 +186,59 @@ edd_sim_batch <- function(nrep = 1000,
 
 
 
-edd_combo_maker <-
-  function(...) {
-    combo <- expand.grid(...)
-    combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
-    combo <- combo[, -(1:6)]
-    combo <- split(combo, seq(nrow(combo)))
+edd_combo_maker <- function(...) {
+  pars <- list(...)
 
-    return(combo)
+  if (length(names(pars)) != 8 & length(names(pars)) != 10) {
+    stop("incorrect number of parameters")
   }
+
+  if (length(pars$model) > 1) {
+    stop("only one model allowed for one batch simulation run")
+  }
+
+  if (pars$model == "dsce2") {
+    if (length(names(pars)) == 8) {
+      pars_list <- c("la",
+                     "mu",
+                     "beta_n",
+                     "beta_phi",
+                     "age",
+                     "model",
+                     "metric",
+                     "offset")
+      pars_identical <- identical(names(pars), pars_list)
+      stopifnot("incorrect parameters or incorrect order" = pars_identical)
+    } else {
+      stop("incorrect parameters for dsce2 model")
+    }
+  } else if (pars$model == "dsde2") {
+    if (length(names(pars)) == 10) {
+      pars_list <- c(
+        "la",
+        "mu",
+        "beta_n",
+        "beta_phi",
+        "gamma_n",
+        "gamma_phi",
+        "age",
+        "model",
+        "metric",
+        "offset"
+      )
+      pars_identical <- identical(names(pars), pars_list)
+      stopifnot("incorrect parameters or incorrect order" = pars_identical)
+    } else {
+      stop("incorrect parameters for dsde2 model")
+    }
+  } else{
+    stop("incorrect model")
+  }
+
+  combo <- expand.grid(...)
+  combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
+  combo <- combo[, -(1:6)]
+  combo <- split(combo, seq(nrow(combo)))
+
+  return(combo)
+}
