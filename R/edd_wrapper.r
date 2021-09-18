@@ -131,39 +131,67 @@ edd_sim_rep <-
 #' @keywords phylogenetics
 #' @export edd_wrapper
 edd_wrapper <-
-  function(input = NULL,
+  function(nrep = 10,
+           combo = NULL,
+           make_plot = FALSE,
+           make_stat = FALSE,
            plot_opt = NULL,
            stat_opt = NULL,
            ...) {
+    combo <- as.data.frame(combo, col.names = NULL)
+
     raw_data <-
-      edd_sim_rep(input$nrep,
-                  input$pars,
-                  input$age,
-                  input$model,
-                  input$metric,
-                  input$offset)
+      edd_sim_rep(nrep,
+                  unlist(combo$pars),
+                  combo$age,
+                  combo$model,
+                  combo$metric,
+                  combo$offset)
 
-    plot_pack <- edd_plot(raw_data, stat_opt, ...)
-    stat_pack <- edd_stat(raw_data, plot_opt, ...)
+    if (make_plot | make_stat) {
+      out <- list(raw_data)
 
-    return(raw_data, plot_pack, stat_pack)
+      if (make_plot) {
+        plot_pack <- edd_plot(raw_data, plot_opt, ...)
+        out <- c(out, list(plot_pack))
+      }
+
+      if (make_stat) {
+        stat_pack <- edd_stat(raw_data, stat_opt, ...)
+        out <- c(out, list(stat_pack))
+      }
+    } else{
+      out <- raw_data
+    }
+
+    return(out)
   }
 
 
 
-edd_sim_combo <- function(combo, plot_opt, stat_opt) {
-  purrr::map(combo, edd_wrapper, plot_opt, stat_opt)
+edd_sim_batch <- function(nrep = 1000,
+                          combo = NULL,
+                          make_plot = FALSE,
+                          make_stat = FALSE,
+                          plot_opt = NULL,
+                          stat_opt = NULL) {
+  purrr::map(.x = combo,
+             .f = edd_wrapper,
+             nrep = nrep,
+             make_plot = make_plot,
+             make_stat = make_stat,
+             plot_opt = plot_opt,
+             stat_opt = stat_opt)
 }
 
 
 
 edd_combo_maker <-
-  function(pars_combo,
-           nrep_combo,
-           age_combo,
-           model_combo,
-           metric_combo,
-           offset_combo) {
+  function(...) {
+    combo <- expand.grid(...)
+    combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
+    combo <- combo[, -(1:6)]
+    combo <- split(combo, seq(nrow(combo)))
 
     return(combo)
   }
