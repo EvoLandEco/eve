@@ -4,12 +4,20 @@
 \alias{edd_wrapper}
 \title{Conducting a edd simulation and plotting the results}
 \usage{
-edd_wrapper(input = NULL, plot_opt = NULL, stat_opt = NULL, ...)
+edd_wrapper(
+  nrep = 10,
+  combo = NULL,
+  make_plot = FALSE,
+  make_stat = FALSE,
+  plot_opt = NULL,
+  stat_opt = NULL,
+  ...
+)
 }
 \arguments{
-\item{...}{other parameters passed to plot or stat functions}
-
 \item{nrep}{the number of replication}
+
+\item{...}{other parameters passed to plot or stat functions}
 
 \item{pars}{parameters used in a edd simulation}
 

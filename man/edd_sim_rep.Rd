@@ -6,7 +6,7 @@
 \usage{
 edd_sim_rep(
   nrep = 5,
-  pars = c(0.5, 0.1, -0.001, -0.001, 0, 1, 0, 1),
+  pars = c(0.5, 0.1, -0.001, -0.001, 0.001, 0.001),
   age = 5,
   model = "dsde2",
   metric = "ed",
