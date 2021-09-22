@@ -168,7 +168,20 @@ edd_wrapper <-
   }
 
 
-
+#' @name edd_sim_batch
+#' @title Conducting a edd simulation and plotting the results
+#' @description Function to automatically run a replicated edd simulation and then
+#' produce several plots from the results
+#' @param nrep the number of replication
+#' @param pars parameters used in a edd simulation
+#' @param age the total running time of a edd simulation
+#' @param model the type of model used in a edd simulation
+#' @param metric the metric used in a edd simulation
+#' @param offset the offset method for Phi used in a edd simulation
+#' @param ... other parameters passed to plot or stat functions
+#' @author Tianjian Qin
+#' @keywords phylogenetics
+#' @export edd_sim_batch
 edd_sim_batch <- function(nrep = 1000,
                           combo = NULL,
                           make_plot = FALSE,
@@ -185,7 +198,20 @@ edd_sim_batch <- function(nrep = 1000,
 }
 
 
-
+#' @name edd_combo_maker
+#' @title Conducting a edd simulation and plotting the results
+#' @description Function to automatically run a replicated edd simulation and then
+#' produce several plots from the results
+#' @param nrep the number of replication
+#' @param pars parameters used in a edd simulation
+#' @param age the total running time of a edd simulation
+#' @param model the type of model used in a edd simulation
+#' @param metric the metric used in a edd simulation
+#' @param offset the offset method for Phi used in a edd simulation
+#' @param ... other parameters passed to plot or stat functions
+#' @author Tianjian Qin
+#' @keywords phylogenetics
+#' @export edd_combo_maker
 edd_combo_maker <- function(...) {
   pars <- list(...)
 
