@@ -187,14 +187,41 @@ edd_sim_batch <- function(nrep = 1000,
                           make_plot = FALSE,
                           make_stat = FALSE,
                           plot_opt = NULL,
-                          stat_opt = NULL) {
-  purrr::map(.x = combo,
-             .f = edd_wrapper,
-             nrep = nrep,
-             make_plot = make_plot,
-             make_stat = make_stat,
-             plot_opt = plot_opt,
-             stat_opt = stat_opt)
+                          stat_opt = NULL,
+                          strategy = future::sequential,
+                          workers = NULL) {
+  if (is.null(workers) | identical(strategy, future::sequential)) {
+    print("running sequential simulation")
+    purrr::map(
+      .x = combo,
+      .f = edd_wrapper,
+      nrep = nrep,
+      make_plot = make_plot,
+      make_stat = make_stat,
+      plot_opt = plot_opt,
+      stat_opt = stat_opt
+    )
+  } else if (!(workers %% 1 == 0)) {
+    stop("number of workers should be an integer")
+  } else {
+    if (identical(strategy, future::multisession)) {
+      print("running multicore simulation")
+      future::plan(strategy, workers = workers)
+      future_opts <- furrr::furrr_options(seed = TRUE)
+      furrr::future_map(
+        .x = combo,
+        .f = edd_wrapper,
+        .options = future_opts,
+        nrep = nrep,
+        make_plot = make_plot,
+        make_stat = make_stat,
+        plot_opt = plot_opt,
+        stat_opt = stat_opt
+      )
+    } else {
+      stop("incorrect simulation strategy")
+    }
+  }
 }
 
 
