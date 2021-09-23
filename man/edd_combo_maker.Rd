@@ -2,28 +2,16 @@
 % Please edit documentation in R/edd_wrapper.r
 \name{edd_combo_maker}
 \alias{edd_combo_maker}
-\title{Conducting a edd simulation and plotting the results}
+\title{Making a parameter space for edd simulation}
 \usage{
 edd_combo_maker(...)
 }
 \arguments{
-\item{...}{other parameters passed to plot or stat functions}
-
-\item{nrep}{the number of replication}
-
-\item{pars}{parameters used in a edd simulation}
-
-\item{age}{the total running time of a edd simulation}
-
-\item{model}{the type of model used in a edd simulation}
-
-\item{metric}{the metric used in a edd simulation}
-
-\item{offset}{the offset method for Phi used in a edd simulation}
+\item{...}{parameters that form a parameter space}
 }
 \description{
-Function to automatically run a replicated edd simulation and then
-produce several plots from the results
+Function to conveniently make a parameter space for edd
+simulation
 }
 \author{
 Tianjian Qin
