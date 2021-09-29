@@ -1,7 +1,5 @@
 devtools::install_github("rsetienne/DDD@tianjian_Rampal")
 devtools::install_github("EvoLandEco/eve")
-devtools::install_github("DavisVaughan/furrr")
-install.packages("microbenchmark")
 
 combo <- eve::edd_combo_maker(
   la = c(0.5, 0.8),
