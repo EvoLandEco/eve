@@ -16,22 +16,38 @@ combo <- eve::edd_combo_maker(
 
 
 bm <- microbenchmark::microbenchmark(
-  eve::edd_go(combo = combo, nrep = 3, name = "test"),
+  eve::edd_go(combo = combo, nrep = 3),
   eve::edd_go(
     combo = combo,
     nrep = 3,
-    name = "test",
+    strategy = future::multisession,
+    workers = 2
+  ),
+  eve::edd_go(
+    combo = combo,
+    nrep = 3,
+    strategy = future::multisession,
+    workers = 4
+  ),
+  eve::edd_go(
+    combo = combo,
+    nrep = 3,
+    strategy = future::multisession,
+    workers = 8
+  ),
+  eve::edd_go(
+    combo = combo,
+    nrep = 3,
     strategy = future::multisession,
     workers = 16
   ),
   eve::edd_go(
     combo = combo,
     nrep = 3,
-    name = "test",
     strategy = future::multisession,
     workers = 32
   ),
-  times = 5
+  times = 10
 )
 
-write.csv2(summary(bm), "result/bm.csv")
+write.csv2(summary(bm), "result/bm_more.csv")

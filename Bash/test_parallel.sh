@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=0:29:00
+#SBATCH --time=8:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
 #SBATCH --job-name=test_parallel
