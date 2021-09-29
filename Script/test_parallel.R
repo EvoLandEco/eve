@@ -34,4 +34,4 @@ bm <- microbenchmark::microbenchmark(
   times = 5
 )
 
-write.csv2(summary(bm), "benchmark/bm.csv")
+write.csv2(summary(bm), "result/bm.csv")
