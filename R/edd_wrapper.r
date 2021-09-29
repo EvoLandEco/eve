@@ -1,10 +1,18 @@
+#' extract_edd_result
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
 extract_edd_result <- function(result, nrep, which, nlist = 8) {
   out <-
     return(result[seq(which, nlist * nrep, by = nlist)])
 }
 
-
-
+#' bind_raw
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
 bind_raw <- function(raw_data = NULL, nrep = NULL) {
   if (nrep == 1) stop("Simulation is not replicated")
   binded_data <- lapply(raw_data, as.data.frame)
@@ -16,15 +24,27 @@ bind_raw <- function(raw_data = NULL, nrep = NULL) {
   return(binded_data)
 }
 
-
-
+#' match_raw
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
+#' @author Tianjian Qin
+#' @return
+#' @export
 match_raw <- function(x = NULL, y = NULL){
  purrr::modify2(x, y, ~if(is_list(.x)) fun(.x, .y)
                   else purrr::set_names(.x, paste0('t', abs(.y))))
 }
 
-
-
+#' edd_sim_rep
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
+#' @author Tianjian Qin
+#' @return
+#' @export
 edd_sim_rep <-
   function(combo = NULL, nrep = 5, ...) {
     if (nrep < 2)
@@ -68,8 +88,11 @@ edd_sim_rep <-
     return(out)
   }
 
-
-
+#' edd_sim_batch
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
 edd_sim_batch <- function(nrep = 1000,
                           combo = NULL,
                           strategy = future::sequential,

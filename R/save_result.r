@@ -1,3 +1,8 @@
+#' save_result
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
 save_result <- function(out,
                         name) {
   file_name <- paste0(name, ".RData")
@@ -24,6 +29,11 @@ save_result <- function(out,
 
 
 
+#' check_folder
+#'
+#' @author Tianjian Qin
+#' @return
+#' @export
 check_folder <- function(name) {
   out_folder <- file.path(getwd(),
                           "result",
