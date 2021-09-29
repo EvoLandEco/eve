@@ -42,9 +42,6 @@ match_raw <- function(x = NULL, y = NULL){
 #' @author Tianjian Qin
 #' @return
 #' @export
-#' @author Tianjian Qin
-#' @return
-#' @export
 edd_sim_rep <-
   function(combo = NULL, nrep = 5, ...) {
     if (nrep < 2)
@@ -61,19 +58,8 @@ edd_sim_rep <-
                    combo$offset)
     })
 
-    # store all initial parameters
-    all_pars <- list(
-      nrep = nrep,
-      pars = pars,
-      age = age,
-      model = model,
-      metric = metric,
-      offset = offset
-    )
-
-    # combine data
     out <- list(
-      all_pars = all_pars,
+      all_pars = combo,
       tes = raw_data[1,],
       tas = raw_data[2,],
       l_tables = raw_data[3,],
