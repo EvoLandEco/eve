@@ -7,6 +7,7 @@
 edd_go(
   combo = NULL,
   nrep = 1000,
+  name = NULL,
   strategy = future::sequential,
   workers = NULL
 )
@@ -15,6 +16,8 @@ edd_go(
 \item{combo}{parameter space}
 
 \item{nrep}{number of replication}
+
+\item{name}{name of the simulation, a folder of the same name will be created}
 
 \item{strategy}{determine if the simulation is sequential or multi-sessioned}
 
