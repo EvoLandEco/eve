@@ -43,7 +43,7 @@ match_raw <- function(x = NULL, y = NULL){
 #' @return
 #' @export
 edd_sim_rep <-
-  function(combo = NULL, nrep = 5, ...) {
+  function(combo = NULL, nrep = 5) {
     if (nrep < 2)
       stop("Must have more than 1 replicates")
 
@@ -118,7 +118,7 @@ edd_sim_batch <- function(nrep = 1000,
         .x = combo,
         .f = function(x, ...) {
           progress_sim()
-          eve::edd_sim_rep(...)
+          eve::edd_sim_rep(combo = x, nrep = nrep)
         },
         .options = future_opts,
         nrep = nrep
