@@ -16,16 +16,18 @@ combo <- eve::edd_combo_maker(
 
 
 bm <- microbenchmark::microbenchmark(
-  eve::edd_go(combo = combo, nrep = 3),
+  eve::edd_go(combo = combo, nrep = 3, name = "test"),
   eve::edd_go(
     combo = combo,
     nrep = 3,
+    name = "test",
     strategy = future::multisession,
     workers = 16
   ),
   eve::edd_go(
     combo = combo,
     nrep = 3,
+    name = "test",
     strategy = future::multisession,
     workers = 32
   ),
