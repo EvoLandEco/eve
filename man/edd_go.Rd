@@ -5,16 +5,16 @@
 \title{Starting a edd simulation}
 \usage{
 edd_go(
-  nrep = 1000,
   combo = NULL,
+  nrep = 1000,
   strategy = future::sequential,
   workers = NULL
 )
 }
 \arguments{
-\item{nrep}{number of replication}
-
 \item{combo}{parameter space}
+
+\item{nrep}{number of replication}
 
 \item{strategy}{determine if the simulation is sequential or multi-sessioned}
 
