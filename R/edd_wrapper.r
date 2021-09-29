@@ -128,6 +128,7 @@ edd_sim_batch <- function(nrep = 1000,
 #' parameter space
 #' @param nrep number of replication
 #' @param combo parameter space
+#' @param name name of the simulation, a folder of the same name will be created
 #' @param strategy determine if the simulation is sequential or multi-sessioned
 #' @param workers determine how many sessions are participated in the simulation
 #' @author Tianjian Qin
@@ -135,8 +136,13 @@ edd_sim_batch <- function(nrep = 1000,
 #' @export edd_go
 edd_go <- function(combo = NULL,
                    nrep = 1000,
+                   name = NULL,
                    strategy = future::sequential,
                    workers = NULL) {
+  if (!is.null(name)) {
+    eve::check_folder(name)
+  }
+
   progressr::handlers(list(
     progressr::handler_progress(
       format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
@@ -144,8 +150,9 @@ edd_go <- function(combo = NULL,
       complete = "+"
     )
   ))
+
   out <- progressr::with_progress({
-    edd_sim_batch(
+    eve::edd_sim_batch(
       combo = combo,
       nrep = nrep,
       strategy = strategy,
@@ -153,7 +160,11 @@ edd_go <- function(combo = NULL,
     )
   })
 
-  return(out)
+  if (!is.null(name)) {
+    eve::save_result(out, name)
+  } else {
+    return(out)
+  }
 }
 
 
