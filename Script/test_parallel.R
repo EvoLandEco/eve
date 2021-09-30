@@ -1,3 +1,5 @@
+test_name <- commandArgs(TRUE)
+
 devtools::install_github("rsetienne/DDD@tianjian_Rampal")
 devtools::install_github("EvoLandEco/eve")
 
@@ -50,4 +52,4 @@ bm <- microbenchmark::microbenchmark(
   times = 10
 )
 
-write.csv2(summary(bm), "result/bm_more.csv")
+write.csv2(summary(bm), paste0("result/bm_", as.character(test_name), ".csv"))
