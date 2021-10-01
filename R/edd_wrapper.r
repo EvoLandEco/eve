@@ -137,7 +137,10 @@ edd_sim_batch <- function(nrep = 1000,
 #' parameter space
 #' @param nrep number of replication
 #' @param combo parameter space
-#' @param name name of the simulation, a folder of the same name will be created
+#' @param name name of the folder to save results, if left blank, a folder will
+#' be created according to current time and date. Set it to "no_save" to disable
+#' result saving function, an object containing all the results will be returned
+#' instead.
 #' @param strategy determine if the simulation is sequential or multi-sessioned
 #' @param workers determine how many sessions are participated in the simulation
 #' @author Tianjian Qin
@@ -149,7 +152,11 @@ edd_go <- function(combo = NULL,
                    strategy = future::sequential,
                    workers = NULL) {
   if (!is.null(name)) {
-    eve::check_folder(name)
+    if (name != "no_save") {
+      eve::check_folder(name)
+    }
+  } else {
+    eve::check_folder(paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S")))
   }
 
   progressr::handlers(list(
@@ -170,9 +177,13 @@ edd_go <- function(combo = NULL,
   })
 
   if (!is.null(name)) {
-    eve::save_result(out, name)
+    if (name != "no_save") {
+      eve::save_result(out, name)
+    } else {
+      return(out)
+    }
   } else {
-    return(out)
+    eve::save_result(out, paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S")))
   }
 }
 
@@ -186,7 +197,7 @@ edd_go <- function(combo = NULL,
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_combo_maker
-edd_combo_maker <- function(...) {
+edd_combo_maker <- function(save_file = FALSE, ...) {
   pars <- list(...)
 
   if (length(names(pars)) != 8 & length(names(pars)) != 10) {
@@ -236,9 +247,13 @@ edd_combo_maker <- function(...) {
   }
 
   combo <- expand.grid(...)
-  combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
-  combo <- combo[, -(1:6)]
-  combo <- split(combo, seq(nrow(combo)))
 
-  return(combo)
+  if (save_file == FALSE){
+    combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
+    combo <- combo[, -(1:6)]
+    combo <- split(combo, seq(nrow(combo)))
+    return(combo)
+  } else {
+    write_csv2(combo, paste0("result/combo_", format(Sys.time(), "%Y%m%d_%H%M%S.csv")))
+  }
 }
