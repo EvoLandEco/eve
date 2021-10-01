@@ -1,8 +1,5 @@
 test_name <- commandArgs(TRUE)
 
-devtools::install_github("rsetienne/DDD@tianjian_Rampal")
-devtools::install_github("EvoLandEco/eve")
-
 combo <- eve::edd_combo_maker(
   la = c(0.5, 0.8),
   mu = c(0, 0.1, 0.2),
