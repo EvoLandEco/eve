@@ -10,7 +10,7 @@ combo <- eve::edd_combo_maker(
   beta_phi = c(-0.001, 0, 0.001),
   gamma_n = c(-0.001, 0.001),
   gamma_phi = c(-0.001, 0, 0.001),
-  age = c(5),
+  age = c(10),
   model = "dsde2",
   metric = c("ed"),
   offset = "none"
