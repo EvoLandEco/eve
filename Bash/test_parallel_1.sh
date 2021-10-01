@@ -5,7 +5,7 @@
 #SBATCH --job-name=test_parallel
 #SBATCH --output=logs/test_parallel-%j.log
 #SBATCH --mem=10GB
-#SBATCH --partition=regular
+#SBATCH --partition=gelifes
 
 ml R
 
