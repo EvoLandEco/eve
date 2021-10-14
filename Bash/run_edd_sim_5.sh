@@ -2,9 +2,9 @@
 #SBATCH --time=9-23:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
-#SBATCH --job-name=test_parallel
-#SBATCH --output=logs/test_parallel-%j.log
-#SBATCH --mem=10GB
+#SBATCH --job-name=edd_sim_5mya
+#SBATCH --output=logs/edd_sim_5mya-%j.log
+#SBATCH --mem=32GB
 #SBATCH --partition=regular
 
 ml R
