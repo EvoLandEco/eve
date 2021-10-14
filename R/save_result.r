@@ -13,7 +13,7 @@ save_result <- function(out,
 
   file_path <- file.path(out_folder, file_name)
 
-  message(paste0("Saving result to ",
+  message(paste0("\nSaving result to ",
                  file_path,
                  "\n"))
 

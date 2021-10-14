@@ -156,7 +156,8 @@ edd_go <- function(combo = NULL,
       eve::check_folder(name)
     }
   } else {
-    eve::check_folder(paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S")))
+    folder_name <- paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S"))
+    eve::check_folder(folder_name)
   }
 
   progressr::handlers(list(
@@ -183,7 +184,7 @@ edd_go <- function(combo = NULL,
       return(out)
     }
   } else {
-    eve::save_result(out, paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S")))
+    eve::save_result(out, folder_name)
   }
 }
 
