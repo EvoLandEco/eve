@@ -255,6 +255,6 @@ edd_combo_maker <- function(save_file = FALSE, ...) {
     combo <- split(combo, seq(nrow(combo)))
     return(combo)
   } else {
-    write_csv2(combo, paste0("result/combo_", format(Sys.time(), "%Y%m%d_%H%M%S.csv")))
+    readr::write_csv2(combo, paste0("result/combo_", format(Sys.time(), "%Y%m%d_%H%M%S.csv")))
   }
 }
