@@ -4,18 +4,14 @@
 \alias{edd_sim_rep}
 \title{edd_sim_rep}
 \usage{
-edd_sim_rep(combo = NULL, nrep = 5, ...)
+edd_sim_rep(combo = NULL, nrep = 5)
 }
 \value{
-
-
 
 }
 \description{
 edd_sim_rep
 }
 \author{
-Tianjian Qin
-
 Tianjian Qin
 }

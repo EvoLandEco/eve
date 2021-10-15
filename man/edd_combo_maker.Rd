@@ -4,7 +4,7 @@
 \alias{edd_combo_maker}
 \title{Making a parameter space for edd simulation}
 \usage{
-edd_combo_maker(...)
+edd_combo_maker(save_file = FALSE, ...)
 }
 \arguments{
 \item{...}{parameters that form a parameter space}

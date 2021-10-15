@@ -17,7 +17,10 @@ edd_go(
 
 \item{nrep}{number of replication}
 
-\item{name}{name of the simulation, a folder of the same name will be created}
+\item{name}{name of the folder to save results, if left blank, a folder will
+be created according to current time and date. Set it to "no_save" to disable
+result saving function, an object containing all the results will be returned
+instead.}
 
 \item{strategy}{determine if the simulation is sequential or multi-sessioned}
 
