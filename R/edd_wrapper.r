@@ -91,8 +91,8 @@ edd_sim_batch <- function(nrep = 1000,
 
   if (is.null(workers) | identical(strategy, future::sequential)) {
     message("Running sequential simulation")
-    message(paste0("Number of parameter sets is: ", length(combo)))
-    message(paste0("Number of replication for each parameter set is: ", nrep))
+    message(paste0("Size of parameter space is: ", length(combo)))
+    message(paste0("Number of replications for each parameter set is: ", nrep))
     purrr::map(
       .x = combo,
       .f = function(x, ...) {
@@ -110,8 +110,8 @@ edd_sim_batch <- function(nrep = 1000,
         workers,
         " workers"
       ))
-      message(paste0("Number of parameter sets is: ", length(combo)))
-      message(paste0("Number of replication for each parameter set is: ", nrep))
+      message(paste0("Size of parameter space is: ", length(combo)))
+      message(paste0("Number of replications for each parameter set is: ", nrep))
       future::plan(strategy, workers = workers)
       future_opts <- furrr::furrr_options(seed = TRUE)
       furrr::future_map(
