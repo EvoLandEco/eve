@@ -237,7 +237,7 @@ edd_plot_nltt <- function(raw_data = NULL,
                           drop_extinct = TRUE,
                           save_plot = FALSE,
                           ...) {
-  if (drop_extinct = TRUE){
+  if (drop_extinct == TRUE) {
     df <- nLTT::get_nltt_values(raw_data$tes, dt = 0.01)
   } else {
     df <- nLTT::get_nltt_values(raw_data$tas, dt = 0.01)
@@ -256,18 +256,42 @@ edd_plot_nltt <- function(raw_data = NULL,
 
   anno <- tibble(
     label = c(
-      paste0("<span style='color:#505050'>",
-             "&lambda;<sub>0</sub> = ", lambda, "<br>",
-             "&mu;<sub>0</sub> = ", mu, "<br>",
-             "&beta;<sub>*N*</sub> = ", beta_n, "<br>",
-             "&beta;<sub>*&Phi;*</sub> = ", beta_phi, "<br>",
-             "&gamma;<sub>*N*</sub> = ", gamma_n, "<br>",
-             "&gamma;<sub>*&Phi;*</sub> = ", gamma_n, "</span>"),
-      paste0("<span style='color:#505050'>",
-             "Age = ", age, "<br>",
-             "Model = ", model, "<br>",
-             "Metric = ", metric, "<br>",
-             "Offset = ", offset, "</span>")
+      paste0(
+        "<span style='color:#505050'>",
+        "&lambda;<sub>0</sub> = ",
+        lambda,
+        "<br>",
+        "&mu;<sub>0</sub> = ",
+        mu,
+        "<br>",
+        "&beta;<sub>*N*</sub> = ",
+        beta_n,
+        "<br>",
+        "&beta;<sub>*&Phi;*</sub> = ",
+        beta_phi,
+        "<br>",
+        "&gamma;<sub>*N*</sub> = ",
+        gamma_n,
+        "<br>",
+        "&gamma;<sub>*&Phi;*</sub> = ",
+        gamma_n,
+        "</span>"
+      ),
+      paste0(
+        "<span style='color:#505050'>",
+        "Age = ",
+        age,
+        "<br>",
+        "Model = ",
+        model,
+        "<br>",
+        "Metric = ",
+        metric,
+        "<br>",
+        "Offset = ",
+        offset,
+        "</span>"
+      )
     ),
     x = c(0, 0),
     y = c(0.33, .74),
@@ -276,21 +300,29 @@ edd_plot_nltt <- function(raw_data = NULL,
     angle = c(0, 0)
   )
 
-  plot_nltt <- ggplot() + geom_point(data = df, aes(t, nltt, color = id), size = I(0.1)) +
-    stat_summary(data = df, aes(t, nltt),
+  plot_nltt <-
+    ggplot() + geom_point(data = df,
+                          aes(t, nltt, color = id),
+                          size = I(0.1)) +
+    stat_summary(data = df,
+                 aes(t, nltt),
                  fun.data = "mean_cl_boot",
                  geom = "smooth") +
     ggtitle("Average nLTT plot of phylogenies") +
     labs(x = "Normalized time", y = "Normalized number of lineages") +
     #scale_colour_ggthemr_d() +
-    geom_richtext(data = anno, aes(
-      x,
-      y,
-      label = label,
-      angle = angle,
-      hjust = hjust,
-      vjust = vjust
-    ), fill = "#E8CB9C") +
+    geom_richtext(
+      data = anno,
+      aes(
+        x,
+        y,
+        label = label,
+        angle = angle,
+        hjust = hjust,
+        vjust = vjust
+      ),
+      fill = "#E8CB9C"
+    ) +
     viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
     xlim(0, 1) +
     ylim(0, 1) +
@@ -298,19 +330,63 @@ edd_plot_nltt <- function(raw_data = NULL,
           aspect.ratio = 3 / 4)
 
   if (save_plot == TRUE) {
-    ggsave(paste0("result/plot/nltt/",
-                  lambda,"_",
-                  mu,"_",
-                  beta_n,"_",
-                  beta_phi,"_",
-                  gamma_n,"_",
-                  gamma_phi,"_",
-                  age,"_",
-                  model,"_",
-                  metric,"_",
-                  offset,
-                  ".png"), device = "png", dpi = "retina")
-
+    if (drop_extinct == TRUE) {
+      ggsave(
+        paste0(
+          "result/plot/nltt/tes",
+          lambda,
+          "_",
+          mu,
+          "_",
+          beta_n,
+          "_",
+          beta_phi,
+          "_",
+          gamma_n,
+          "_",
+          gamma_phi,
+          "_",
+          age,
+          "_",
+          model,
+          "_",
+          metric,
+          "_",
+          offset,
+          ".png"
+        ),
+        device = "png",
+        dpi = "retina"
+      )
+    } else {
+      ggsave(
+        paste0(
+          "result/plot/nltt/tas",
+          lambda,
+          "_",
+          mu,
+          "_",
+          beta_n,
+          "_",
+          beta_phi,
+          "_",
+          gamma_n,
+          "_",
+          gamma_phi,
+          "_",
+          age,
+          "_",
+          model,
+          "_",
+          metric,
+          "_",
+          offset,
+          ".png"
+        ),
+        device = "png",
+        dpi = "retina"
+      )
+    }
   }
 
   return(plot_nltt)
