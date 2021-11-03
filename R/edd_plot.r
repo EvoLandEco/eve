@@ -234,10 +234,14 @@ edd_plot <- function(raw_data = NULL, save_plot = FALSE){
 #' @keywords phylogenetics
 #' @export edd_plot_nltt
 edd_plot_nltt <- function(raw_data = NULL,
+                          drop_extinct = TRUE,
                           save_plot = FALSE,
                           ...) {
-  t <- nLTT::get_average_nltt_matrix(raw_data$tes, dt = 0.20)
-  df <- nLTT::get_nltt_values(raw_data$tes, dt = 0.01)
+  if (drop_extinct = TRUE){
+    df <- nLTT::get_nltt_values(raw_data$tes, dt = 0.01)
+  } else {
+    df <- nLTT::get_nltt_values(raw_data$tas, dt = 0.01)
+  }
 
   lambda <- round(raw_data$all_pars$pars[[1]][1], digits = 3)
   mu <- round(raw_data$all_pars$pars[[1]][2], digits = 3)
@@ -266,7 +270,7 @@ edd_plot_nltt <- function(raw_data = NULL,
              "Offset = ", offset, "</span>")
     ),
     x = c(0, 0),
-    y = c(.33, .75),
+    y = c(0.33, .74),
     hjust = c(0, 0),
     vjust = c(0, 0),
     angle = c(0, 0)
@@ -305,7 +309,7 @@ edd_plot_nltt <- function(raw_data = NULL,
                   model,"_",
                   metric,"_",
                   offset,
-                  ".png"),device = "png", dpi = "retina")
+                  ".png"), device = "png", dpi = "retina")
 
   }
 
@@ -326,8 +330,39 @@ edd_plot_nltt <- function(raw_data = NULL,
 #' @export edd_plot_ltt
 edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
   nrep <- length(raw_data$tes)
-  age <- raw_data$all_pars$age
   ltt <- raw_data$nltt
+  lambda <- round(raw_data$all_pars$pars[[1]][1], digits = 3)
+  mu <- round(raw_data$all_pars$pars[[1]][2], digits = 3)
+  beta_n <- round(raw_data$all_pars$pars[[1]][3], digits = 3)
+  beta_phi <- round(raw_data$all_pars$pars[[1]][4], digits = 3)
+  gamma_n <- round(raw_data$all_pars$pars[[1]][5], digits = 3)
+  gamma_phi <- round(raw_data$all_pars$pars[[1]][6], digits = 3)
+  age <- raw_data$all_pars$age
+  model <- levels(raw_data$all_pars$model)
+  metric <- levels(raw_data$all_pars$metric)
+  offset <- levels(raw_data$all_pars$offset)
+
+  anno <- tibble(
+    label = c(
+      paste0("<span style='color:#505050'>",
+             "&lambda;<sub>0</sub> = ", lambda, "<br>",
+             "&mu;<sub>0</sub> = ", mu, "<br>",
+             "&beta;<sub>*N*</sub> = ", beta_n, "<br>",
+             "&beta;<sub>*&Phi;*</sub> = ", beta_phi, "<br>",
+             "&gamma;<sub>*N*</sub> = ", gamma_n, "<br>",
+             "&gamma;<sub>*&Phi;*</sub> = ", gamma_n, "</span>"),
+      paste0("<span style='color:#505050'>",
+             "Age = ", age, "<br>",
+             "Model = ", model, "<br>",
+             "Metric = ", metric, "<br>",
+             "Offset = ", offset, "</span>")
+    ),
+    x = c(0, 0),
+    y = c(.33, .75),
+    hjust = c(0, 0),
+    vjust = c(0, 0),
+    angle = c(0, 0)
+  )
 
   if (nrep != 1){
     ltt <- eve::bind_raw(ltt, nrep)
@@ -344,6 +379,14 @@ edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
       ggtitle("LTT plot of phylogenies") +
       ggplot2::theme(legend.position = "none",
                      aspect.ratio = 3 / 4) +
+      # geom_richtext(data = anno, aes(
+      #   x,
+      #   y,
+      #   label = label,
+      #   angle = angle,
+      #   hjust = hjust,
+      #   vjust = vjust
+      # ), fill = "#E8CB9C") +
       viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
       ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
   } else{
@@ -357,6 +400,19 @@ edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
       viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
       ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
   }
+
+  ggsave(paste0("result/plot/ltt/",
+                lambda,"_",
+                mu,"_",
+                beta_n,"_",
+                beta_phi,"_",
+                gamma_n,"_",
+                gamma_phi,"_",
+                age,"_",
+                model,"_",
+                metric,"_",
+                offset,
+                ".png"), device = "png", dpi = "retina")
 
   return(plot_ltt)
 }
