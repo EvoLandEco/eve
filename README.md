@@ -15,8 +15,8 @@ coverage](https://codecov.io/gh/DavisVaughan/furrr/branch/master/graph/badge.svg
 
 ## Overview
 
-The package eve is an evolution emulator which provides pipelines to do
-phylogenetic-diversity-dependent simulation, analyse outputs and
+The package `eve` is an evolution emulator which provides pipelines to
+do phylogenetic-diversity-dependent simulation, analyse outputs and
 generate publication-ready plots and tables conveniently. It serves as a
 companion package to [DDD](https://github.com/rsetienne/DDD) and
 [DAISIE](https://github.com/rsetienne/DAISIE) now, and maybe expanded to
@@ -35,7 +35,9 @@ remotes::install_github("EvoLandEco/eve")
 
 ## Example
 
-eve now only supports EDD simulation from the DDD package.
+`eve` now only supports EDD simulation from the `DDD` package. The first
+thing to do is to generate a combo consists of all the parameter sets we
+need:
 
 ``` r
 library(eve)
@@ -55,7 +57,7 @@ combo <- edd_combo_maker(
 )
 
 # have a look at the combo
-head(combo)
+combo[1:3]
 #> $`1`
 #>   age model metric offset                                         pars
 #> 1   5 dsde2     ed   none 0.500, 0.100, -0.001, -0.001, -0.001, -0.001
@@ -67,19 +69,12 @@ head(combo)
 #> $`3`
 #>   age model metric offset                                         pars
 #> 3   5 dsde2     ed   none 0.500, 0.200, -0.001, -0.001, -0.001, -0.001
-#> 
-#> $`4`
-#>   age model metric offset                                         pars
-#> 4   5 dsde2     ed   none 0.800, 0.200, -0.001, -0.001, -0.001, -0.001
-#> 
-#> $`5`
-#>   age model metric offset                                        pars
-#> 5   5 dsde2     ed   none 0.500, 0.100, 0.000, -0.001, -0.001, -0.001
-#> 
-#> $`6`
-#>   age model metric offset                                        pars
-#> 6   5 dsde2     ed   none 0.800, 0.100, 0.000, -0.001, -0.001, -0.001
+```
 
+A large combo may take too long to finish, as an example a minimal combo
+will do:
+
+``` r
 # make a minimal combo
 combo <- edd_combo_maker(
   la = c(0.5, 0.8),
@@ -93,15 +88,23 @@ combo <- edd_combo_maker(
   metric = "ed",
   offset = "none"
 )
+```
 
-# run 8-session parallel EDD simulation given the combo, 3 replications for each parameter set
-edd <- edd_go(
-    combo = combo,
-    nrep = 3,
-    name = "example",
-    strategy = future::multisession,
-    workers = 8
-  )
+`eve` supports parallel simulation, the following example shows how to
+do a 8-session parallel EDD simulation given the combo, with 3
+replications for each parameter set . The result will be saved to
+`/result/example`. If `name` is not specified, a folder will be created
+according to time and date at the moment.
+
+``` r
+# result will be save as .RData file
+edd_go(
+  combo = combo,
+  nrep = 3,
+  name = "example",
+  strategy = future::multisession,
+  workers = 8
+)
 #> C:/Users/tianj/OneDrive/My/Projects/eve/result/example already exists
 #> Folder created
 #> Running multisession simulation with 8 workers
@@ -110,12 +113,27 @@ edd <- edd_go(
 #> 
 #> Saving result to C:/Users/tianj/OneDrive/My/Projects/eve/result/example/example.RData
 #> Result saved
+```
 
-# show the result produced by the first parameter set
-edd[[1]]
-#> NULL
+`edd_go` will not return any object unless you set `name = "no_save"`.
 
-# sequential simulation is also possible
+``` r
+# set name = "no_save" if you want to assign the output to a variable
+output <- edd_go(
+  combo = combo,
+  nrep = 3,
+  name = "no_save",
+  strategy = future::multisession,
+  workers = 8
+)
+
+# examine the result
+output[[1]]
+```
+
+Sequential simulation is also possible:
+
+``` r
 edd <- edd_go(
     combo = combo,
     nrep = 3,
