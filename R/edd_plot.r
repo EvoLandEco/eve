@@ -238,8 +238,10 @@ edd_plot_nltt <- function(raw_data = NULL,
                           save_plot = FALSE,
                           ...) {
   if (drop_extinct == TRUE) {
+    message("Drawing nLTT plot with tes")
     df <- nLTT::get_nltt_values(raw_data$tes, dt = 0.01)
   } else {
+    message("Drawing nLTT plot with tas")
     df <- nLTT::get_nltt_values(raw_data$tas, dt = 0.01)
   }
 
@@ -333,7 +335,7 @@ edd_plot_nltt <- function(raw_data = NULL,
     if (drop_extinct == TRUE) {
       ggsave(
         paste0(
-          "result/plot/nltt/tes",
+          "result/plot/nltt/tes/",
           lambda,
           "_",
           mu,
@@ -361,7 +363,7 @@ edd_plot_nltt <- function(raw_data = NULL,
     } else {
       ggsave(
         paste0(
-          "result/plot/nltt/tas",
+          "result/plot/nltt/tas/",
           lambda,
           "_",
           mu,
