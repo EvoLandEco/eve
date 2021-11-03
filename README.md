@@ -105,13 +105,13 @@ edd_go(
   strategy = future::multisession,
   workers = 8
 )
-#> C:/Users/tianj/OneDrive/My/Projects/eve/result/example already exists
+#> C:/path/result/example already exists
 #> Folder created
 #> Running multisession simulation with 8 workers
 #> Size of parameter space is: 4
 #> Number of replications for each parameter set is: 3
 #> 
-#> Saving result to C:/Users/tianj/OneDrive/My/Projects/eve/result/example/example.RData
+#> Saving result to C:/path/result/example/example.RData
 #> Result saved
 ```
 
@@ -141,12 +141,12 @@ edd <- edd_go(
     strategy = future::sequential,
     workers = 8
   )
-#> C:/Users/tianj/OneDrive/My/Projects/eve/result/example2 already exists
+#> C:/path/result/example2 already exists
 #> Folder created
 #> Running sequential simulation
 #> Size of parameter space is: 4
 #> Number of replications for each parameter set is: 3
 #> 
-#> Saving result to C:/Users/tianj/OneDrive/My/Projects/eve/result/example2/example2.RData
+#> Saving result to C:/path/result/example2/example2.RData
 #> Result saved
 ```
