@@ -303,19 +303,19 @@ edd_plot_nltt <- function(raw_data = NULL,
   )
 
   plot_nltt <-
-    ggplot() + geom_point(data = df,
-                          aes(t, nltt, color = id),
+    ggplot2::ggplot() + ggplot2::geom_point(data = df,
+                                            ggplot2::aes(t, nltt, color = id),
                           size = I(0.1)) +
-    stat_summary(data = df,
-                 aes(t, nltt),
+    ggplot2::stat_summary(data = df,
+                          ggplot2::aes(t, nltt),
                  fun.data = "mean_cl_boot",
                  geom = "smooth") +
-    ggtitle("Average nLTT plot of phylogenies") +
-    labs(x = "Normalized time", y = "Normalized number of lineages") +
+    ggplot2::ggtitle("Average nLTT plot of phylogenies") +
+    ggplot2::labs(x = "Normalized time", y = "Normalized number of lineages") +
     #scale_colour_ggthemr_d() +
-    geom_richtext(
+    ggtext::geom_richtext(
       data = anno,
-      aes(
+      ggplot2::aes(
         x,
         y,
         label = label,
@@ -326,14 +326,14 @@ edd_plot_nltt <- function(raw_data = NULL,
       fill = "#E8CB9C"
     ) +
     viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
-    xlim(0, 1) +
-    ylim(0, 1) +
-    theme(legend.position = "none",
+    ggplot2::xlim(0, 1) +
+    ggplot2::ylim(0, 1) +
+    ggplot2::theme(legend.position = "none",
           aspect.ratio = 3 / 4)
 
   if (save_plot == TRUE) {
     if (drop_extinct == TRUE) {
-      ggsave(
+      ggplot2::ggsave(
         paste0(
           "result/plot/nltt/tes/",
           lambda,
@@ -361,7 +361,7 @@ edd_plot_nltt <- function(raw_data = NULL,
         dpi = "retina"
       )
     } else {
-      ggsave(
+      ggplot2::ggsave(
         paste0(
           "result/plot/nltt/tas/",
           lambda,
@@ -420,7 +420,7 @@ edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
   metric <- levels(raw_data$all_pars$metric)
   offset <- levels(raw_data$all_pars$offset)
 
-  anno <- tibble(
+  anno <- tibble::tibble(
     label = c(
       paste0("<span style='color:#505050'>",
              "&lambda;<sub>0</sub> = ", lambda, "<br>",
@@ -454,7 +454,7 @@ edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
       ggplot2::ggplot(ltt,
                       ggplot2::aes(time, num, group = as.factor(nrep), color = as.factor(nrep))) +
       ggplot2::geom_line() + ggplot2::coord_cartesian(xlim = c(0, age)) +
-      ggtitle("LTT plot of phylogenies") +
+      ggplot2::ggtitle("LTT plot of phylogenies") +
       ggplot2::theme(legend.position = "none",
                      aspect.ratio = 3 / 4) +
       # geom_richtext(data = anno, aes(
@@ -472,14 +472,14 @@ edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
       ggplot2::ggplot(ltt,
                       ggplot2::aes(time, num, group = as.factor(nrep), color = as.factor(nrep))) +
       ggplot2::geom_line() +
-      ggtitle("LTT plot of phylogenies")
+      ggplot2::ggtitle("LTT plot of phylogenies")
       ggplot2::theme(legend.position = "none",
                      aspect.ratio = 3 / 4) +
       viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
       ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
   }
 
-  ggsave(paste0("result/plot/ltt/",
+  ggplot2::ggsave(paste0("result/plot/ltt/",
                 lambda,"_",
                 mu,"_",
                 beta_n,"_",
