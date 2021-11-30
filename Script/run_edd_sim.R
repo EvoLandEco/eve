@@ -20,6 +20,7 @@ eve::edd_go(
   combo = combo,
   nrep = 100,
   name = test_name,
+  seed = 1,
   strategy = "multisession",
   workers = 16
 )
