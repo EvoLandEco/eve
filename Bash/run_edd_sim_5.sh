@@ -5,7 +5,7 @@
 #SBATCH --job-name=edd_sim_5mya
 #SBATCH --output=logs/edd_sim_5mya-%j.log
 #SBATCH --mem=32GB
-#SBATCH --partition=gelifes
+#SBATCH --partition=regular
 
 ml R
 
