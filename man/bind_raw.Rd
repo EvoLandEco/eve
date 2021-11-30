@@ -4,7 +4,7 @@
 \alias{bind_raw}
 \title{bind_raw}
 \usage{
-bind_raw(raw_data = NULL, nrep = NULL)
+bind_raw(raw_data)
 }
 \value{
 

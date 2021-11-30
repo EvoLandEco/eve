@@ -8,7 +8,8 @@ edd_go(
   combo = NULL,
   nrep = 1000,
   name = NULL,
-  strategy = future::sequential,
+  seed = NULL,
+  strategy = "sequential",
   workers = NULL
 )
 }
@@ -21,6 +22,8 @@ edd_go(
 be created according to current time and date. Set it to "no_save" to disable
 result saving function, an object containing all the results will be returned
 instead.}
+
+\item{seed}{set random seed}
 
 \item{strategy}{determine if the simulation is sequential or multi-sessioned}
 

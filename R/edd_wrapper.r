@@ -1,20 +1,25 @@
-#' extract_edd_result
+#' extract_which
 #'
 #' @author Tianjian Qin
 #' @return
-#' @export
-extract_edd_result <- function(result, nrep, which, nlist = 8) {
-  out <-
-    return(result[seq(which, nlist * nrep, by = nlist)])
-}
+extract_which <-
+  function(raw_data = NULL,
+           nrep = NULL,
+           which = NULL,
+           nlist = 10) {
+    return(raw_data[seq(which, nlist * nrep, by = nlist)])
+  }
 
-#' bind_raw
+
+
+#' bind_replication
 #'
 #' @author Tianjian Qin
 #' @return
-#' @export
-bind_raw <- function(raw_data = NULL, nrep = NULL) {
-  if (nrep == 1) stop("Simulation is not replicated")
+bind_replication <- function(raw_data = NULL, nrep = NULL) {
+  if (nrep == 1)
+    stop("Simulation is not replicated")
+
   binded_data <- lapply(raw_data, as.data.frame)
 
   for (i in 1:nrep) {
@@ -24,24 +29,161 @@ bind_raw <- function(raw_data = NULL, nrep = NULL) {
   return(binded_data)
 }
 
+
+
 #' match_raw
 #'
 #' @author Tianjian Qin
 #' @return
-#' @export
+match_raw <- function(x = NULL, y = NULL) {
+  purrr::modify2(x, y, ~ if (is_list(.x))
+    fun(.x, .y)
+    else
+      purrr::set_names(.x, paste0('t', abs(.y))))
+}
+
+
+
+#' bind_raw
+#'
 #' @author Tianjian Qin
 #' @return
-#' @export
-match_raw <- function(x = NULL, y = NULL){
- purrr::modify2(x, y, ~if(is_list(.x)) fun(.x, .y)
-                  else purrr::set_names(.x, paste0('t', abs(.y))))
+bind_raw <- function(raw_data) {
+  purrr::map(raw_data,  ~ lapply(., dplyr::bind_rows))
 }
+
+
+
+#' match_which
+#'
+#' @author Tianjian Qin
+#' @return
+match_which <- function(raw_data = NULL, which = NULL) {
+  stopifnot(is.character(which))
+
+  progress_match <-
+    progressr::progressor(steps = length(raw_data$las))
+
+  purrr::map2(
+    .x = eval(parse(text = paste0(
+      "raw_data$", which
+    ))),
+    .y = raw_data$linlists,
+    .f = function(x, y) {
+      progress_match()
+      match_raw(x, y)
+    }
+  )
+}
+
+
+#' edd_load
+#'
+#' @author Tianjian Qin
+#' @return
+edd_load <-
+  function(raw_data = NULL,
+           strategy = "sequential",
+           workers = NULL) {
+    progressr::handlers(list(
+      progressr::handler_progress(
+        format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
+        width    = 60,
+        complete = "+"
+      )
+    ))
+
+    if (is.null(workers) |
+        identical(strategy == "sequential")) {
+      message("Running sequential data extraction")
+      message(paste0("Size of parameter sets is: ", length(raw_data)))
+      message(paste0(
+        "Number of replications for each parameter set is: ",
+        length(raw_data$`1`$las)
+      ))
+
+      message(paste0("Matching historical states of speciation rate per lineage"))
+      las <- progressr::with_progress({
+        purrr::map(.x = raw_data,
+                   .f = match_which,
+                   which = "las")
+      })
+
+      message(paste0("Matching historical states of extinction rate per lineage"))
+      mus <- progressr::with_progress({
+        purrr::map(.x = raw_data,
+                   .f = match_which,
+                   which = "mus")
+      })
+
+      message(paste0(
+        "Matching historical states of evolutionary distinctiveness per lineage"
+      ))
+      eds <- progressr::with_progress({
+        purrr::map(.x = raw_data,
+                   .f = match_which,
+                   which = "eds")
+      })
+    } else if (!(workers %% 1 == 0)) {
+      stop("number of workers should be an integer")
+    } else {
+      if (strategy %in% c("multisession", "multicore", "multiprocess")) {
+        message(paste0("Running ",
+                       strategy,
+                       " loading with ",
+                       workers,
+                       " workers"))
+        message(paste0("Size of parameter sets is: ", length(raw_data)))
+        message(paste0(
+          "Number of replications for each parameter set is: ",
+          length(raw_data$`1`$las)
+        ))
+
+        strategy <- eval(parse(text = paste0("future::", strategy)))
+        future::plan(strategy, workers = workers)
+
+        message(paste0("Matching historical states of speciation rate per lineage"))
+        las <- progressr::with_progress({
+          furrr::future_map(.x = raw_data,
+                            .f = match_which,
+                            which = "las")
+        })
+
+        message(paste0("Matching historical states of extinction rate per lineage"))
+        mus <- progressr::with_progress({
+          furrr::future_map(.x = raw_data,
+                            .f = match_which,
+                            which = "mus")
+        })
+
+        message(
+          paste0(
+            "Matching historical states of evolutionary distinctiveness per lineage"
+          )
+        )
+        eds <- progressr::with_progress({
+          furrr::future_map(.x = raw_data,
+                            .f = match_which,
+                            which = "eds")
+        })
+      } else {
+        stop("incorrect parallel computing strategy")
+      }
+    }
+
+    # Historical states
+    message("Binding data")
+    hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
+
+    return(hs)
+  }
+
+
 
 #' edd_sim_rep
 #'
 #' @author Tianjian Qin
 #' @return
-#' @export
 edd_sim_rep <-
   function(combo = NULL, nrep = 5) {
     if (nrep < 2)
@@ -74,14 +216,15 @@ edd_sim_rep <-
     return(out)
   }
 
+
+
 #' edd_sim_batch
 #'
 #' @author Tianjian Qin
 #' @return
-#' @export
 edd_sim_batch <- function(nrep = 1000,
                           combo = NULL,
-                          strategy = future::sequential,
+                          strategy = "sequential",
                           workers = NULL) {
   if (is.null(combo)) {
     stop("combo is not provided")
@@ -89,7 +232,7 @@ edd_sim_batch <- function(nrep = 1000,
 
   progress_sim <- progressr::progressor(steps = length(combo))
 
-  if (is.null(workers) | identical(strategy, future::sequential)) {
+  if (is.null(workers) | strategy == "sequential") {
     message("Running sequential simulation")
     message(paste0("Size of parameter space is: ", length(combo)))
     message(paste0("Number of replications for each parameter set is: ", nrep))
@@ -97,34 +240,38 @@ edd_sim_batch <- function(nrep = 1000,
       .x = combo,
       .f = function(x, ...) {
         progress_sim()
-        eve::edd_sim_rep(combo = x, nrep = nrep)
+        edd_sim_rep(combo = x, nrep = nrep)
       },
       nrep = nrep
     )
   } else if (!(workers %% 1 == 0)) {
     stop("number of workers should be an integer")
   } else {
-    if (identical(strategy, future::multisession)) {
+    if (strategy %in% c("multisession", "multicore", "multiprocess")) {
       message(paste0(
-        "Running multisession simulation with ",
+        "Running ",
+        strategy,
+        " simulation with ",
         workers,
         " workers"
       ))
       message(paste0("Size of parameter space is: ", length(combo)))
       message(paste0("Number of replications for each parameter set is: ", nrep))
+
+      strategy <- eval(parse(text = paste0("future::", strategy)))
       future::plan(strategy, workers = workers)
       future_opts <- furrr::furrr_options(seed = TRUE)
       furrr::future_map(
         .x = combo,
         .f = function(x, ...) {
           progress_sim()
-          eve::edd_sim_rep(combo = x, nrep = nrep)
+          edd_sim_rep(combo = x, nrep = nrep)
         },
         .options = future_opts,
         nrep = nrep
       )
     } else {
-      stop("incorrect simulation strategy")
+      stop("incorrect parallel computing strategy")
     }
   }
 }
@@ -141,6 +288,7 @@ edd_sim_batch <- function(nrep = 1000,
 #' be created according to current time and date. Set it to "no_save" to disable
 #' result saving function, an object containing all the results will be returned
 #' instead.
+#' @param seed set random seed
 #' @param strategy determine if the simulation is sequential or multi-sessioned
 #' @param workers determine how many sessions are participated in the simulation
 #' @author Tianjian Qin
@@ -149,15 +297,20 @@ edd_sim_batch <- function(nrep = 1000,
 edd_go <- function(combo = NULL,
                    nrep = 1000,
                    name = NULL,
-                   strategy = future::sequential,
+                   seed = NULL,
+                   strategy = "sequential",
                    workers = NULL) {
   if (!is.null(name)) {
     if (name != "no_save") {
-      eve::check_folder(name)
+      check_folder(name)
     }
   } else {
     folder_name <- paste0("sim_", format(Sys.time(), "%Y%m%d_%H%M%S"))
-    eve::check_folder(folder_name)
+    check_folder(folder_name)
+  }
+
+  if (!is.null(seed) & (seed %% 1 == 0)) {
+    set.seed(seed)
   }
 
   progressr::handlers(list(
@@ -169,7 +322,7 @@ edd_go <- function(combo = NULL,
   ))
 
   out <- progressr::with_progress({
-    eve::edd_sim_batch(
+    edd_sim_batch(
       combo = combo,
       nrep = nrep,
       strategy = strategy,
@@ -179,12 +332,12 @@ edd_go <- function(combo = NULL,
 
   if (!is.null(name)) {
     if (name != "no_save") {
-      eve::save_result(out, name)
+      save_result(out, name)
     } else {
       return(out)
     }
   } else {
-    eve::save_result(out, folder_name)
+    save_result(out, folder_name)
   }
 }
 

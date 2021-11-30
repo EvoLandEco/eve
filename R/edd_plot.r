@@ -238,10 +238,10 @@ edd_plot_nltt <- function(raw_data = NULL,
                           save_plot = FALSE,
                           ...) {
   if (drop_extinct == TRUE) {
-    message("Drawing nLTT plot with tes")
+    message("Drawing nLTT plot with trees of extant species")
     df <- nLTT::get_nltt_values(raw_data$tes, dt = 0.01)
   } else {
-    message("Drawing nLTT plot with tas")
+    message("Drawing nLTT plot with trees of all species")
     df <- nLTT::get_nltt_values(raw_data$tas, dt = 0.01)
   }
 
@@ -511,7 +511,7 @@ edd_plot_las <- function(raw_data = NULL, rep_id = 1){
     ggtree::ggtree(raw_data$tas[[rep_id]]) + ggtree::geom_tiplab(align = TRUE) +
     ggtree::theme_tree2()
 
-  dat <- eve::match_raw(raw_data$las[[rep_id]],raw_data$linlists[[rep_id]])
+  dat <- eve:::match_raw(raw_data$las[[rep_id]],raw_data$linlists[[rep_id]])
   dat <- dplyr::bind_rows(dat)
   dat <- dplyr::bind_cols(dplyr::select(raw_data$nltt[[rep_id]], time), dat)
   dat <- dat %>%tibble::column_to_rownames(var = "time")

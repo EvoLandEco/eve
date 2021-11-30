@@ -7,7 +7,7 @@
 edd_sim_batch(
   nrep = 1000,
   combo = NULL,
-  strategy = future::sequential,
+  strategy = "sequential",
   workers = NULL
 )
 }

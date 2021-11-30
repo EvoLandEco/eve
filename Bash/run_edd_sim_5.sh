@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --time=9-23:00:00
+#SBATCH --time=10:00:00
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=8
 #SBATCH --job-name=edd_sim_5mya
 #SBATCH --output=logs/edd_sim_5mya-%j.log
 #SBATCH --mem=32GB
-#SBATCH --partition=regular
+#SBATCH --partition=gelifes
 
 ml R
 

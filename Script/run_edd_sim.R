@@ -18,8 +18,8 @@ combo <- eve::edd_combo_maker(
 
 eve::edd_go(
   combo = combo,
-  nrep = 1000,
+  nrep = 100,
   name = test_name,
-  strategy = future::multisession,
+  strategy = "multisession",
   workers = 16
 )
