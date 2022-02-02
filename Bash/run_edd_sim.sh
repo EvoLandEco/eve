@@ -29,16 +29,16 @@ nrow=$(( ${nrow} - 1 ))
 
 for (( param_set = 1; param_set <= $nrow; param_set++ ))
 do
-sbatch Rscript ~/eve/Bash/submit_edd_sim.sh ${name} \
-                                            ${param_set} \
-                                            ${la} \
-                                            ${mu} \
-                                            ${beta_n} \
-                                            ${beta_phi} \
-                                            ${gamma_n} \
-                                            ${gamma_phi} \
-                                            ${age} \
-                                            ${model} \
-                                            ${metric} \
-                                            ${offset}
+sbatch ~/eve/Bash/submit_edd_sim.sh ${name} \
+                                    ${param_set} \
+                                    ${la} \
+                                    ${mu} \
+                                    ${beta_n} \
+                                    ${beta_phi} \
+                                    ${gamma_n} \
+                                    ${gamma_phi} \
+                                    ${age} \
+                                    ${model} \
+                                    ${metric} \
+                                    ${offset}
 done
