@@ -3,8 +3,13 @@
 #' @author Tianjian Qin
 #' @return
 save_result <- function(out,
-                        name) {
-  file_name <- paste0(name, ".RData")
+                        name,
+                        set = NULL) {
+  if (is.null(set)) {
+    file_name <- paste0(name, ".RData")
+  } else {
+    file_name <- paste0(name, "_", set, ".RData")
+  }
 
   out_folder <- file.path(getwd(),
                           "result",

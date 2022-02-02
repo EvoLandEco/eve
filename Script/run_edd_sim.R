@@ -1,26 +1,22 @@
-test_name <- commandArgs(TRUE)
+args <- commandArgs(TRUE)
 
-devtools::install_github("rsetienne/DDD@tianjian_Rampal")
-devtools::install_github("EvoLandEco/eve")
+name <- args[1]
+set <- args[2]
+la <- args[3]
+mu <- as.numeric(args[4])
+beta_n <- as.numeric(args[5])
+beta_phi <- as.numeric(args[6])
+gamma_n <- as.numeric(args[7])
+gamma_phi <- as.numeric(args[8])
+age <- as.numeric(args[9])
+metric <- as.numeric(args[10])
+model <- as.character(args[11])
+offset <- as.character(args[12])
 
-combo <- eve::edd_combo_maker(
-  la = c(0.5, 0.8),
-  mu = c(0, 0.1, 0.2),
-  beta_n = c(-0.001, 0),
-  beta_phi = c(-0.001, 0, 0.001),
-  gamma_n = c(-0.001, 0.001),
-  gamma_phi = c(-0.001, 0, 0.001),
-  age = c(5),
-  model = "dsde2",
-  metric = c("ed"),
-  offset = "none"
-)
+pars <- c(la, mu, beta_n, beta_phi, gamma_n, gamma_phi)
 
-eve::edd_go(
-  combo = combo,
-  nrep = 100,
-  name = test_name,
-  seed = 1,
-  strategy = "multisession",
-  workers = 16
-)
+combo <- c(pars, age, metric, model, offset)
+
+out <- eve::edd_sim_rep(combo = combo, nrep = 3)
+
+eve::save_result(out, name, set)
