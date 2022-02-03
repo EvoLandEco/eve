@@ -17,7 +17,7 @@ combo <- eve::edd_combo_maker(
   offset = "none"
 )
 
-out <- eve:::edd_sim_rep(combo = combo[set, ], nrep = nrep)
+out <- eve:::edd_sim_rep(combo = combo[[set]], nrep = nrep)
 
 eve:::save_result(out, name, set)
 
