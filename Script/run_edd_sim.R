@@ -19,5 +19,6 @@ combo <- eve::edd_combo_maker(
 
 out <- eve:::edd_sim_rep(combo = combo[[set]], nrep = nrep)
 
+eve:::check_folder(name)
 eve:::save_result(out, name, set)
 
