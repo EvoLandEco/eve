@@ -1,12 +1,8 @@
 args <- commandArgs(TRUE)
 
 name <- args[1]
-set <- args[2]
-nrep <- args[3]
-
-print(name)
-print(set)
-print(nrep)
+set <- as.numeric(args[2])
+nrep <- as.numeric(args[3])
 
 combo <- eve::edd_combo_maker(
   la = c(0.5),
