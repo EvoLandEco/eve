@@ -21,7 +21,7 @@ metric=${11}
 offset=${12}
 
 ml R
-Rscript ~/eve/Scripts/run_edd_sim.R ${name} \
+Rscript ~/eve/Script/run_edd_sim.R ${name} \
                                     ${param_set} \
                                     ${la} \
                                     ${mu} \
