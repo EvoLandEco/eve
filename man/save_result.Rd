@@ -4,7 +4,7 @@
 \alias{save_result}
 \title{save_result}
 \usage{
-save_result(out, name)
+save_result(out, name, set = NULL)
 }
 \value{
 
