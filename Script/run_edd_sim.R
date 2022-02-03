@@ -4,6 +4,10 @@ name <- args[1]
 set <- args[2]
 nrep <- args[3]
 
+print(name)
+print(set)
+print(nrep)
+
 combo <- eve::edd_combo_maker(
   la = c(0.5),
   mu = c(0, 0.1),
@@ -14,8 +18,7 @@ combo <- eve::edd_combo_maker(
   age = c(5),
   model = "dsde2",
   metric = c("ed"),
-  offset = "none",
-  save_file = T
+  offset = "none"
 )
 
 out <- eve:::edd_sim_rep(combo = combo[set, ], nrep = nrep)
