@@ -9,27 +9,9 @@
 
 name=${1}
 param_set=${2}
-la=${3}
-mu=${4}
-beta_n=${5}
-beta_phi=${6}
-gamma_n=${7}
-gamma_phi=${8}
-age=${9}
-model=${10}
-metric=${11}
-offset=${12}
+nrep=${3}
 
 ml R
 Rscript ~/eve/Script/run_edd_sim.R ${name} \
-                                    ${param_set} \
-                                    ${la} \
-                                    ${mu} \
-                                    ${beta_n} \
-                                    ${beta_phi} \
-                                    ${gamma_n} \
-                                    ${gamma_phi} \
-                                    ${age} \
-                                    ${model} \
-                                    ${metric} \
-                                    ${offset}
+                                   ${param_set} \
+                                   ${nrep}
