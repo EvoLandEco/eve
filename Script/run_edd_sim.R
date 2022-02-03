@@ -17,6 +17,6 @@ pars <- c(la, mu, beta_n, beta_phi, gamma_n, gamma_phi)
 
 combo <- c(pars, age, metric, model, offset)
 
-out <- eve::edd_sim_rep(combo = combo, nrep = 3)
+out <- eve:::edd_sim_rep(combo = combo, nrep = 3)
 
-eve::save_result(out, name, set)
+eve:::save_result(out, name, set)
