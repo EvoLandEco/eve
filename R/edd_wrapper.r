@@ -84,7 +84,7 @@ match_which <- function(raw_data = NULL, which = NULL) {
 edd_load <-
   function(raw_data = NULL,
            strategy = "sequential",
-           workers = NULL) {
+           workers = 1) {
     progressr::handlers(list(
       progressr::handler_progress(
         format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
@@ -93,86 +93,58 @@ edd_load <-
       )
     ))
 
-    if (is.null(workers) |
+    if (workers == 1 |
         identical(strategy, "sequential")) {
-      message("Running sequential data extraction")
-      message(paste0("Size of parameter sets is: ", length(raw_data)))
-      message(paste0(
-        "Number of replications for each parameter set is: ",
-        length(raw_data$`1`$las)
-      ))
-
-      message(paste0("Matching historical states of speciation rate per lineage"))
-      las <- progressr::with_progress({
-        purrr::map(.x = raw_data,
-                   .f = match_which,
-                   which = "las")
-      })
-
-      message(paste0("Matching historical states of extinction rate per lineage"))
-      mus <- progressr::with_progress({
-        purrr::map(.x = raw_data,
-                   .f = match_which,
-                   which = "mus")
-      })
-
-      message(paste0(
-        "Matching historical states of evolutionary distinctiveness per lineage"
-      ))
-      eds <- progressr::with_progress({
-        purrr::map(.x = raw_data,
-                   .f = match_which,
-                   which = "eds")
-      })
+      message("Running sequential data loading")
+      strategy <- eval(parse(text = paste0("future::", strategy)))
+      future::plan(strategy)
     } else if (!(workers %% 1 == 0)) {
       stop("number of workers should be an integer")
     } else {
       if (strategy %in% c("multisession", "multicore", "multiprocess")) {
         message(paste0("Running ",
                        strategy,
-                       " loading with ",
+                       " data loading with ",
                        workers,
                        " workers"))
-        message(paste0("Size of parameter sets is: ", length(raw_data)))
-        message(paste0(
-          "Number of replications for each parameter set is: ",
-          length(raw_data$`1`$las)
-        ))
-
         strategy <- eval(parse(text = paste0("future::", strategy)))
         future::plan(strategy, workers = workers)
-
-        message(paste0("Matching historical states of speciation rate per lineage"))
-        las <- progressr::with_progress({
-          furrr::future_map(.x = raw_data,
-                            .f = match_which,
-                            which = "las")
-        })
-
-        message(paste0("Matching historical states of extinction rate per lineage"))
-        mus <- progressr::with_progress({
-          furrr::future_map(.x = raw_data,
-                            .f = match_which,
-                            which = "mus")
-        })
-
-        message(
-          paste0(
-            "Matching historical states of evolutionary distinctiveness per lineage"
-          )
-        )
-        eds <- progressr::with_progress({
-          furrr::future_map(.x = raw_data,
-                            .f = match_which,
-                            which = "eds")
-        })
       } else {
         stop("incorrect parallel computing strategy")
       }
     }
 
+    message(paste0("Size of parameter sets is: ", length(raw_data)))
+    message(paste0(
+      "Number of replications for each parameter set is: ",
+      length(raw_data$`1`$las)
+    ))
+
+    message(paste0("Matching historical states of speciation rate per lineage"))
+    las <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "las")
+    })
+
+    message(paste0("Matching historical states of extinction rate per lineage"))
+    mus <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "mus")
+    })
+
+    message(paste0(
+      "Matching historical states of evolutionary distinctiveness per lineage"
+    ))
+    eds <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "eds")
+    })
+
     # Historical states
-    message("Binding data")
+    message("Binding historical states")
     hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
 
     return(hs)
@@ -195,9 +167,9 @@ edd_merge <- function(name = NULL) {
     get("out")
   })
 
-  out <- lapply(data_path, function(x) {
-    print(x)
-  })
+  names(out) <- 1:length(files)
+
+  return(out)
 }
 
 
