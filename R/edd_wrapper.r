@@ -94,7 +94,7 @@ edd_load <-
     ))
 
     if (is.null(workers) |
-        identical(strategy == "sequential")) {
+        identical(strategy, "sequential")) {
       message("Running sequential data extraction")
       message(paste0("Size of parameter sets is: ", length(raw_data)))
       message(paste0(
@@ -178,6 +178,27 @@ edd_load <-
     return(hs)
   }
 
+
+
+#' edd_merge
+#'
+#' @author Tianjian Qin
+#' @return
+edd_merge <- function(name = NULL) {
+  folder_path <- paste0("result/", name)
+  files <- list.files(folder_path)
+  files_ordered <- gtools::mixedsort(files)
+  data_path <- paste0(folder_path, "/", files_ordered)
+
+  out <- lapply(data_path, function(x) {
+    load(file = x)
+    get("out")
+  })
+
+  out <- lapply(data_path, function(x) {
+    print(x)
+  })
+}
 
 
 #' edd_sim_rep
