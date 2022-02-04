@@ -152,6 +152,19 @@ edd_load <-
 
 
 
+#' edd_load_split
+#'
+#' @author Tianjian Qin
+#' @return
+edd_load_split <- function(name = NULL) {
+  merged_data <- edd_merge(name)
+  loaded_data <- edd_load(merged_data)
+
+  return(loaded_data)
+}
+
+
+
 #' edd_merge
 #'
 #' @author Tianjian Qin
