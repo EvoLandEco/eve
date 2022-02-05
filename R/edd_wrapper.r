@@ -212,12 +212,11 @@ edd_sim_rep <-
       tes = raw_data[1,],
       tas = raw_data[2,],
       l_tables = raw_data[3,],
-      brts = raw_data[4,],
-      nltt = raw_data[5,],
-      eds = raw_data[6,],
-      las  = raw_data[7,],
-      mus  = raw_data[8,],
-      linlists = raw_data[9,]
+      ltt = raw_data[4,],
+      eds = raw_data[5,],
+      las  = raw_data[6,],
+      mus  = raw_data[7,],
+      linlists = raw_data[8,]
     )
 
     return(out)
