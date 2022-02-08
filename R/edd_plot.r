@@ -406,94 +406,91 @@ edd_plot_nltt <- function(raw_data = NULL,
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_plot_ltt
-edd_plot_ltt <- function(raw_data = NULL, save_plot = FALSE, ...){
-  nrep <- length(raw_data$tes)
-  ltt <- raw_data$nltt
-  lambda <- round(raw_data$all_pars$pars[[1]][1], digits = 3)
-  mu <- round(raw_data$all_pars$pars[[1]][2], digits = 3)
-  beta_n <- round(raw_data$all_pars$pars[[1]][3], digits = 3)
-  beta_phi <- round(raw_data$all_pars$pars[[1]][4], digits = 3)
-  gamma_n <- round(raw_data$all_pars$pars[[1]][5], digits = 3)
-  gamma_phi <- round(raw_data$all_pars$pars[[1]][6], digits = 3)
-  age <- raw_data$all_pars$age
-  model <- levels(raw_data$all_pars$model)
-  metric <- levels(raw_data$all_pars$metric)
-  offset <- levels(raw_data$all_pars$offset)
+edd_plot_ltt <-
+  function(raw_data = NULL,
+           alpha = 0.05,
+           save_plot = FALSE,
+           ...) {
+    lambda <- round(raw_data$all_pars$pars[[1]][1], digits = 3)
+    mu <- round(raw_data$all_pars$pars[[1]][2], digits = 3)
+    beta_n <- round(raw_data$all_pars$pars[[1]][3], digits = 3)
+    beta_phi <- round(raw_data$all_pars$pars[[1]][4], digits = 3)
+    gamma_n <- round(raw_data$all_pars$pars[[1]][5], digits = 3)
+    gamma_phi <- round(raw_data$all_pars$pars[[1]][6], digits = 3)
+    age <- raw_data$all_pars$age
+    model <- levels(raw_data$all_pars$model)
+    metric <- levels(raw_data$all_pars$metric)
+    offset <- levels(raw_data$all_pars$offset)
 
-  anno <- tibble::tibble(
-    label = c(
-      paste0("<span style='color:#505050'>",
-             "&lambda;<sub>0</sub> = ", lambda, "<br>",
-             "&mu;<sub>0</sub> = ", mu, "<br>",
-             "&beta;<sub>*N*</sub> = ", beta_n, "<br>",
-             "&beta;<sub>*&Phi;*</sub> = ", beta_phi, "<br>",
-             "&gamma;<sub>*N*</sub> = ", gamma_n, "<br>",
-             "&gamma;<sub>*&Phi;*</sub> = ", gamma_n, "</span>"),
-      paste0("<span style='color:#505050'>",
-             "Age = ", age, "<br>",
-             "Model = ", model, "<br>",
-             "Metric = ", metric, "<br>",
-             "Offset = ", offset, "</span>")
-    ),
-    x = c(0, 0),
-    y = c(.33, .75),
-    hjust = c(0, 0),
-    vjust = c(0, 0),
-    angle = c(0, 0)
-  )
+    anno <- tibble::tibble(
+      label = c(
+        paste0(
+          "<span style='color:#505050'>",
+          "&lambda;<sub>0</sub> = ",
+          lambda,
+          "<br>",
+          "&mu;<sub>0</sub> = ",
+          mu,
+          "<br>",
+          "&beta;<sub>*N*</sub> = ",
+          beta_n,
+          "<br>",
+          "&beta;<sub>*&Phi;*</sub> = ",
+          beta_phi,
+          "<br>",
+          "&gamma;<sub>*N*</sub> = ",
+          gamma_n,
+          "<br>",
+          "&gamma;<sub>*&Phi;*</sub> = ",
+          gamma_n,
+          "</span>"
+        ),
+        paste0(
+          "<span style='color:#505050'>",
+          "Age = ",
+          age,
+          "<br>",
+          "Model = ",
+          model,
+          "<br>",
+          "Metric = ",
+          metric,
+          "<br>",
+          "Offset = ",
+          offset,
+          "</span>"
+        )
+      ),
+      x = c(0, 0),
+      y = c(.33, .75),
+      hjust = c(0, 0),
+      vjust = c(0, 0),
+      angle = c(0, 0)
+    )
 
-  if (nrep != 1){
-    ltt <- eve::bind_raw(ltt, nrep)
-    ltt <- dplyr::bind_rows(ltt)
-  }
+    brts <- lapply(raw_data$l_tables, function(x) {
+      x[-1, 1]
+    })
 
-  plot_options = TRUE
+    ts <- unlist(brts)
+    ts <- unique(ts)
+    ts <- sort(ts)
 
-  if (plot_options == TRUE) {
+    df <- eve:::calculate_CI(brts, ts, alpha = alpha)
+    colnames(df) <- c("t", "median", "minalpha", "maxalpha", "mean")
+    df <- as.data.frame(df)
+
     plot_ltt <-
-      ggplot2::ggplot(ltt,
-                      ggplot2::aes(time, num, group = as.factor(nrep), color = as.factor(nrep))) +
-      ggplot2::geom_line() + ggplot2::coord_cartesian(xlim = c(0, age)) +
-      ggplot2::ggtitle("LTT plot of phylogenies") +
+      ggplot(as.data.frame(df)) + geom_line(aes(t, mean)) +
+      geom_ribbon(aes(t, mean, ymax =
+                        maxalpha, ymin = minalpha), alpha = 0.2) +
+      ggplot2::ggtitle("Lineage-Through-Time Plot") +
       ggplot2::theme(legend.position = "none",
                      aspect.ratio = 3 / 4) +
-      # geom_richtext(data = anno, aes(
-      #   x,
-      #   y,
-      #   label = label,
-      #   angle = angle,
-      #   hjust = hjust,
-      #   vjust = vjust
-      # ), fill = "#E8CB9C") +
-      viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
       ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
-  } else{
-    plot_ltt <-
-      ggplot2::ggplot(ltt,
-                      ggplot2::aes(time, num, group = as.factor(nrep), color = as.factor(nrep))) +
-      ggplot2::geom_line() +
-      ggplot2::ggtitle("LTT plot of phylogenies")
-      ggplot2::theme(legend.position = "none",
-                     aspect.ratio = 3 / 4) +
-      viridis::scale_colour_viridis(discrete = TRUE, option = "A") +
-      ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
+
+    return(plot_ltt)
   }
-
-  ggplot2::ggsave(paste0("result/plot/ltt/",
-                lambda,"_",
-                mu,"_",
-                beta_n,"_",
-                beta_phi,"_",
-                gamma_n,"_",
-                gamma_phi,"_",
-                age,"_",
-                model,"_",
-                metric,"_",
-                offset,
-                ".png"), device = "png", dpi = "retina")
-
-  return(plot_ltt)
-}
 
 
 

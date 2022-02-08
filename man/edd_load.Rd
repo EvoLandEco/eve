@@ -4,7 +4,7 @@
 \alias{edd_load}
 \title{edd_load}
 \usage{
-edd_load(raw_data = NULL, strategy = "sequential", workers = NULL)
+edd_load(raw_data = NULL, strategy = "sequential", workers = 1)
 }
 \value{
 
