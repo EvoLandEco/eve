@@ -4,7 +4,7 @@ name <- args[1]
 set <- as.numeric(args[2])
 nrep <- as.numeric(args[3])
 
-combo<-edd_combo_maker(
+combo <- eve::edd_combo_maker(
   la = c(0.5, 0.8),
   mu = c(0, 0.2),
   beta_n = c(-0.01, 0),
