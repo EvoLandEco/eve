@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --time=3-00:00:00
+#SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --job-name=edd_sim
 #SBATCH --output=logs/edd_sim-%j.log
-#SBATCH --mem=4GB
+#SBATCH --mem=1GB
 #SBATCH --partition=regular
 
 name=${1}
