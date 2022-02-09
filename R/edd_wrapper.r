@@ -315,8 +315,12 @@ edd_go <- function(combo = NULL,
     check_folder(folder_name)
   }
 
-  if (!is.null(seed) & (seed %% 1 == 0)) {
-    set.seed(seed)
+  if (!is.null(seed)) {
+    if (seed %% 1 == 0) {
+      set.seed(seed)
+    } else {
+      stop("must provide a valid random seed")
+    }
   }
 
   progressr::handlers(list(
