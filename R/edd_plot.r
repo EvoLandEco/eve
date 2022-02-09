@@ -422,6 +422,18 @@ edd_plot_ltt <-
     metric <- levels(raw_data$all_pars$metric)
     offset <- levels(raw_data$all_pars$offset)
 
+    brts <- lapply(raw_data$l_tables, function(x) {
+      x[-1, 1]
+    })
+
+    ts <- unlist(brts)
+    ts <- unique(ts)
+    ts <- sort(ts)
+
+    df <- eve:::calculate_CI(brts, ts, alpha = alpha)
+    colnames(df) <- c("t", "median", "minalpha", "maxalpha", "mean")
+    df <- as.data.frame(df)
+
     anno <- tibble::tibble(
       label = c(
         paste0(
@@ -461,33 +473,33 @@ edd_plot_ltt <-
           "</span>"
         )
       ),
-      x = c(0, 0),
-      y = c(.33, .75),
+      x = c(-Inf, -Inf),
+      y = c(Inf, Inf),
       hjust = c(0, 0),
-      vjust = c(0, 0),
+      vjust = c(1, 2.8),
       angle = c(0, 0)
     )
 
-    brts <- lapply(raw_data$l_tables, function(x) {
-      x[-1, 1]
-    })
-
-    ts <- unlist(brts)
-    ts <- unique(ts)
-    ts <- sort(ts)
-
-    df <- eve:::calculate_CI(brts, ts, alpha = alpha)
-    colnames(df) <- c("t", "median", "minalpha", "maxalpha", "mean")
-    df <- as.data.frame(df)
-
     plot_ltt <-
-      ggplot(as.data.frame(df)) + geom_line(aes(t, mean)) +
-      geom_ribbon(aes(t, mean, ymax =
+      ggplot2::ggplot(as.data.frame(df)) + ggplot2::geom_line(ggplot2::aes(t, mean)) +
+      ggplot2::geom_ribbon(ggplot2::aes(t, mean, ymax =
                         maxalpha, ymin = minalpha), alpha = 0.2) +
       ggplot2::ggtitle("Lineage-Through-Time Plot") +
       ggplot2::theme(legend.position = "none",
                      aspect.ratio = 3 / 4) +
-      ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages")
+      ggplot2::xlab("Time") + ggplot2::ylab("Number of lineages") +
+      ggtext::geom_richtext(
+        data = anno,
+        ggplot2::aes(
+          x = x,
+          y = y,
+          label = label,
+          angle = angle,
+          hjust = hjust,
+          vjust = vjust
+        ),
+        fill = "#E8CB9C"
+      )
 
     return(plot_ltt)
   }

@@ -2,13 +2,13 @@
 % Please edit documentation in R/edd_stat.R
 \name{calculate_CI}
 \alias{calculate_CI}
-\title{Calculating confidence interval for LTT plot}
+\title{Calculating confidence interval for LTT plot (reversed time scale)}
 \usage{
 calculate_CI(brts_list, tt, alpha)
 }
 \description{
-Calculating confidence interval for LTT plot
+Calculating confidence interval for LTT plot (reversed time scale)
 }
 \author{
-Rampal Etienne
+Rampal Etienne; Tianjian Qin
 }
