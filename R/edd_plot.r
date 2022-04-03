@@ -501,7 +501,40 @@ edd_plot_ltt <-
         fill = "#E8CB9C"
       )
 
-    return(plot_ltt)
+    if (save_plot == TRUE) {
+      ggplot2::ggsave(
+        paste0(
+          "result/plot/ltt/",
+          lambda,
+          "_",
+          mu,
+          "_",
+          beta_n,
+          "_",
+          beta_phi,
+          "_",
+          gamma_n,
+          "_",
+          gamma_phi,
+          "_",
+          age,
+          "_",
+          model,
+          "_",
+          metric,
+          "_",
+          offset,
+          ".png"
+        ),
+        plot = plot_ltt,
+        device = "png",
+        width = 5,
+        height = 4,
+        dpi = "retina"
+      )
+    } else {
+      return(plot_ltt)
+    }
   }
 
 
