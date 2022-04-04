@@ -192,7 +192,7 @@ edd_merge <- function(name = NULL) {
 #' @author Tianjian Qin
 #' @return
 edd_sim_rep <-
-  function(combo = NULL, nrep = 5) {
+  function(combo = NULL, history = TRUE, verbose = FALSE, nrep = 5) {
     if (nrep < 2)
       stop("Must have more than 1 replicates")
 
@@ -200,24 +200,37 @@ edd_sim_rep <-
 
     # do replicated simulations
     raw_data <- replicate(nrep, {
-      DDD::edd_sim(unlist(combo$pars),
-                   combo$age,
-                   combo$model,
-                   combo$metric,
-                   combo$offset)
+      DDD::edd_sim(pars = unlist(combo$pars),
+                   age = combo$age,
+                   model = combo$model,
+                   metric = combo$metric,
+                   offset = combo$offset,
+                   history = history,
+                   verbose = verbose)
     })
 
-    out <- list(
-      all_pars = combo,
-      tes = raw_data[1,],
-      tas = raw_data[2,],
-      l_tables = raw_data[3,],
-      ltt = raw_data[4,],
-      eds = raw_data[5,],
-      las  = raw_data[6,],
-      mus  = raw_data[7,],
-      linlists = raw_data[8,]
-    )
+    if (history == TRUE) {
+      out <- list(
+        all_pars = combo,
+        tes = raw_data[1,],
+        tas = raw_data[2,],
+        l_tables = raw_data[3,],
+        ltt = raw_data[4,],
+        eds = raw_data[5,],
+        las  = raw_data[6,],
+        mus  = raw_data[7,],
+        linlists = raw_data[8,]
+      )
+    } else {
+      out <- list(
+        all_pars = combo,
+        tes = raw_data[1,],
+        tas = raw_data[2,],
+        l_tables = raw_data[3,],
+        ltt = raw_data[4,]
+      )
+    }
+
 
     return(out)
   }
@@ -228,8 +241,10 @@ edd_sim_rep <-
 #'
 #' @author Tianjian Qin
 #' @return
-edd_sim_batch <- function(nrep = 1000,
-                          combo = NULL,
+edd_sim_batch <- function(combo = NULL,
+                          history = TRUE,
+                          verbose = FALSE,
+                          nrep = 1000,
                           strategy = "sequential",
                           workers = NULL) {
   if (is.null(combo)) {
@@ -248,7 +263,9 @@ edd_sim_batch <- function(nrep = 1000,
         progress_sim()
         edd_sim_rep(combo = x, nrep = nrep)
       },
-      nrep = nrep
+      nrep = nrep,
+      history = history,
+      verbose = verbose
     )
   } else if (!(workers %% 1 == 0)) {
     stop("number of workers should be an integer")
@@ -274,7 +291,9 @@ edd_sim_batch <- function(nrep = 1000,
           edd_sim_rep(combo = x, nrep = nrep)
         },
         .options = future_opts,
-        nrep = nrep
+        nrep = nrep,
+        history = history,
+        verbose = verbose
       )
     } else {
       stop("incorrect parallel computing strategy")
@@ -301,6 +320,8 @@ edd_sim_batch <- function(nrep = 1000,
 #' @keywords phylogenetics
 #' @export edd_go
 edd_go <- function(combo = NULL,
+                   history = TRUE,
+                   verbose = FALSE,
                    nrep = 1000,
                    name = NULL,
                    seed = NULL,
@@ -334,6 +355,8 @@ edd_go <- function(combo = NULL,
   out <- progressr::with_progress({
     edd_sim_batch(
       combo = combo,
+      history = history,
+      verbose = verbose,
       nrep = nrep,
       strategy = strategy,
       workers = workers
