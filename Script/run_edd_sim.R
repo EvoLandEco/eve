@@ -4,18 +4,56 @@ name <- args[1]
 set <- as.numeric(args[2])
 nrep <- as.numeric(args[3])
 
-combo <- edd_combo_maker(
-  la = c(0.5, 0.8),
-  mu = c(0, 0.2),
+combo1 <- edd_combo_maker(
+  la = c(0.5),
+  mu = c(0.1),
   beta_n = c(-0.02, 0),
   beta_phi = c(-0.02),
   gamma_n = c(0.02, 0),
-  gamma_phi = c(0.02, 0),
-  age = c(30),
+  gamma_phi = c(0.02),
+  age = c(20),
   model = "dsde2",
   metric = c("ed"),
-  offset = "none"
+  offset = c("none")
 )
+
+combo2 <- edd_combo_maker(
+  la = c(0.5),
+  mu = c(0.1),
+  beta_n = c(-0.02, 0),
+  beta_phi = c(-0.02),
+  gamma_n = c(0.02, 0),
+  gamma_phi = c(0.02),
+  age = c(20),
+  model = "dsde2",
+  metric = c("pd"),
+  offset = c("none", "simtime")
+)
+
+combo3 <- edd_combo_maker(
+  la = c(0.5),
+  mu = c(0.1),
+  beta_n = c(0),
+  beta_phi = c(-0.02),
+  age = c(20),
+  model = "dsce2",
+  metric = c("ed"),
+  offset = c("none")
+)
+
+combo4 <- edd_combo_maker(
+  la = c(0.5),
+  mu = c(0.1),
+  beta_n = c(0),
+  beta_phi = c(-0.02),
+  age = c(20),
+  model = "dsce2",
+  metric = c("pd"),
+  offset = c("none", "simtime")
+)
+
+combo <- c(combo1, combo2, combo3, combo4)
+names(combo) <- as.character(seq(1,length(combo)))
 
 out <- eve:::edd_sim_rep(combo = combo[[set]], nrep = nrep)
 
