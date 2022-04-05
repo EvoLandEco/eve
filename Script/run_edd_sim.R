@@ -8,10 +8,10 @@ combo1 <- eve::edd_combo_maker(
   la = c(0.5),
   mu = c(0.1),
   beta_n = c(-0.01, 0),
-  beta_phi = c(-0.01),
+  beta_phi = c(-0.02),
   gamma_n = c(0.01, 0),
-  gamma_phi = c(0.01),
-  age = c(20),
+  gamma_phi = c(0.005),
+  age = c(15),
   model = "dsde2",
   metric = c("ed"),
   offset = c("none")
@@ -19,38 +19,43 @@ combo1 <- eve::edd_combo_maker(
 
 combo2 <- eve::edd_combo_maker(
   la = c(0.5),
-  mu = c(0.1),
-  beta_n = c(-0.01, 0),
-  beta_phi = c(-0.01),
-  gamma_n = c(0.01, 0),
-  gamma_phi = c(0.01),
-  age = c(20),
+  mu = c(0),
+  beta_n = c(0, -0.01),
+  beta_phi = c(-0.02),
+  gamma_n = c(0),
+  gamma_phi = c(0),
+  age = c(15),
   model = "dsde2",
-  metric = c("pd"),
-  offset = c("none", "simtime")
+  metric = c("ed"),
+  offset = c("none")
 )
 
 combo3 <- eve::edd_combo_maker(
   la = c(0.5),
   mu = c(0.1),
-  beta_n = c(0),
+  beta_n = c(-0.01, 0),
   beta_phi = c(-0.01),
-  age = c(20),
-  model = "dsce2",
-  metric = c("ed"),
-  offset = c("none")
+  gamma_n = c(0.01, 0),
+  gamma_phi = c(0.01),
+  age = c(15),
+  model = "dsde2",
+  metric = c("pd"),
+  offset = c("none", "simtime")
 )
 
 combo4 <- eve::edd_combo_maker(
   la = c(0.5),
-  mu = c(0.1),
-  beta_n = c(0),
+  mu = c(0),
+  beta_n = c(-0.01, 0),
   beta_phi = c(-0.01),
-  age = c(20),
-  model = "dsce2",
+  gamma_n = c(0),
+  gamma_phi = c(0),
+  age = c(15),
+  model = "dsde2",
   metric = c("pd"),
   offset = c("none", "simtime")
 )
+
 
 combo <- c(combo1, combo2, combo3, combo4)
 names(combo) <- as.character(seq(1, length(combo)))
