@@ -418,9 +418,9 @@ edd_plot_ltt <-
     gamma_n <- round(raw_data$all_pars$pars[[1]][5], digits = 3)
     gamma_phi <- round(raw_data$all_pars$pars[[1]][6], digits = 3)
     age <- raw_data$all_pars$age
-    model <- levels(raw_data$all_pars$model)
-    metric <- levels(raw_data$all_pars$metric)
-    offset <- levels(raw_data$all_pars$offset)
+    model <- raw_data$all_pars$model
+    metric <- raw_data$all_pars$metric
+    offset <- raw_data$all_pars$offset
 
     brts <- lapply(raw_data$l_tables, function(x) {
       x[-1, 1]

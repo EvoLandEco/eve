@@ -7,10 +7,10 @@ nrep <- as.numeric(args[3])
 combo1 <- eve::edd_combo_maker(
   la = c(0.5),
   mu = c(0.1),
-  beta_n = c(-0.01, 0),
+  beta_n = c(0),
   beta_phi = c(-0.02),
-  gamma_n = c(0.01, 0),
-  gamma_phi = c(0.005),
+  gamma_n = c(0),
+  gamma_phi = c(0),
   age = c(15),
   model = "dsde2",
   metric = c("ed"),
@@ -19,9 +19,22 @@ combo1 <- eve::edd_combo_maker(
 
 combo2 <- eve::edd_combo_maker(
   la = c(0.5),
-  mu = c(0),
-  beta_n = c(0, -0.01),
-  beta_phi = c(-0.02),
+  mu = c(0.1),
+  beta_n = c(0),
+  beta_phi = c(-0.01),
+  gamma_n = c(0),
+  gamma_phi = c(0),
+  age = c(15),
+  model = "dsde2",
+  metric = c("pd"),
+  offset = c("none")
+)
+
+combo3 <- eve::edd_combo_maker(
+  la = c(0.5),
+  mu = c(0.1),
+  beta_n = c(0),
+  beta_phi = c(-0.01, -0.02),
   gamma_n = c(0),
   gamma_phi = c(0),
   age = c(15),
@@ -30,30 +43,17 @@ combo2 <- eve::edd_combo_maker(
   offset = c("none")
 )
 
-combo3 <- eve::edd_combo_maker(
-  la = c(0.5),
-  mu = c(0.1),
-  beta_n = c(-0.01, 0),
-  beta_phi = c(-0.01),
-  gamma_n = c(0.01, 0),
-  gamma_phi = c(0.01),
-  age = c(15),
-  model = "dsde2",
-  metric = c("pd"),
-  offset = c("none", "simtime")
-)
-
 combo4 <- eve::edd_combo_maker(
   la = c(0.5),
-  mu = c(0),
-  beta_n = c(-0.01, 0),
-  beta_phi = c(-0.01),
+  mu = c(0.1),
+  beta_n = c(0),
+  beta_phi = c(-0.01, -0.02),
   gamma_n = c(0),
   gamma_phi = c(0),
   age = c(15),
   model = "dsde2",
   metric = c("pd"),
-  offset = c("none", "simtime")
+  offset = c("none")
 )
 
 
