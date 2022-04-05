@@ -436,9 +436,15 @@ edd_combo_maker <- function(save_file = FALSE, ...) {
   combo <- expand.grid(...)
 
   if (save_file == FALSE){
-    combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
-    combo <- combo[, -(1:6)]
-    combo <- split(combo, seq(nrow(combo)))
+    if (pars$model == "dsde2") {
+      combo$pars <- purrr::pmap(unname(combo[, 1:6]), c)
+      combo <- combo[, -(1:6)]
+      combo <- split(combo, seq(nrow(combo)))
+    } else if (pars$model == "dsce2") {
+      combo$pars <- purrr::pmap(unname(combo[, 1:4]), c)
+      combo <- combo[, -(1:4)]
+      combo <- split(combo, seq(nrow(combo)))
+    }
     return(combo)
   } else {
     readr::write_csv2(combo, paste0("result/combo_", format(Sys.time(), "%Y%m%d_%H%M%S.csv")))
