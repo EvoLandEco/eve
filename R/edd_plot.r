@@ -481,7 +481,7 @@ edd_plot_ltt <-
     )
 
     plot_ltt <-
-      ggplot2::ggplot(as.data.frame(df)) + ggplot2::geom_line(ggplot2::aes(t, mean)) +
+      ggplot2::ggplot(df) + ggplot2::geom_line(ggplot2::aes(t, mean)) +
       ggplot2::geom_ribbon(ggplot2::aes(t, mean, ymax =
                         maxalpha, ymin = minalpha), alpha = 0.2) +
       ggplot2::ggtitle("Lineage-Through-Time Plot") +
