@@ -6,9 +6,6 @@
 \usage{
 edd_load_split(name = NULL)
 }
-\value{
-
-}
 \description{
 edd_load_split
 }

@@ -6,6 +6,8 @@
 \usage{
 edd_go(
   combo = NULL,
+  history = FALSE,
+  verbose = FALSE,
   nrep = 1000,
   name = NULL,
   seed = NULL,

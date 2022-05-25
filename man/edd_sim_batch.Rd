@@ -5,14 +5,13 @@
 \title{edd_sim_batch}
 \usage{
 edd_sim_batch(
-  nrep = 1000,
   combo = NULL,
+  history = FALSE,
+  verbose = FALSE,
+  nrep = 1000,
   strategy = "sequential",
   workers = NULL
 )
-}
-\value{
-
 }
 \description{
 edd_sim_batch

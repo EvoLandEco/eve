@@ -6,9 +6,6 @@
 \usage{
 bind_raw(raw_data)
 }
-\value{
-
-}
 \description{
 bind_raw
 }

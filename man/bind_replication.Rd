@@ -6,9 +6,6 @@
 \usage{
 bind_replication(raw_data = NULL, nrep = NULL)
 }
-\value{
-
-}
 \description{
 bind_replication
 }
