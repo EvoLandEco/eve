@@ -4,10 +4,7 @@
 \alias{edd_sim_rep}
 \title{edd_sim_rep}
 \usage{
-edd_sim_rep(combo = NULL, nrep = 5)
-}
-\value{
-
+edd_sim_rep(combo = NULL, history = FALSE, verbose = FALSE, nrep = 5)
 }
 \description{
 edd_sim_rep

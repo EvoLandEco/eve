@@ -6,9 +6,6 @@
 \usage{
 edd_merge(name = NULL)
 }
-\value{
-
-}
 \description{
 edd_merge
 }

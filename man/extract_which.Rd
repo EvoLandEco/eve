@@ -6,9 +6,6 @@
 \usage{
 extract_which(raw_data = NULL, nrep = NULL, which = NULL, nlist = 10)
 }
-\value{
-
-}
 \description{
 extract_which
 }

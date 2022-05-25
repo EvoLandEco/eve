@@ -6,9 +6,6 @@
 \usage{
 edd_load(raw_data = NULL, strategy = "sequential", workers = 1)
 }
-\value{
-
-}
 \description{
 edd_load
 }

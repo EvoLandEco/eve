@@ -6,9 +6,6 @@
 \usage{
 match_which(raw_data = NULL, which = NULL)
 }
-\value{
-
-}
 \description{
 match_which
 }

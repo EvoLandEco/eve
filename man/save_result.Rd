@@ -6,9 +6,6 @@
 \usage{
 save_result(out, name, set = NULL)
 }
-\value{
-
-}
 \description{
 save_result
 }

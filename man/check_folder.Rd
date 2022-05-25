@@ -6,9 +6,6 @@
 \usage{
 check_folder(name)
 }
-\value{
-
-}
 \description{
 check_folder
 }
