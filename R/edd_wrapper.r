@@ -192,7 +192,7 @@ edd_merge <- function(name = NULL) {
 #' @author Tianjian Qin
 #' @return
 edd_sim_rep <-
-  function(combo = NULL, history = TRUE, verbose = FALSE, nrep = 5) {
+  function(combo = NULL, history = FALSE, verbose = FALSE, nrep = 5) {
     if (nrep < 2)
       stop("Must have more than 1 replicates")
 
@@ -242,7 +242,7 @@ edd_sim_rep <-
 #' @author Tianjian Qin
 #' @return
 edd_sim_batch <- function(combo = NULL,
-                          history = TRUE,
+                          history = FALSE,
                           verbose = FALSE,
                           nrep = 1000,
                           strategy = "sequential",
@@ -320,7 +320,7 @@ edd_sim_batch <- function(combo = NULL,
 #' @keywords phylogenetics
 #' @export edd_go
 edd_go <- function(combo = NULL,
-                   history = TRUE,
+                   history = FALSE,
                    verbose = FALSE,
                    nrep = 1000,
                    name = NULL,
