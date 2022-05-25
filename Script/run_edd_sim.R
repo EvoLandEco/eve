@@ -43,5 +43,7 @@ names(combo) <- as.character(seq(1, length(combo)))
 
 out <- eve:::edd_sim_rep(combo = combo[[set]], nrep = nrep)
 
+print(paste0("Starting parameter set ", set))
+
 eve:::check_folder(name)
 eve:::save_result(out, name, set)
