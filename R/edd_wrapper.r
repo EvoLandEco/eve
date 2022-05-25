@@ -1,7 +1,6 @@
 #' extract_which
 #'
 #' @author Tianjian Qin
-#' @return
 extract_which <-
   function(raw_data = NULL,
            nrep = NULL,
@@ -15,7 +14,6 @@ extract_which <-
 #' bind_replication
 #'
 #' @author Tianjian Qin
-#' @return
 bind_replication <- function(raw_data = NULL, nrep = NULL) {
   if (nrep == 1)
     stop("Simulation is not replicated")
@@ -34,7 +32,6 @@ bind_replication <- function(raw_data = NULL, nrep = NULL) {
 #' match_raw
 #'
 #' @author Tianjian Qin
-#' @return
 match_raw <- function(x = NULL, y = NULL) {
   purrr::modify2(x, y, ~ if (is_list(.x))
     fun(.x, .y)
@@ -47,7 +44,6 @@ match_raw <- function(x = NULL, y = NULL) {
 #' bind_raw
 #'
 #' @author Tianjian Qin
-#' @return
 bind_raw <- function(raw_data) {
   purrr::map(raw_data,  ~ lapply(., dplyr::bind_rows))
 }
@@ -57,7 +53,6 @@ bind_raw <- function(raw_data) {
 #' match_which
 #'
 #' @author Tianjian Qin
-#' @return
 match_which <- function(raw_data = NULL, which = NULL) {
   stopifnot(is.character(which))
 
@@ -80,7 +75,6 @@ match_which <- function(raw_data = NULL, which = NULL) {
 #' edd_load
 #'
 #' @author Tianjian Qin
-#' @return
 edd_load <-
   function(raw_data = NULL,
            strategy = "sequential",
@@ -155,7 +149,6 @@ edd_load <-
 #' edd_load_split
 #'
 #' @author Tianjian Qin
-#' @return
 edd_load_split <- function(name = NULL) {
   merged_data <- edd_merge(name)
   loaded_data <- edd_load(merged_data)
@@ -168,7 +161,6 @@ edd_load_split <- function(name = NULL) {
 #' edd_merge
 #'
 #' @author Tianjian Qin
-#' @return
 edd_merge <- function(name = NULL) {
   folder_path <- paste0("result/", name)
   files <- list.files(folder_path)
@@ -190,7 +182,6 @@ edd_merge <- function(name = NULL) {
 #' edd_sim_rep
 #'
 #' @author Tianjian Qin
-#' @return
 edd_sim_rep <-
   function(combo = NULL, history = FALSE, verbose = FALSE, nrep = 5) {
     if (nrep < 2)
@@ -240,7 +231,6 @@ edd_sim_rep <-
 #' edd_sim_batch
 #'
 #' @author Tianjian Qin
-#' @return
 edd_sim_batch <- function(combo = NULL,
                           history = FALSE,
                           verbose = FALSE,

@@ -1,7 +1,6 @@
 #' save_result
 #'
 #' @author Tianjian Qin
-#' @return
 save_result <- function(out,
                         name,
                         set = NULL) {
@@ -36,7 +35,6 @@ save_result <- function(out,
 #' check_folder
 #'
 #' @author Tianjian Qin
-#' @return
 check_folder <- function(name) {
   out_folder <- file.path(getwd(),
                           "result",
