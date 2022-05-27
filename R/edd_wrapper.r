@@ -52,17 +52,17 @@ edd_sim_rep <-
 #' @author Tianjian Qin
 edd_sim_batch <- function(combo = NULL,
                           history = FALSE,
-                          verbose = FALSE,
                           nrep = 1000,
                           strategy = "sequential",
-                          workers = NULL) {
+                          workers = NULL,
+                          verbose = FALSE) {
   if (is.null(combo)) {
     stop("combo is not provided")
   }
 
   progress_sim <- progressr::progressor(steps = length(combo))
 
-  check_parallel_arguments(strategy, workers)
+  check_parallel_arguments(strategy, workers, verbose)
 
   message(paste0("Size of parameter space is: ", length(combo)))
   message(paste0("Number of replications for each parameter set is: ", nrep))
@@ -101,12 +101,12 @@ edd_sim_batch <- function(combo = NULL,
 #' @export edd_go
 edd_go <- function(combo = NULL,
                    history = FALSE,
-                   verbose = FALSE,
                    nrep = 1000,
                    name = NULL,
                    seed = NULL,
                    strategy = "sequential",
-                   workers = NULL) {
+                   workers = NULL,
+                   verbose = FALSE) {
   if (!is.null(name)) {
     if (name != "no_save") {
       check_folder(name)
