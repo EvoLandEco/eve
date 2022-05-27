@@ -548,6 +548,7 @@ edd_plot_ltt <-
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_plot_las
+#' @importFrom magrittr %>%
 edd_plot_las <- function(raw_data = NULL, rep_id = 1){
   tree <-
     ggtree::ggtree(raw_data$tas[[rep_id]]) + ggtree::geom_tiplab(align = TRUE) +
@@ -556,7 +557,7 @@ edd_plot_las <- function(raw_data = NULL, rep_id = 1){
   dat <- match_raw(raw_data$las[[rep_id]],raw_data$linlists[[rep_id]])
   dat <- dplyr::bind_rows(dat)
   dat <- dplyr::bind_cols(dplyr::select(raw_data$nltt[[rep_id]], time), dat)
-  dat <- dat %>%tibble::column_to_rownames(var = "time")
+  dat <- dat %>% tibble::column_to_rownames(var = "time")
 
   gheatmap(tree, t(dat))
 
