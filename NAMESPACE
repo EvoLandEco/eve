@@ -3,6 +3,7 @@
 export(download_ftp_file)
 export(edd_combo_maker)
 export(edd_go)
+export(edd_load_split)
 export(edd_plot)
 export(edd_plot_las)
 export(edd_plot_ltt)

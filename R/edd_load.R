@@ -76,9 +76,7 @@ match_which <- function(raw_data = NULL, which = NULL) {
 #'
 #' @author Tianjian Qin
 edd_load_split <-
-  function(raw_data = NULL,
-           strategy = "sequential",
-           workers = 1) {
+  function(raw_data = NULL, verbose = TRUE) {
     progressr::handlers(list(
       progressr::handler_progress(
         format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
@@ -87,40 +85,54 @@ edd_load_split <-
       )
     ))
 
-    check_parallel_arguments(workers, strategy)
+    if (verbose == TRUE) {
+      message(paste0("Size of parameter sets is: ", length(raw_data)))
+      message(paste0(
+        "Number of replications for each parameter set is: ",
+        length(raw_data$`1`$las)
+      ))
 
-    message(paste0("Size of parameter sets is: ", length(raw_data)))
-    message(paste0(
-      "Number of replications for each parameter set is: ",
-      length(raw_data$`1`$las)
-    ))
-
-    message(paste0("Matching historical states of speciation rate per lineage"))
+      message(paste0("Matching historical states of speciation rate per lineage"))
+    }
     las <- progressr::with_progress({
       furrr::future_map(.x = raw_data,
                         .f = match_which,
                         which = "las")
     })
 
-    message(paste0("Matching historical states of extinction rate per lineage"))
+    if (verbose == TRUE) {
+      message(paste0("Matching historical states of extinction rate per lineage"))
+    }
     mus <- progressr::with_progress({
       furrr::future_map(.x = raw_data,
                         .f = match_which,
                         which = "mus")
     })
 
-    message(paste0(
-      "Matching historical states of evolutionary distinctiveness per lineage"
-    ))
+    if (verbose == TRUE) {
+      message(paste0(
+        "Matching historical states of evolutionary distinctiveness per lineage"
+      ))
+    }
     eds <- progressr::with_progress({
       furrr::future_map(.x = raw_data,
                         .f = match_which,
                         which = "eds")
     })
 
+    if (verbose == TRUE) {
+      message("Merging historical states")
+    }
     # Historical states
-    message("Merging historical states")
-    hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
+    hs <- progressr::with_progress({
+      furrr::future_map(.x = list(las = las, mus = mus, eds = eds),
+                        .f = bind_raw)
+    })
+    #hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
+
+    if (verbose == TRUE) {
+      message("All datassets loaded")
+    }
 
     return(hs)
   }
@@ -130,16 +142,36 @@ edd_load_split <-
 #' edd_merge
 #'
 #' @author Tianjian Qin
-edd_merge <- function(name = NULL) {
+edd_merge <- function(name = NULL, verbose = TRUE) {
   folder_path <- paste0("result/", name)
   files <- list.files(folder_path)
   files_ordered <- gtools::mixedsort(files)
   data_path <- paste0(folder_path, "/", files_ordered)
 
-  message("Merging splitted datasets")
-  out <- lapply(data_path, function(x) {
-    load(file = x)
-    get("out")
+  progressr::handlers(list(
+    progressr::handler_progress(
+      format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
+      width    = 60,
+      complete = "+"
+    )
+  ))
+
+  progress_merge <-
+    progressr::progressor(steps = length(data_path))
+
+  if (verbose == TRUE) {
+    message("Merging splitted datasets")
+  }
+
+  out <- progressr::with_progress({
+    furrr::future_map(
+      .x = data_path,
+      .f = function(x) {
+        progress_merge()
+        load(file = x)
+        get("out")
+      }
+    )
   })
 
   names(out) <- 1:length(files)
@@ -153,9 +185,14 @@ edd_merge <- function(name = NULL) {
 #'
 #' @author Tianjian Qin
 #' @export edd_load
-edd_load <- function(name = NULL) {
-  merged_data <- edd_merge(name)
-  loaded_data <- edd_load_split(merged_data)
+edd_load <- function(name = NULL,
+                     strategy = "sequential",
+                     workers = 1,
+                     verbose = TRUE) {
+  check_parallel_arguments(strategy, workers, verbose)
+
+  merged_data <- edd_merge(name, verbose)
+  loaded_data <- edd_load_split(merged_data, verbose)
 
   return(loaded_data)
 }
