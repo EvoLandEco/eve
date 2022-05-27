@@ -6,12 +6,7 @@ job_status_parser <- function(file = NULL) {
   status <-
     gsub(".+(State\\s+\\:\\s)(.+)\n(Submit).+", "\\2", raw_log)
 
-  if (nchar(set_id) >= 30 | nchar(status) >= 30) {
-    set_id = "Unknown"
-    status = "RUNNING"
-  }
-
-  if (nchar(set_id) < 1 | nchar(status) < 1) {
+  if (nchar(status) >= 30 | nchar(status) < 1) {
     set_id = "Unknown"
     status = "RUNNING"
   }

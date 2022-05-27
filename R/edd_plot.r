@@ -430,7 +430,7 @@ edd_plot_ltt <-
     ts <- unique(ts)
     ts <- sort(ts)
 
-    df <- eve:::calculate_CI(brts, ts, alpha = alpha)
+    df <- calculate_CI(brts, ts, alpha = alpha)
     colnames(df) <- c("t", "median", "minalpha", "maxalpha", "mean")
     df <- as.data.frame(df)
 
@@ -548,15 +548,16 @@ edd_plot_ltt <-
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_plot_las
+#' @importFrom magrittr %>%
 edd_plot_las <- function(raw_data = NULL, rep_id = 1){
   tree <-
     ggtree::ggtree(raw_data$tas[[rep_id]]) + ggtree::geom_tiplab(align = TRUE) +
     ggtree::theme_tree2()
 
-  dat <- eve:::match_raw(raw_data$las[[rep_id]],raw_data$linlists[[rep_id]])
+  dat <- match_raw(raw_data$las[[rep_id]],raw_data$linlists[[rep_id]])
   dat <- dplyr::bind_rows(dat)
   dat <- dplyr::bind_cols(dplyr::select(raw_data$nltt[[rep_id]], time), dat)
-  dat <- dat %>%tibble::column_to_rownames(var = "time")
+  dat <- dat %>% tibble::column_to_rownames(var = "time")
 
   gheatmap(tree, t(dat))
 
