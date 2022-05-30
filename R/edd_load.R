@@ -131,7 +131,7 @@ edd_load_split <-
     #hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
 
     if (verbose == TRUE) {
-      message("All datassets loaded")
+      message("All datasets loaded")
     }
 
     return(hs)

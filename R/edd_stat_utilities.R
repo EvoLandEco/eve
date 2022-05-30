@@ -61,4 +61,6 @@ calculate_aldous_beta <- function(phy = NULL, method = "treestats") {
   } else {
     stop("No such method")
   }
+
+  return(beta)
 }
