@@ -72,9 +72,40 @@ match_which <- function(raw_data = NULL, which = NULL) {
 }
 
 
+
+#' @name swap_layers
+#' @description Swap the first and the second layers of a list of lists
+#' This function is superseded by purrr::transpose() which is way faster
+#' @author Tianjian Qin
+swap_layers <- function(ls) {
+  nm <- el(lapply(ls, names))
+  lapply(nm, \(i) lapply(ls, '[[', i)) |> setNames(nm)
+}
+
+
+
+#' @name reduce_element
+#' @description Reduce specified element(s) from a list
+#' @author Tianjian Qin
+reduce_element <- function(ls, ...) {
+  return(within(ls, rm(...)))
+}
+
+
+
+#' match_time_step
+#'
+#' @author Tianjian Qin
+match_time_step <- function(raw_data = NULL, hist_state = NULL) {
+  las_table <- cbind(Time = raw_data$ltt[[1]]$time, hist_state$las)
+}
+
+
+
 #' edd_load_split
 #'
 #' @author Tianjian Qin
+#' @export edd_load_split
 edd_load_split <-
   function(raw_data = NULL, verbose = TRUE) {
     progressr::handlers(list(
@@ -128,13 +159,25 @@ edd_load_split <-
       furrr::future_map(.x = list(las = las, mus = mus, eds = eds),
                         .f = bind_raw)
     })
-    #hs <- lapply(list(las = las, mus = mus, eds = eds), bind_raw)
+
+    hs <- purrr::transpose(hs)
+
+    if (verbose == TRUE) {
+      message("Finalizing data loading")
+    }
+    reduced <-
+      lapply(raw_data, reduce_element, "las", "mus", "eds", "linlists")
+
+    dataset <- purrr::map2(.x = hs,
+                           .y = reduced,
+                           .f = c)
+
 
     if (verbose == TRUE) {
       message("All datasets loaded")
     }
 
-    return(hs)
+    return(dataset)
   }
 
 
