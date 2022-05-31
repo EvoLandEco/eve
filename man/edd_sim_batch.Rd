@@ -7,10 +7,10 @@
 edd_sim_batch(
   combo = NULL,
   history = FALSE,
-  verbose = FALSE,
   nrep = 1000,
   strategy = "sequential",
-  workers = NULL
+  workers = NULL,
+  verbose = FALSE
 )
 }
 \description{

@@ -1,0 +1,241 @@
+#' extract_which
+#'
+#' @author Tianjian Qin
+extract_which <-
+  function(raw_data = NULL,
+           nrep = NULL,
+           which = NULL,
+           nlist = 10) {
+    return(raw_data[seq(which, nlist * nrep, by = nlist)])
+  }
+
+
+
+#' bind_replication
+#'
+#' @author Tianjian Qin
+bind_replication <- function(raw_data = NULL, nrep = NULL) {
+  if (nrep == 1)
+    stop("Simulation is not replicated")
+
+  binded_data <- lapply(raw_data, as.data.frame)
+
+  for (i in 1:nrep) {
+    binded_data[[i]]["nrep"] <- rep(i, times = nrow(binded_data[[i]]))
+  }
+
+  return(binded_data)
+}
+
+
+
+#' match_raw
+#'
+#' @author Tianjian Qin
+match_raw <- function(x = NULL, y = NULL) {
+  purrr::modify2(x, y, ~ if (is_list(.x))
+    fun(.x, .y)
+    else
+      purrr::set_names(.x, paste0('t', abs(.y))))
+}
+
+
+
+#' bind_raw
+#'
+#' @author Tianjian Qin
+bind_raw <- function(raw_data) {
+  purrr::map(raw_data,  ~ lapply(., dplyr::bind_rows))
+}
+
+
+
+#' match_which
+#'
+#' @author Tianjian Qin
+match_which <- function(raw_data = NULL, which = NULL) {
+  stopifnot(is.character(which))
+
+  progress_match <-
+    progressr::progressor(steps = length(raw_data$las))
+
+  purrr::map2(
+    .x = eval(parse(text = paste0(
+      "raw_data$", which
+    ))),
+    .y = raw_data$linlists,
+    .f = function(x, y) {
+      progress_match()
+      match_raw(x, y)
+    }
+  )
+}
+
+
+
+#' @title swap_layers
+#' @description Swap the first and the second layers of a list of lists
+#' This function is superseded by purrr::transpose() which is way faster
+#' @author Tianjian Qin
+swap_layers <- function(ls) {
+  nm <- el(lapply(ls, names))
+  lapply(nm, \(i) lapply(ls, '[[', i)) |> setNames(nm)
+}
+
+
+
+#' @title reduce_element
+#' @description Reduce specified element(s) from a list
+#' @author Tianjian Qin
+reduce_element <- function(ls, ...) {
+  return(within(ls, rm(...)))
+}
+
+
+
+#' match_time_step
+#'
+#' @author Tianjian Qin
+match_time_step <- function(raw_data = NULL, hist_state = NULL) {
+  las_table <- cbind(Time = raw_data$ltt[[1]]$time, hist_state$las)
+}
+
+
+
+#' edd_load_split
+#'
+#' @author Tianjian Qin
+#' @export edd_load_split
+edd_load_split <-
+  function(raw_data = NULL, verbose = TRUE) {
+    progressr::handlers(list(
+      progressr::handler_progress(
+        format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
+        width    = 60,
+        complete = "+"
+      )
+    ))
+
+    if (verbose == TRUE) {
+      message(paste0("Size of parameter sets is: ", length(raw_data)))
+      message(paste0(
+        "Number of replications for each parameter set is: ",
+        length(raw_data$`1`$las)
+      ))
+
+      message(paste0("Matching historical states of speciation rate per lineage"))
+    }
+    las <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "las")
+    })
+
+    if (verbose == TRUE) {
+      message(paste0("Matching historical states of extinction rate per lineage"))
+    }
+    mus <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "mus")
+    })
+
+    if (verbose == TRUE) {
+      message(paste0(
+        "Matching historical states of evolutionary distinctiveness per lineage"
+      ))
+    }
+    eds <- progressr::with_progress({
+      furrr::future_map(.x = raw_data,
+                        .f = match_which,
+                        which = "eds")
+    })
+
+    if (verbose == TRUE) {
+      message("Merging historical states")
+    }
+    # Historical states
+    hs <- progressr::with_progress({
+      furrr::future_map(.x = list(las = las, mus = mus, eds = eds),
+                        .f = bind_raw)
+    })
+
+    hs <- purrr::transpose(hs)
+
+    if (verbose == TRUE) {
+      message("Finalizing data loading")
+    }
+    reduced <-
+      lapply(raw_data, reduce_element, "las", "mus", "eds", "linlists")
+
+    dataset <- purrr::map2(.x = hs,
+                           .y = reduced,
+                           .f = c)
+
+
+    if (verbose == TRUE) {
+      message("All datasets loaded")
+    }
+
+    return(dataset)
+  }
+
+
+
+#' edd_merge
+#'
+#' @author Tianjian Qin
+edd_merge <- function(name = NULL, verbose = TRUE) {
+  folder_path <- paste0("result/", name)
+  files <- list.files(folder_path)
+  files_ordered <- gtools::mixedsort(files)
+  data_path <- paste0(folder_path, "/", files_ordered)
+
+  progressr::handlers(list(
+    progressr::handler_progress(
+      format   = ":spin :current/:total (:message) [:bar] :percent in :elapsed ETA: :eta",
+      width    = 60,
+      complete = "+"
+    )
+  ))
+
+  progress_merge <-
+    progressr::progressor(steps = length(data_path))
+
+  if (verbose == TRUE) {
+    message("Merging splitted datasets")
+  }
+
+  out <- progressr::with_progress({
+    furrr::future_map(
+      .x = data_path,
+      .f = function(x) {
+        progress_merge()
+        load(file = x)
+        get("out")
+      }
+    )
+  })
+
+  names(out) <- 1:length(files)
+
+  return(out)
+}
+
+
+
+#' edd_load
+#'
+#' @author Tianjian Qin
+#' @export edd_load
+edd_load <- function(name = NULL,
+                     strategy = "sequential",
+                     workers = 1,
+                     verbose = TRUE) {
+  check_parallel_arguments(strategy, workers, verbose)
+
+  merged_data <- edd_merge(name, verbose)
+  loaded_data <- edd_load_split(merged_data, verbose)
+
+  return(loaded_data)
+}

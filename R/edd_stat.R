@@ -12,7 +12,9 @@ edd_stat <- function(raw_data = NULL, stat_options = NA, ...){
   if (length(raw_data) != 10) stop("Bad raw data")
   correct_names <- c("all_pars", "tes", "tas", "l_tables", "brts", "nltt",
                      "eds", "las", "mus", "linlists")
-  if (!identical(names(raw_data), correct_names)) stop("Bad raw data")
+  if (!identical(names(raw_data), correct_names)) {
+    stop("Invalid raw data, did you forget to set history = TRUE?")
+  }
 
   # plot lineages through time
   stat_balance <- edd_stat_balance(raw_data)
@@ -37,54 +39,6 @@ edd_stat <- function(raw_data = NULL, stat_options = NA, ...){
 
 
 
-#' @name calculate_CI
-#' @title Calculating confidence interval for LTT plot (reversed time scale)
-#' @author Rampal Etienne; Tianjian Qin
-calculate_CI <- Rcpp::cppFunction('
-NumericMatrix get_stats_cpp(const List& brts_list,
-                            const NumericVector& tt,
-                            const float alpha) {
-  NumericMatrix output(tt.size(), 5);
+stat_balance <- function(raw_data = NULL, method = "aldous") {
 
-  size_t min_index = brts_list.size() * alpha/2;
-  size_t max_index = brts_list.size() * (1 - alpha/2);
-
-  for (int i = (tt.size() - 1); i >= 0; --i) {
-    float focal_t = tt[i];
-    std::vector<size_t> found_lin(brts_list.size());
-    float mean = 0.f;
-    NumericVector focal_brts;
-    for (int j = 0; j < brts_list.size(); ++j) {
-      focal_brts = brts_list[j]; // temp
-      size_t cnt = focal_brts.size() - 1;
-      while(focal_brts[cnt] > focal_t) {
-        cnt--;
-      }
-      found_lin[j] = cnt; // two at first timepoint, crown age.
-      mean += found_lin[j];
-    }
-    mean *= 1.0 / brts_list.size();
-
-    std::sort(found_lin.begin(), found_lin.end());
-    float median = found_lin[ found_lin.size() / 2 + 1 ];
-
-    if (found_lin.size() % 2 == 0) {
-      median = 0.5 * (found_lin[ found_lin.size() / 2] +
-                      found_lin[ found_lin.size() / 2 + 1]);
-    }
-
-    float minalpha = found_lin.at( min_index );
-    float maxalpha = found_lin.at( max_index );
-
-    NumericVector add(5);
-    add(0) = focal_t;
-    add(1) = median;
-    add(2) = minalpha;
-    add(3) = maxalpha;
-    add(4) = mean;
-
-    output(i, _) = add;
-  }
-  return output;
-}')
-
+}

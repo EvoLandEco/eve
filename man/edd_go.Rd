@@ -7,12 +7,12 @@
 edd_go(
   combo = NULL,
   history = FALSE,
-  verbose = FALSE,
   nrep = 1000,
   name = NULL,
   seed = NULL,
   strategy = "sequential",
-  workers = NULL
+  workers = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
