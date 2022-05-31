@@ -463,37 +463,34 @@ edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE){
 
 
 
-test_plot_ltt <- function(name = NULL) {
-  folder_path <- paste0("result/", name)
-  files <- list.files(folder_path)
-  files_ordered <- gtools::mixedsort(files)
-  data_path <- paste0(folder_path, "/", files_ordered)
-
-  lapply(data_path, function(x) {
-    load(file = x)
-    edd_plot_ltt(out, save_plot = TRUE)
-  })
-}
-#test_plot_ltt("edd_sim_05042022")
-
+#' @export test_plot_las
 test_plot_las <- function(raw_data) {
   lapply(raw_data, function(x) {
     edd_plot_las(x, save_plot = TRUE)
   })
 }
 
+
+
+#' @export test_plot_mus
 test_plot_mus <- function(raw_data) {
   lapply(raw_data, function(x) {
     edd_plot_mus(x, save_plot = TRUE)
   })
 }
 
+
+
+#' @export test_plot_eds
 test_plot_eds <- function(raw_data) {
   lapply(raw_data, function(x) {
     edd_plot_eds(x, save_plot = TRUE)
   })
 }
 
+
+
+#' @export test_plot_ltt
 test_plot_ltt <- function(raw_data) {
   lapply(raw_data, function(x) {
     edd_plot_ltt(x, save_plot = TRUE)
