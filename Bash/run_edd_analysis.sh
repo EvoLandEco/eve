@@ -16,4 +16,4 @@ name=${1}
 
 Rscript -e "devtools::install_github('EvoLandEco/eve')"
 
-Rscript ~/eve/Script/run_edd_sim.R ${name}
+Rscript ~/eve/Script/run_edd_analysis.R ${name}
