@@ -32,6 +32,7 @@ Imports:
     furrr,
     ggtext,
     stringr,
-    geomtextpath
+    geomtextpath,
+    patchwork
 Suggests: 
     covr
