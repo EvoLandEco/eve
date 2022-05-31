@@ -35,22 +35,28 @@ save_result <- function(out,
 #' check_folder
 #'
 #' @author Tianjian Qin
-check_folder <- function(name) {
+check_folder <- function(name, verbose = TRUE) {
   out_folder <- file.path(getwd(),
                           "result",
                           name)
   if (!dir.exists(out_folder)) {
-    message(paste0("Attempting to create folder ",
-                   out_folder,
-                   "\n"))
+    if (verbose == TRUE) {
+      message(paste0("Attempting to create folder ",
+                     out_folder,
+                     "\n"))
+    }
     dir.create(out_folder, recursive = TRUE)
   } else {
-    message(out_folder, " already exists\n")
+    if (verbose == TRUE) {
+      message(out_folder, " already exists\n")
+    }
   }
 
   if (!dir.exists(out_folder)) {
     stop(paste0("Failed to create folder", out_folder, "\n"))
   } else {
-    message("Folder created\n")
+    if (verbose == TRUE) {
+      message("Folder created\n")
+    }
   }
 }

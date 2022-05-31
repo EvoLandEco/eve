@@ -73,7 +73,7 @@ match_which <- function(raw_data = NULL, which = NULL) {
 
 
 
-#' @name swap_layers
+#' @title swap_layers
 #' @description Swap the first and the second layers of a list of lists
 #' This function is superseded by purrr::transpose() which is way faster
 #' @author Tianjian Qin
@@ -84,7 +84,7 @@ swap_layers <- function(ls) {
 
 
 
-#' @name reduce_element
+#' @title reduce_element
 #' @description Reduce specified element(s) from a list
 #' @author Tianjian Qin
 reduce_element <- function(ls, ...) {
