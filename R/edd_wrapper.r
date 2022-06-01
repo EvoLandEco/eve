@@ -1,5 +1,5 @@
 #' edd_sim_rep
-#'
+#' @export edd_sim_rep
 #' @author Tianjian Qin
 edd_sim_rep <-
   function(combo = NULL, history = FALSE, verbose = FALSE, nrep = 5) {
