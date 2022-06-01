@@ -1,5 +1,5 @@
 #' edd_sim_rep
-#'
+#' @export edd_sim_rep
 #' @author Tianjian Qin
 edd_sim_rep <-
   function(combo = NULL, history = FALSE, verbose = FALSE, nrep = 5) {
@@ -10,7 +10,7 @@ edd_sim_rep <-
 
     # do replicated simulations
     raw_data <- replicate(nrep, {
-      DDD::edd_sim(pars = unlist(combo$pars),
+      edd_sim(pars = unlist(combo$pars),
                    age = combo$age,
                    model = combo$model,
                    metric = combo$metric,

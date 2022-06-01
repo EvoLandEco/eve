@@ -4,7 +4,7 @@
 \alias{check_folder}
 \title{check_folder}
 \usage{
-check_folder(name)
+check_folder(name, verbose = TRUE)
 }
 \description{
 check_folder
