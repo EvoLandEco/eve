@@ -7,6 +7,8 @@
 edd_combo_maker(save_file = FALSE, ...)
 }
 \arguments{
+\item{save_file}{Logical, decides whether to save parameter sets to file}
+
 \item{...}{parameters that form a parameter space}
 }
 \description{

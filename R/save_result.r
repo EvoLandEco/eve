@@ -1,5 +1,8 @@
 #' save_result
-#'
+#' @param out Result object to be saved to file
+#' @param name Name of the simulation job, this will create a folder in the same
+#' name
+#' @param set The index of the parameter set in the whole parameter sets
 #' @author Tianjian Qin
 save_result <- function(out,
                         name,
@@ -33,7 +36,8 @@ save_result <- function(out,
 
 
 #' check_folder
-#'
+#' @param name A string, name of the simulation job
+#' @param verbose Logical, decides whether to print information
 #' @author Tianjian Qin
 check_folder <- function(name, verbose = TRUE) {
   out_folder <- file.path(getwd(),

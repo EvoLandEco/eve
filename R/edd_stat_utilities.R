@@ -1,4 +1,7 @@
 #' @name calculate_CI
+#' @param brts_list A list containing branching times of a simulation
+#' @param tt Time table
+#' @param alpha Resolution
 #' @title Calculating confidence interval for LTT plot (reversed time scale)
 #' @author Thijs Janzen; Tianjian Qin
 calculate_CI <- Rcpp::cppFunction('

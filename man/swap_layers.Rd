@@ -6,6 +6,9 @@
 \usage{
 swap_layers(ls)
 }
+\arguments{
+\item{ls}{The list to be transposed between the first two layers}
+}
 \description{
 Swap the first and the second layers of a list of lists
 This function is superseded by purrr::transpose() which is way faster

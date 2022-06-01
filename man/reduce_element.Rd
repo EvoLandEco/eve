@@ -6,6 +6,11 @@
 \usage{
 reduce_element(ls, ...)
 }
+\arguments{
+\item{ls}{The list to drop some elements}
+
+\item{...}{Names of the elements to be dropped from the list}
+}
 \description{
 Reduce specified element(s) from a list
 }

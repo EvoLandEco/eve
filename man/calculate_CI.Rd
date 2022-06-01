@@ -6,6 +6,13 @@
 \usage{
 calculate_CI(brts_list, tt, alpha)
 }
+\arguments{
+\item{brts_list}{A list containing branching times of a simulation}
+
+\item{tt}{Time table}
+
+\item{alpha}{Resolution}
+}
 \description{
 Calculating confidence interval for LTT plot (reversed time scale)
 }
