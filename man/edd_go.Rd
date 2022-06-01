@@ -16,7 +16,11 @@ edd_go(
 )
 }
 \arguments{
-\item{combo}{parameter space}
+\item{combo}{A list containing parameter sets to be used to start a simulation}
+
+\item{history}{Logical, decides whether to record historical states for all
+of the lineages, including the transitions of the rates and the evolutionary
+relationship metrics}
 
 \item{nrep}{number of replication}
 
@@ -27,9 +31,13 @@ instead.}
 
 \item{seed}{set random seed}
 
-\item{strategy}{determine if the simulation is sequential or multi-sessioned}
+\item{strategy}{determine if the simulation is sequential or multi-sessioned
+or multi-cored}
 
 \item{workers}{determine how many sessions are participated in the simulation}
+
+\item{verbose}{Logical, decides whether to print simulation details of each
+time step during simulation, for debugging purposes}
 }
 \description{
 Function to start a replicated edd simulation along with a given

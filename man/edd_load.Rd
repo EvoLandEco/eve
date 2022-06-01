@@ -6,6 +6,16 @@
 \usage{
 edd_load(name = NULL, strategy = "sequential", workers = 1, verbose = TRUE)
 }
+\arguments{
+\item{name}{Name of the simulation job}
+
+\item{strategy}{determine if the simulation is sequential or multi-sessioned
+or multi-cored}
+
+\item{workers}{determine how many sessions are participated in the simulation}
+
+\item{verbose}{Logical, decides whether to print loading details}
+}
 \description{
 edd_load
 }

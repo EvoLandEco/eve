@@ -6,6 +6,11 @@
 \usage{
 check_folder(name, verbose = TRUE)
 }
+\arguments{
+\item{name}{A string, name of the simulation job}
+
+\item{verbose}{Logical, decides whether to print information}
+}
 \description{
 check_folder
 }

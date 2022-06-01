@@ -7,7 +7,7 @@
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_stat
-edd_stat <- function(raw_data = NULL, stat_options = NA, ...){
+edd_stat <- function(raw_data = NULL){
   if (is.null(raw_data)) stop("No data provided")
   if (length(raw_data) != 10) stop("Bad raw data")
   correct_names <- c("all_pars", "tes", "tas", "l_tables", "brts", "nltt",

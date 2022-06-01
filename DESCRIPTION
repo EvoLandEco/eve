@@ -9,28 +9,30 @@ Authors@R:
            comment = c(ORCID = "0000-0003-2540-1778"))
 Description: Provides functions to conveniently run phylogenetic diversity dependent diversification simulation and automatically convert generated data into plots. 
 License: GPL (>= 3)
+Depends: R (>= 3.5.0)
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Imports: 
+    ape,
     dplyr,
-    tidyr,
+    fs,
+    furrr,
     future,
     ggplot2,
-    ggtree,
-    ggthemr,
-    gtools,
-    nLTT,
-    purrr,
-    readr,
-    tibble,
-    viridis,
-    progressr,
-    furrr,
     ggtext,
+    gtools,
+    magrittr,
+    nLTT,
+    patchwork,
+    progressr,
+    purrr,
+    RCurl,
+    readr,
     stringr,
-    geomtextpath,
-    patchwork
+    tibble,
+    tidyr,
+    treestats,
+    viridis,
 Suggests: 
     covr

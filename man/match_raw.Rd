@@ -6,6 +6,11 @@
 \usage{
 match_raw(x = NULL, y = NULL)
 }
+\arguments{
+\item{x}{Data to be matched}
+
+\item{y}{List of lineages at all the time steps}
+}
 \description{
 match_raw
 }

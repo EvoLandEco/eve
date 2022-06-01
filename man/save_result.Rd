@@ -6,6 +6,14 @@
 \usage{
 save_result(out, name, set = NULL)
 }
+\arguments{
+\item{out}{Result object to be saved to file}
+
+\item{name}{Name of the simulation job, this will create a folder in the same
+name}
+
+\item{set}{The index of the parameter set in the whole parameter sets}
+}
 \description{
 save_result
 }

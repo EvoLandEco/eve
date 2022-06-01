@@ -6,6 +6,11 @@
 \usage{
 edd_merge(name = NULL, verbose = TRUE)
 }
+\arguments{
+\item{name}{Name of the simulation job}
+
+\item{verbose}{Logical, decides whether to print loading details}
+}
 \description{
 edd_merge
 }

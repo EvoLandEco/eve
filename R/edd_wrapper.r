@@ -1,4 +1,11 @@
 #' edd_sim_rep
+#' @param combo A list containing parameter sets to be used to start a simulation
+#' @param history Logical, decides whether to record historical states for all
+#' of the lineages, including the transitions of the rates and the evolutionary
+#' relationship metrics
+#' @param verbose Logical, decides whether to print simulation details of each
+#' @param nrep number of replication
+#' time step during simulation, for debugging purposes
 #' @export edd_sim_rep
 #' @author Tianjian Qin
 edd_sim_rep <-
@@ -48,7 +55,16 @@ edd_sim_rep <-
 
 
 #' edd_sim_batch
-#'
+#' @param combo A list containing parameter sets to be used to start a simulation
+#' @param history Logical, decides whether to record historical states for all
+#' of the lineages, including the transitions of the rates and the evolutionary
+#' relationship metrics
+#' @param nrep number of replication
+#' @param strategy determine if the simulation is sequential or multi-sessioned
+#' or multi-cored
+#' @param workers determine how many sessions are participated in the simulation
+#' @param verbose Logical, decides whether to print simulation details of each
+#' time step during simulation, for debugging purposes
 #' @author Tianjian Qin
 edd_sim_batch <- function(combo = NULL,
                           history = FALSE,
@@ -87,15 +103,21 @@ edd_sim_batch <- function(combo = NULL,
 #' @title Starting a edd simulation
 #' @description Function to start a replicated edd simulation along with a given
 #' parameter space
+#' @param combo A list containing parameter sets to be used to start a simulation
+#' @param history Logical, decides whether to record historical states for all
+#' of the lineages, including the transitions of the rates and the evolutionary
+#' relationship metrics
 #' @param nrep number of replication
-#' @param combo parameter space
 #' @param name name of the folder to save results, if left blank, a folder will
 #' be created according to current time and date. Set it to "no_save" to disable
 #' result saving function, an object containing all the results will be returned
 #' instead.
 #' @param seed set random seed
 #' @param strategy determine if the simulation is sequential or multi-sessioned
+#' or multi-cored
 #' @param workers determine how many sessions are participated in the simulation
+#' @param verbose Logical, decides whether to print simulation details of each
+#' time step during simulation, for debugging purposes
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_go
@@ -160,6 +182,7 @@ edd_go <- function(combo = NULL,
 #' @title Making a parameter space for edd simulation
 #' @description Function to conveniently make a parameter space for edd
 #' simulation
+#' @param save_file Logical, decides whether to save parameter sets to file
 #' @param ... parameters that form a parameter space
 #' @author Tianjian Qin
 #' @keywords phylogenetics
