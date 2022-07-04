@@ -1,91 +1,32 @@
-#' Function to download files from an \code{FTP} or \code{SFTP} server.
+#' Function to batch download files from an \code{FTP} or \code{SFTP} server.
 #'
 #' @param file_remote \code{URL}s of the files to be downloaded.
-#'
 #' @param file_local File names for the local version of \code{file_remote}.
 #' \code{download_ftp_file} will create directories if they do not exist and are
 #' used.
-#'
 #' @param credentials Credentials for a \code{FTP} or \code{SFTP} server. Do not
 #' use \code{credentials} if the server does not require authentication.
 #' \code{credentials} takes the format: \code{"username:password"}.
-#'
-#' @param curl Should \strong{RCurl} be used to download the files or base R's
-#' \code{download.file}? If \code{credentials} are used, \strong{RCurl} will
-#' always be used.
-#'
-#' @param sleep Number of seconds to wait between querying server.
-#'
-#' @param verbose Should the function give messages about download progress?
-#'
-#' @seealso \code{\link{list_files_ftp}}, \code{\link{upload_to_ftp}}
-#'
-#' @author Stuart K. Grange
-#'
-#' @examples
-#'
-#' \dontrun{
-#' # Download a file from a server which does not need credentials
-#' url <- "ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"
-#' download_ftp_file(url, "~/Desktop/noaa_data.csv", verbose = TRUE)
-#' }
-#'
+#' @author Tianjian Qin
 #' @export
-download_ftp_file <- function(file_remote, file_local, credentials = "",
-                              curl = FALSE, sleep = NA, verbose = FALSE) {
+download_ftp_file <-
+  function(file_remote,
+           file_local,
+           credentials = ""
+           ) {
+    apply(file_local, check_folder, verbose = FALSE)
 
-  # Do
-  purrr::walk2(
-    file_remote,
-    file_local,
-    ~download_ftp_file_worker(
-      file_remote = .x,
-      file_local = .y,
-      credentials = credentials,
-      curl = curl,
-      sleep = sleep,
-      verbose = verbose
+    file_remote <- stringr::str_extract(file_remote, "(?<=sftp\\:\\/\\/)(.+)")
 
-    )
-  )
+    file_remote <- paste0("sftp://", credentials, "@", file_remote)
 
-}
+    if (!capabilities("libcurl")[[1]]) {
+      stop("libcurl not supported")
+    }
 
-
-download_ftp_file_worker <- function(file_remote, file_local, credentials,
-                                     curl, sleep, verbose) {
-
-  # Message to user
-  if (verbose) message(date_message(), "`", file_remote, "`...")
-
-  # Create if does not exist
-  fs::dir_create(fs::path_dir(file_local))
-
-  # If credentials are used, use rcurl
-  if (credentials != "") curl <- TRUE
-
-  if (curl) {
-
-    # Download the file as a binary object
-    data_bin <- RCurl::getBinaryURL(
-      file_remote,
-      userpwd = credentials,
-      ftp.use.epsv = FALSE,
-      forbid.reuse = TRUE
-    )
-
-    # Save binary object as file
-    writeBin(data_bin, file_local)
-
-  } else {
-    download.file(file_remote, file_local, quiet = !verbose)
+    download.file(file_remote, file_local, method="libcurl")
   }
 
-  if (!is.na(sleep[1])) Sys.sleep(sleep)
-
-  # No return
-
-}
 
 
 #' Function to list files on an FTP or SFTP server.
