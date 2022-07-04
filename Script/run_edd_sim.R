@@ -9,7 +9,7 @@ combo1 <- eve::edd_combo_maker(
   mu = c(0.1, 0.2),
   beta_n = c(0, -0.01, -0.005),
   beta_phi = c(-0.05, -0.01, 0, 0.01, 0.05),
-  age = c(10),
+  age = c(6),
   model = "dsce2",
   metric = c("pd"),
   offset = c("none", "simtime", "spcount", "both")
@@ -20,7 +20,7 @@ combo2 <- eve::edd_combo_maker(
   mu = c(0.1, 0.2),
   beta_n = c(0, -0.01, -0.005),
   beta_phi = c(-0.05, -0.01, 0, 0.01, 0.05),
-  age = c(10),
+  age = c(6),
   model = "dsce2",
   metric = c("ed"),
   offset = c("none")
