@@ -7,17 +7,24 @@
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_stat
-edd_stat <- function(raw_data = NULL){
-  if (is.null(raw_data)) stop("No data provided")
-  if (length(raw_data) != 10) stop("Bad raw data")
-  correct_names <- c("all_pars", "tes", "tas", "l_tables", "brts", "nltt",
-                     "eds", "las", "mus", "linlists")
-  if (!identical(names(raw_data), correct_names)) {
-    stop("Invalid raw data, did you forget to set history = TRUE?")
-  }
-
+edd_stat <- function(raw_data = NULL) {
+  check_raw_data(raw_data)
   # plot lineages through time
-  stat_balance <- edd_stat_balance(raw_data)
+  stat_tree_balance <- lapply(raw_data, edd_stat_tree_balance)
+  stat_tree_balance <- dplyr::bind_rows(stat_tree_balance)
+  stat_tree_balance <- dplyr::mutate(stat_tree_balance,
+                                     offset2 = dplyr::case_when(offset == "none" ~ "None",
+                                                                offset == "simtime" ~ "Simulation time",
+                                                                offset == "spcount" ~ "Species count",
+                                                                offset == "both" ~ "Both"))
+  stat_tree_balance$offset2 <- factor(stat_tree_balance$offset2, levels = c("None", "Simulation time", "Species count", "Both"))
+  stat_tree_balance_long <- tidyr::gather(stat_tree_balance, key = "balance", value = "value",
+                                          sackin, colless, blum)
+  stat_tree_balance_long$value <- as.numeric(stat_tree_balance_long$value)
+  stat_tree_balance_long$lambda <- as.factor(stat_tree_balance_long$lambda)
+  stat_tree_balance_long$mu <- as.factor(stat_tree_balance_long$mu)
+  stat_tree_balance_long$beta_n <- as.factor(stat_tree_balance_long$beta_n)
+  stat_tree_balance_long$beta_phi <- as.factor(stat_tree_balance_long$beta_phi)
 
   # plot speciation rates
   stat_brts <- edd_stat_brts(raw_data) # histogram/model fitting
@@ -31,14 +38,23 @@ edd_stat <- function(raw_data = NULL){
   stat_pack <- list(stat_balance = stat_balance,
                     stat_brts = stat_brts,
                     stat_nltt = stat_nltt,
-                    stat_gamma  = stat_gamma
+                    stat_gamma = stat_gamma
   )
 
   return(stat_pack)
 }
 
 
+edd_stat_tree_balance <- function(raw_data = NULL, method = "treestats") {
+  metadata <- as.data.frame(extract_parameters(raw_data))
 
-stat_balance <- function(raw_data = NULL, method = "aldous") {
+  sackin <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Sackin")
+  colless <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Colless")
+  blum <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Blum")
 
+  balance <- cbind(sackin, colless, blum)
+  balance <- cbind(balance, dplyr::slice(metadata, rep(1, 100)))
+
+  return(balance)
 }
+

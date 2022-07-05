@@ -15,7 +15,7 @@ Rscript -e "devtools::install_github('EvoLandEco/eve')"
 name=${1}
 nrep=${2}
 
-for (( param_set = 1; param_set <= 300; param_set++ ))
+for (( param_set = 1; param_set <= 360; param_set++ ))
 do
 sbatch ~/eve/Bash/submit_edd_sim.sh ${name} \
                                     ${param_set} \

@@ -238,9 +238,9 @@ edd_merge <- function(name = NULL, verbose = TRUE) {
 
 #' edd_load
 #' @param name Name of the simulation job
-#' @param strategy determine if the simulation is sequential or multi-sessioned
+#' @param strategy Determine if the simulation is sequential or multi-sessioned
 #' or multi-cored
-#' @param workers determine how many sessions are participated in the simulation
+#' @param workers Determine how many sessions are participated in the simulation
 #' @param verbose Logical, decides whether to print loading details
 #' @author Tianjian Qin
 #' @export edd_load

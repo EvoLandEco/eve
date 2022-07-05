@@ -54,16 +54,24 @@ NumericMatrix get_stats_cpp(const List& brts_list,
 
 
 
-calculate_aldous_beta <- function(phy = NULL, method = "treestats") {
+calculate_tree_balance <- function(phy = NULL, method = "treestats", metric = "Aldous") {
   if (!ape::is.ultrametric.phylo(phy)) {
     stop("Ultrametric tree required, considering using tree with only extant taxa")
   }
 
   if (method == "treestats") {
-    beta <- treestats::beta_statistic(phy)
+    if (metric == "Aldous") {
+      return(treestats::beta_statistic(phy))
+    } else if (metric == "Sackin") {
+      return(treestats::sackin(phy, normalization = "yule"))
+    } else if (metric == "Colless") {
+      return(treestats::colless(phy, normalization = "yule"))
+    } else if (metric == "Blum") {
+      return(treestats::blum(phy))
+    } else {
+      stop("Invalid metric")
+    }
   } else {
     stop("No such method")
   }
-
-  return(beta)
 }
