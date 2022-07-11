@@ -53,7 +53,6 @@ NumericMatrix get_stats_cpp(const List& brts_list,
 }')
 
 
-
 calculate_tree_balance <- function(phy = NULL, method = "treestats", metric = "Aldous") {
   if (!ape::is.ultrametric.phylo(phy)) {
     stop("Ultrametric tree required, considering using tree with only extant taxa")
@@ -74,4 +73,88 @@ calculate_tree_balance <- function(phy = NULL, method = "treestats", metric = "A
   } else {
     stop("No such method")
   }
+}
+
+
+calculate_mean_branch_length <- function(phy = NULL, method = "treestats") {
+  if (!ape::is.ultrametric.phylo(phy)) {
+    stop("Ultrametric tree required, considering using tree with only extant taxa")
+  }
+
+  if (method == "treestats") {
+    return(treestats::mean_branch_length(phy))
+  } else {
+    stop("No such method")
+  }
+}
+
+
+calculate_gamma_statistics <- function(phy = NULL, method = "treestats") {
+  if (!ape::is.ultrametric.phylo(phy)) {
+    stop("Ultrametric tree required, considering using tree with only extant taxa")
+  }
+
+  if (method == "treestats") {
+    return(treestats::gamma_statistic(phy))
+  } else {
+    stop("No such method")
+  }
+}
+
+
+calculate_phylogenetic_diversity <- function(phy = NULL, method = "treestats") {
+  if (!ape::is.ultrametric.phylo(phy)) {
+    stop("Ultrametric tree required, considering using tree with only extant taxa")
+  }
+
+  if (method == "treestats") {
+    return(treestats::phylogenetic_diversity(phy))
+  } else {
+    stop("No such method")
+  }
+}
+
+
+calculate_mean_nearest_neighbor_distance <- function(phy = NULL, method = "treestats") {
+  if (!ape::is.ultrametric.phylo(phy)) {
+    stop("Ultrametric tree required, considering using tree with only extant taxa")
+  }
+
+  if (method == "treestats") {
+    return(treestats::mntd(phy))
+  } else {
+    stop("No such method")
+  }
+}
+
+
+transform_data <- function(stat) {
+  if (!is.null(stat$offset)) {
+    stat <- dplyr::mutate(stat,
+                          offset = dplyr::case_when(offset == "none" ~ "None",
+                                                    offset == "simtime" ~ "Simulation time",
+                                                    offset == "spcount" ~ "Species count",
+                                                    offset == "both" ~ "Both"))
+    stat$offset <- factor(stat$offset, levels = c("None", "Simulation time", "Species count", "Both"))
+  }
+  if (!is.null(stat$lambda)) {
+    stat$lambda <- as.factor(stat$lambda)
+  }
+  if (!is.null(stat$mu)) {
+    stat$mu <- as.factor(stat$mu)
+  }
+  if (!is.null(stat$beta_n)) {
+    stat$beta_n <- as.factor(stat$beta_n)
+  }
+  if (!is.null(stat$beta_phi)) {
+    stat$beta_phi <- as.factor(stat$beta_phi)
+  }
+  if (!is.null(stat$gamma_n)) {
+    stat$gamma_n <- as.factor(stat$gamma_n)
+  }
+  if (!is.null(stat$gamma_phi)) {
+    stat$gamma_phi <- as.factor(stat$gamma_phi)
+  }
+
+  return(stat)
 }

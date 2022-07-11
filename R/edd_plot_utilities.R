@@ -178,3 +178,74 @@ save_with_parameters <-
       stop("No such model")
     }
   }
+
+
+
+save_with_rates <-
+  function(rates = NULL,
+           plot = NULL,
+           which = NULL,
+           device = "png",
+           width = 5,
+           height = 4,
+           dpi = "retina") {
+    if (is.null(which)) {
+      stop("Plot type not specified")
+    }
+
+    save_path <- paste0("plot/", which, "/")
+
+    check_folder(save_path, verbose = FALSE)
+
+    ggplot2::ggsave(
+      paste0(
+        "result/",
+        save_path,
+        rates[1],
+        "_",
+        rates[2],
+        ".png"
+      ),
+      plot = plot,
+      device = device,
+      width = width,
+      height = height,
+      dpi = dpi
+    )
+  }
+
+save_with_rates_offset <-
+  function(rates = NULL,
+           offset = NULL,
+           plot = NULL,
+           which = NULL,
+           device = "png",
+           width = 5,
+           height = 4,
+           dpi = "retina") {
+    if (is.null(which)) {
+      stop("Plot type not specified")
+    }
+
+    save_path <- paste0("plot/", which, "/")
+
+    check_folder(save_path, verbose = FALSE)
+
+    ggplot2::ggsave(
+      paste0(
+        "result/",
+        save_path,
+        rates[1],
+        "_",
+        rates[2],
+        "_",
+        offset,
+        ".png"
+      ),
+      plot = plot,
+      device = device,
+      width = width,
+      height = height,
+      dpi = dpi
+    )
+  }

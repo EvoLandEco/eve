@@ -69,11 +69,16 @@ check_raw_data <- function(raw_data) {
 
   if (is.null(raw_data)) stop("No data provided")
 
-  if (length(raw_data) != 8) stop("Bad raw data")
+  lengths <- lapply(raw_data, function(x) length(x) != 8)
+
+  if (TRUE %in% lengths) stop("Bad raw data")
+
   correct_names <- c("las", "mus", "eds", "all_pars", "tes", "tas", "l_tables",
                      "ltt")
 
-  if (!identical(names(raw_data), correct_names)) {
+  list_names <- lapply(raw_data, function(x) !identical(names(x), correct_names))
+
+  if (TRUE %in% list_names) {
     stop("Invalid raw data, did you forget to set history = TRUE?")
   }
 }
