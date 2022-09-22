@@ -91,6 +91,8 @@ edd_get_edmax <-
       } else {
         ed_max <- as.vector(L2ED(l_table, t))
       }
+    } else if (metric == "nnd") {
+      ed_max <- as.vector(L2NND(l_table, t))
     } else if (metric == "pd") {
       if (offset == "none") {
         if (converter == "cpp") {
@@ -140,6 +142,8 @@ edd_get_ed <-
       } else {
         ed <- as.vector(L2ED(l_table, t))
       }
+    } else if (metric == "nnd") {
+      ed <- as.vector(L2NND(l_table, t))
     } else if (metric == "pd") {
       if (offset == "none") {
         if (converter == "cpp") {
@@ -207,7 +211,7 @@ edd_sample_event <- function(las, mus, linlist) {
 #' beta-phi\cr \code{model == dsde2} : linear dependence
 #' in both speciation rate and extinction rate with parameters beta_num,
 #' beta_phi, gamma_num and gamma_phi
-#' @param metric Either "pd" or "ed", Specifies which phylogenetic diversity
+#' @param metric "pd" , "ed" or "nnd", Specifies which evolutionary distinctiveness
 #' metric should be used.
 #' @param offset Specifies which method to use to offset the impact of tree age
 #' and the collinearity between pd and species richness. "none" for no offset
