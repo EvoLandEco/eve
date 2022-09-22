@@ -28,6 +28,7 @@ Imports:
     progressr,
     purrr,
     RCurl,
+    Rfast,
     readr,
     stringr,
     tibble,

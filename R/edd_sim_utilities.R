@@ -1,8 +1,8 @@
 #' @name L2ED_cpp
 #' @title C++ version of L2ED
-#' #' @description Function to convert a table with speciation and extinction events to
+#' @description Function to convert a table with speciation and extinction events to
 #' mean evolutionary distances between each species and the rest of the community
-#' @param L Matrix of events as produced by pdd_sim: \cr \cr - the first column
+#' @param L Matrix of events as produced by edd_sim: \cr \cr - the first column
 #' is the time at which a species is born in Mya\cr - the second column is the
 #' label of the parent of the species; positive and negative values indicate
 #' whether the species belongs to the left or right crown lineage \cr - the
@@ -22,6 +22,35 @@ L2ED_cpp <- function(L, t) {
     dist_means[gtools::mixedorder(names(dist_means))]
 
   return(dist_means_sorted)
+}
+
+
+
+#' @name L2NND
+#' @title Converting a table with speciation and extinction events to nearest neighbor distances
+#' @description Function to convert a table with speciation and extinction events to
+#' phylogenetic distances between each species and its nearest neighbor on the tree
+#' @param L Matrix of events as produced by edd_sim: \cr \cr - the first column
+#' is the time at which a species is born in Mya\cr - the second column is the
+#' label of the parent of the species; positive and negative values indicate
+#' whether the species belongs to the left or right crown lineage \cr - the
+#' third column is the label of the daughter species itself; positive and
+#' negative values indicate whether the species belongs to the left or right
+#' crown lineage \cr - the fourth column is the time of extinction of the
+#' species; if the fourth element equals -1, then the species is still extant.
+#' @param t Simulation time
+#' @return a named vector of mean nearest neighbor distances
+#' @author Tianjian Qin
+#' @export L2NND
+L2NND <- function(L, t) {
+  dist_tips <-
+    ape::cophenetic.phylo(treestats::l_to_phylo_ed(L, t, drop_extinct = TRUE))
+  # find the second smallest value of each row of the distance matrix
+  nearest_neighbor <- apply(dist_tips, MARGIN = 1, FUN = Rfast::nth, 2)
+  nearest_neighbor_sorted <-
+    nearest_neighbor[gtools::mixedorder(names(nearest_neighbor))]
+
+  return(nearest_neighbor_sorted)
 }
 
 
