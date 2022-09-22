@@ -17,6 +17,9 @@ edd_pars_check <- function(pars, age, model, metric, offset) {
   if (metric != "pd" && offset != "none") {
     stop("only pd metric has offset methods")
   }
+  if (age <= 0) {
+    stop("age should be positive")
+  }
 }
 
 edd_message_info <- function(pars, age, model, metric, offset) {

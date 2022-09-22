@@ -190,23 +190,22 @@ L2phylo2 <- function(L, t, dropextinct = FALSE)
   tend <- (L2[, 4] == -1) * age + (L2[, 4] > -1) * L2[, 4]
   L2 <- L2[, -4]
   linlist <-
-    cbind(data.frame(L2[sall,]), paste("t", abs(L2[sall, 3]), sep = ""), tend)
+    cbind(data.frame(L2[sall,]), paste0("t", abs(L2[sall, 3])), tend)
   linlist[, 4] <- as.character(linlist[, 4])
   names(linlist) <- 1:5
   done <- 0
   while (done == 0) {
     j <- which.max(linlist[, 1])
-    daughter <- linlist[j, 3]
     parent <- linlist[j, 2]
     parentj <- which(parent == linlist[, 3])
     parentinlist <- length(parentj)
     if (parentinlist == 1) {
       spec1 <-
-        paste(linlist[parentj, 4], ":", linlist[parentj, 5] - linlist[j, 1], sep = "")
+        paste0(linlist[parentj, 4], ":", linlist[parentj, 5] - linlist[j, 1])
       spec2 <-
-        paste(linlist[j, 4], ":", linlist[j, 5] - linlist[j, 1], sep = "")
+        paste0(linlist[j, 4], ":", linlist[j, 5] - linlist[j, 1])
       linlist[parentj, 4] <-
-        paste("(", spec1, ",", spec2, ")", sep = "")
+        paste0("(", spec1, ",", spec2, ")")
       linlist[parentj, 5] <- linlist[j, 1]
       linlist <- linlist[-j,]
     } else {
@@ -216,7 +215,7 @@ L2phylo2 <- function(L, t, dropextinct = FALSE)
       done <- 1
     }
   }
-  linlist[4] <- paste(linlist[4], ":", linlist[5], ";", sep = "")
+  linlist[4] <- paste0(linlist[4], ":", linlist[5], ";")
   phy <- ape::read.tree(text = linlist[1, 4])
   tree <- ape::as.phylo(phy)
 
@@ -293,21 +292,21 @@ phylo2pd <- function(phy) {
 #' sample2(x = 10,size = 5,replace = TRUE)
 #'
 #' @export sample2
-sample2 = function(x,size,replace = FALSE,prob = NULL)
+sample2 <-  function(x,size,replace = FALSE,prob = NULL)
 {
   if(length(x) == 1)
   {
-    x = c(x,x)
-    prob = c(prob,prob)
+    x <- c(x,x)
+    prob <-  c(prob,prob)
     if(is.null(size))
     {
-      size = 1
+      size <-  1
     }
     if(replace == FALSE & size > 1)
     {
       stop('It is not possible to sample without replacement multiple times from a single item.')
     }
   }
-  sam = sample(x,size,replace,prob)
+  sam <-  sample(x,size,replace,prob)
   return(sam)
 }
