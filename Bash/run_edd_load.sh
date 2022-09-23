@@ -5,7 +5,7 @@
 #SBATCH --job-name=edd_load
 #SBATCH --output=logs/edd_load-%j.log
 #SBATCH --mem=300GB
-#SBATCH --partition=himen
+#SBATCH --partition=himem
 
 name=${1}
 
