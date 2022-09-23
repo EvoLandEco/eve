@@ -197,11 +197,10 @@ edd_load_split <-
 #' @param name Name of the simulation job
 #' @param verbose Logical, decides whether to print loading details
 #' @author Tianjian Qin
-edd_merge <- function(name = NULL, verbose = TRUE) {
-  folder_path <- paste0("result/", name)
-  files <- list.files(folder_path)
+edd_merge <- function(path = NULL, verbose = TRUE) {
+  files <- list.files(path)
   files_ordered <- gtools::mixedsort(files)
-  data_path <- paste0(folder_path, "/", files_ordered)
+  data_path <- file.path(path, files_ordered)
 
   progressr::handlers(list(
     progressr::handler_progress(
@@ -237,20 +236,20 @@ edd_merge <- function(name = NULL, verbose = TRUE) {
 
 
 #' edd_load
-#' @param name Name of the simulation job
-#' @param strategy Determine if the simulation is sequential or multi-sessioned
+#' @param name Name of the simulation to be loaded
+#' @param strategy Determine if the loading process is sequential or multi-sessioned
 #' or multi-cored
-#' @param workers Determine how many sessions are participated in the simulation
+#' @param workers Determine how many sessions are participated in the loading process
 #' @param verbose Logical, decides whether to print loading details
 #' @author Tianjian Qin
 #' @export edd_load
-edd_load <- function(name = NULL,
+edd_load <- function(path = NULL,
                      strategy = "sequential",
                      workers = 1,
                      verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
 
-  merged_data <- edd_merge(name, verbose)
+  merged_data <- edd_merge(path, verbose)
   loaded_data <- edd_load_split(merged_data, verbose)
 
   return(loaded_data)
