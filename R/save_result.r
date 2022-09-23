@@ -14,7 +14,6 @@ save_result <- function(out,
   }
 
   out_folder <- file.path(getwd(),
-                          "result",
                           name)
 
   file_path <- file.path(out_folder, file_name)
@@ -41,7 +40,6 @@ save_result <- function(out,
 #' @author Tianjian Qin
 check_folder <- function(name, verbose = TRUE) {
   out_folder <- file.path(getwd(),
-                          "result",
                           name)
   if (!dir.exists(out_folder)) {
     if (verbose == TRUE) {
