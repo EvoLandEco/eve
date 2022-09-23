@@ -194,7 +194,7 @@ edd_load_split <-
 
 
 #' edd_merge
-#' @param name Name of the simulation job
+#' @param path Name of the simulation to be loaded
 #' @param verbose Logical, decides whether to print loading details
 #' @author Tianjian Qin
 edd_merge <- function(path = NULL, verbose = TRUE) {
@@ -236,7 +236,7 @@ edd_merge <- function(path = NULL, verbose = TRUE) {
 
 
 #' edd_load
-#' @param name Name of the simulation to be loaded
+#' @param path Name of the simulation to be loaded
 #' @param strategy Determine if the loading process is sequential or multi-sessioned
 #' or multi-cored
 #' @param workers Determine how many sessions are participated in the loading process

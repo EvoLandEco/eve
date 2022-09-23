@@ -2,6 +2,7 @@
 
 export(L2ED)
 export(L2ED_cpp)
+export(L2NND)
 export(L2Phi)
 export(L2Phi_cpp)
 export(L2phylo2)

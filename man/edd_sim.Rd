@@ -34,7 +34,7 @@ beta-phi\cr \code{model == dsde2} : linear dependence
 in both speciation rate and extinction rate with parameters beta_num,
 beta_phi, gamma_num and gamma_phi}
 
-\item{metric}{Either "pd" or "ed", Specifies which phylogenetic diversity
+\item{metric}{"pd" , "ed" or "nnd", Specifies which evolutionary distinctiveness
 metric should be used.}
 
 \item{offset}{Specifies which method to use to offset the impact of tree age

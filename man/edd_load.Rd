@@ -4,15 +4,15 @@
 \alias{edd_load}
 \title{edd_load}
 \usage{
-edd_load(name = NULL, strategy = "sequential", workers = 1, verbose = TRUE)
+edd_load(path = NULL, strategy = "sequential", workers = 1, verbose = TRUE)
 }
 \arguments{
-\item{name}{Name of the simulation job}
+\item{path}{Name of the simulation to be loaded}
 
-\item{strategy}{Determine if the simulation is sequential or multi-sessioned
+\item{strategy}{Determine if the loading process is sequential or multi-sessioned
 or multi-cored}
 
-\item{workers}{Determine how many sessions are participated in the simulation}
+\item{workers}{Determine how many sessions are participated in the loading process}
 
 \item{verbose}{Logical, decides whether to print loading details}
 }

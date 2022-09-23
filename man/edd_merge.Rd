@@ -4,10 +4,10 @@
 \alias{edd_merge}
 \title{edd_merge}
 \usage{
-edd_merge(name = NULL, verbose = TRUE)
+edd_merge(path = NULL, verbose = TRUE)
 }
 \arguments{
-\item{name}{Name of the simulation job}
+\item{path}{Name of the simulation to be loaded}
 
 \item{verbose}{Logical, decides whether to print loading details}
 }
