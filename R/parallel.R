@@ -11,7 +11,7 @@ check_parallel_arguments <- function(strategy = NULL,
   } else if (!(workers %% 1 == 0)) {
     stop("number of workers should be an integer")
   } else {
-    if (strategy %in% c("multisession", "multicore", "multiprocess")) {
+    if (strategy %in% c("multisession", "multicore", "cluster")) {
       if (verbose == TRUE) {
         message(paste0(
           "Running ",
