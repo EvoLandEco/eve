@@ -82,7 +82,7 @@ job_detail_parser <- function(file = NULL) {
 #' @param path path to the folder containing the log files
 #' @author Tianjian Qin
 #' @export job_detail
-job_detail <- function(path = NULL) {
+job_detail <- function(path = NULL, which = NULL) {
   if (dir.exists(path)) {
     logs <- list.files(path)
     detail <-
@@ -92,5 +92,9 @@ job_detail <- function(path = NULL) {
     stop("Invalid path")
   }
 
-  return(detail)
+  if (is.null(which)) {
+      return(detail)
+  } else {
+      return(detail[[which]])
+  }
 }
