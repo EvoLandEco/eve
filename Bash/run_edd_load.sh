@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --job-name=edd_load
 #SBATCH --output=logs/edd_load-%j.log
-#SBATCH --mem=120GB
-#SBATCH --partition=regular
+#SBATCH --mem=300GB
+#SBATCH --partition=himen
 
 name=${1}
 
