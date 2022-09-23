@@ -36,8 +36,18 @@ job_status <- function(path = NULL, which = NULL) {
   status <- matrix(unlist(status), ncol = 2, byrow = TRUE)
   status[, 1] <- seq.int(nrow(status))
   summary <- table(status[, 2])
-  status[status[, 2] == which, ]
-  colnames(status) <- c("Set", "Status")
+
+  if (!is.null(which)) {
+    status <- status[status[, 2] == which, ]
+  }
+
+  if (is.null(nrow(status))) {
+    names(status) <- c("Set", "Status")
+  } else if (nrow(status) == 0) {
+    message("No job with status ", which)
+  } else {
+    colnames(status) <- c("Set", "Status")
+  }
 
   return(list(status = status,
               summary = summary))
