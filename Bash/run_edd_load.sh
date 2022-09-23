@@ -10,4 +10,4 @@
 name=${1}
 
 ml R
-Rscript ~/eve/Scripts/run_edd_load.R ${name}
+Rscript ~/eve/Script/run_edd_load.R ${name}
