@@ -82,3 +82,22 @@ check_raw_data <- function(raw_data) {
     stop("Invalid raw data, did you forget to set history = TRUE?")
   }
 }
+
+
+
+combo_to_tibble <- function(combo) {
+  param_set <- do.call(rbind.data.frame, combo)
+
+  if (length(param_set$pars[[1]]) == 4) {
+    pars_names <- c("lambda", "mu", "beta_N", "beta_phi")
+  } else if (length(param_set$pars[[1]]) == 6) {
+    pars_names <- c("lambda", "mu", "beta_N", "beta_phi", "gamma_N", "gamma_phi")
+  } else {
+    stop("Parameter set not recognised")
+  }
+
+  columns <- c(setdiff(names(param_set), 'pars'), pars_names)
+  param_set <- param_set %>% tidyr::unnest_wider(pars, names_repair = ~ columns, names_sep = "")
+
+  return(param_set)
+}
