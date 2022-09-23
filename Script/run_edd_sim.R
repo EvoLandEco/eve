@@ -41,6 +41,11 @@ combo <- c(combo1, combo2, combo3)
 
 names(combo) <- as.character(seq(1, length(combo)))
 
+if (!file.exists("params")) {
+  params <- eve::combo_to_tibble(combo)
+  write.table(params, "params")
+}
+
 out <-
   eve:::edd_sim_rep(
     combo = combo[[set]],
