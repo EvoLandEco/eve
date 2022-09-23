@@ -20,9 +20,10 @@ job_status_parser <- function(file = NULL) {
 #' @description Function to parse outputs in all log files of a folder, then
 #' return a matrix to show the status of the jobs
 #' @param path path to the folder containing the log files
+#' @param status specific status to be filtered
 #' @author Tianjian Qin
 #' @export job_status
-job_status <- function(path = NULL) {
+job_status <- function(path = NULL, which = NULL) {
   if (dir.exists(path)) {
     logs <- list.files(path)
     status <-
@@ -34,8 +35,12 @@ job_status <- function(path = NULL) {
 
   status <- matrix(unlist(status), ncol = 2, byrow = TRUE)
   status[, 1] <- seq.int(nrow(status))
+  summary <- table(status[, 2])
+  status[status[, 2] == which, ]
+  colnames(status) <- c("Set", "Status")
 
-  return(status)
+  return(list(status = status,
+              summary = summary))
 }
 
 
