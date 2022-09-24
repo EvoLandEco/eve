@@ -12,6 +12,7 @@ check_parallel_arguments <- function(strategy = NULL,
     stop("number of workers should be an integer")
   } else {
     if (strategy %in% c("multisession", "multicore", "cluster")) {
+      message("Warning: parallel computing with large dataset may use very large memory")
       if (verbose == TRUE) {
         message(paste0(
           "Running ",
