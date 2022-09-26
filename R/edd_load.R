@@ -183,7 +183,6 @@ edd_load_split <-
                            .y = reduced,
                            .f = c)
 
-
     if (verbose == TRUE) {
       message("All datasets loaded")
     }
@@ -251,6 +250,10 @@ edd_load <- function(path = NULL,
 
   merged_data <- edd_merge(path, verbose)
   loaded_data <- edd_load_split(merged_data, verbose)
+
+  params <- read.table(file.path(path, "../params"))
+
+  loaded_data <- list(params = params, data = loaded_data)
 
   return(loaded_data)
 }

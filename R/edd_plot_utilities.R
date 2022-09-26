@@ -181,6 +181,88 @@ save_with_parameters <-
 
 
 
+save_with_parameters <-
+  function(pars_list = NULL,
+           plot = NULL,
+           which = NULL,
+           device = "png",
+           width = 5,
+           height = 4,
+           dpi = "retina") {
+    if (is.null(which)) {
+      stop("Plot type not specified")
+    }
+
+    save_path <- paste0("plot/", which, "/")
+
+    check_folder(save_path, verbose = FALSE)
+
+    if (pars_list$model == "dsce2") {
+      ggplot2::ggsave(
+        paste0(
+          "result/",
+          save_path,
+          pars_list$lambda,
+          "_",
+          pars_list$mu,
+          "_",
+          pars_list$beta_n,
+          "_",
+          pars_list$beta_phi,
+          "_",
+          pars_list$age,
+          "_",
+          pars_list$model,
+          "_",
+          pars_list$metric,
+          "_",
+          pars_list$offset,
+          ".png"
+        ),
+        plot = plot,
+        device = device,
+        width = width,
+        height = height,
+        dpi = dpi
+      )
+    } else if (pars_list$model == "dsde2") {
+      ggplot2::ggsave(
+        paste0(
+          save_path,
+          pars_list$lambda,
+          "_",
+          pars_list$mu,
+          "_",
+          pars_list$beta_n,
+          "_",
+          pars_list$beta_phi,
+          "_",
+          pars_list$gamma_n,
+          "_",
+          pars_list$gamma_phi,
+          "_",
+          pars_list$age,
+          "_",
+          pars_list$model,
+          "_",
+          pars_list$metric,
+          "_",
+          pars_list$offset,
+          ".png"
+        ),
+        plot = plot,
+        device = device,
+        width = width,
+        height = height,
+        dpi = dpi
+      )
+    } else {
+      stop("No such model")
+    }
+  }
+
+
+
 save_with_rates <-
   function(rates = NULL,
            plot = NULL,
@@ -213,6 +295,8 @@ save_with_rates <-
       dpi = dpi
     )
   }
+
+
 
 save_with_rates_offset <-
   function(rates = NULL,
@@ -256,5 +340,19 @@ tally_by_group <- function(raw_data = NULL, group = NULL) {
   if (group=="metric") {
     counts <- raw_data$params %>% group_by(metric, offset) %>% tally()
     return(list(rows = counts$n[1], groups = nrow(counts)))
+  }
+}
+
+
+
+create_indexes_by_group <- function(tally = NULL, unlist = FALSE) {
+  if (unlist) {
+    indexes <- with(tally, rep(sequence(rows), each = groups) +
+      (rep(rows, each = groups) * (seq(groups) -1)))
+    return(indexes)
+  } else {
+    bases <- seq_len(tally$rows)
+    indexes_list <- lapply(bases, FUN = function(x) {seq(from = x, to = tally$groups * tally$rows, by = tally$rows)})
+    return(indexes_list)
   }
 }
