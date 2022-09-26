@@ -504,7 +504,12 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, offset = NULL, save_plot
                                   mu == mu_num &
                                   metric == "ed")
 
-  plot_data <- rbind(plot_data_pd, plot_data_ed)
+  plot_data_nnd <- dplyr::filter(stat_balance,
+                                lambda == lambda_num &
+                                  mu == mu_num &
+                                  metric == "nnd")
+
+  plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
   plot_data_blum <- dplyr::filter(plot_data, balance == "blum")
   plot_data_colless <- dplyr::filter(plot_data, balance == "colless")
