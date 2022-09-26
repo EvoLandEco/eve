@@ -249,3 +249,12 @@ save_with_rates_offset <-
       dpi = dpi
     )
   }
+
+
+
+get_group_size <- function(raw_data = NULL, group = NULL) {
+  if (group=="metric") {
+    groups <- raw_data$params %>% group_by(metric, offset) %>% tally()
+    return(groups$n[1])
+  }
+}
