@@ -557,13 +557,15 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
+  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot)
   plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
   plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot)
 
   if (save_plot != TRUE) {
-    return(list(pd_pffsets = plot_pd_offsets,
+    return(list(significance = plot_significance,
+                pd_pffsets = plot_pd_offsets,
                 pd_none_ed = plot_pd_ed_none,
                 pd_simetime_ed = plot_pd_ed_simtime,
                 pd_spcount_ed = plot_pd_ed_spcount))
@@ -695,7 +697,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
                    strip.text.x = ggplot2::element_blank())
 
   pd_ed_plot <- blum_plot +
-    ggplot2::ggtitle(bquote("Tree Balance indices, comparisons between PD (" ~ .(offset) ~ ") and ED, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
+    ggplot2::ggtitle(bquote("Tree Balance indices, comparisons between PD (" ~ .(offset) ~ "), ED and NND, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
     colless_plot +
     sackin_plot +
     patchwork::plot_layout(nrow = 3, guides = "collect") &
@@ -705,6 +707,21 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
     save_with_rates_offset(rates, offset, pd_ed_plot, "balance_pd_ed", "png", 10, 8, "retina")
   } else {
     return(pd_ed_plot)
+  }
+}
+
+
+
+edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALSE) {
+  plot_data <- stat_balance %>%
+    dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
+    dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi)
+  plot_balance <- ggstatsplot::grouped_ggbetweenstats(x = metric, y = value, data = plot_data, grouping.var = balance)
+
+  if (save_plot == TRUE) {
+    eve:::save_with_parameters(params, plot_balance, "balance_significance", "png", 12, 5, "retina")
+  } else {
+    return(plot_balance)
   }
 }
 
@@ -728,30 +745,20 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
   mus <- levels(stat_branch$mu)
   rates <- expand.grid(lambdas, mus)
 
+  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_branch_significance, stat_branch = stat_branch, save_plot = save_plot)
   plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, params = raw_data$params, save_plot = save_plot)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "None", save_plot = save_plot)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
   plot_pd_ed_spcount <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Species count", save_plot = save_plot)
 
   if (save_plot != TRUE) {
-    return(list(pd_pffsets = plot_pd_offsets,
+    return(list(significance = plot_significance,
+                pd_pffsets = plot_pd_offsets,
                 pd_none_ed = plot_pd_ed_none,
                 pd_simetime_ed = plot_pd_ed_simtime,
                 pd_spcount_ed = plot_pd_ed_spcount))
-  } else {
-    ggsave(branch_plots[[2]][[1]], filename = "branch.png", width = 10, height = 8, units = "in", dpi = 300)
   }
 }
-
-
-
-edd_plot_branch_significance <- function(stat_branch, params, save_plot = FALSE) {
-  stat_branch <- stat_branch %>% mutate(value = )
-  plot_data <- dplyr::filter(stat_branch, !(metric == "pd" & offset != "Simulation time"))
-
-  ggstatsplot::grouped_ggbetweenstats(x = )
-}
-
 
 
 
@@ -875,7 +882,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
                    strip.text.x = ggplot2::element_blank())
 
   pd_ed_plot <- mbl_plot +
-    ggplot2::ggtitle(bquote("Branching metrices, comparisons between PD (" ~ .(offset) ~ ") and ED, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
+    ggplot2::ggtitle(bquote("Branching metrices, comparisons between PD (" ~ .(offset) ~ "), ED and NND, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
     pd_plot +
     mntd_plot +
     patchwork::plot_layout(nrow = 3, guides = "collect") &
@@ -885,5 +892,21 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
     save_with_rates_offset(rates, offset, pd_ed_plot, "branch_pd_ed", "png", 10, 8, "retina")
   } else {
     return(pd_ed_plot)
+  }
+}
+
+
+
+edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE) {
+  plot_data <- stat_branch %>%
+    dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
+    dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi) %>%
+    tidyr::gather(key = "measure", value = "value", mbl, pd, mntd)
+  plot_branch <- ggstatsplot::grouped_ggbetweenstats(x = metric, y = value, data = plot_data, grouping.var = measure)
+
+  if (save_plot == TRUE) {
+    eve:::save_with_parameters(params, plot_branch, "branch_significance", "png", 12, 5, "retina")
+  } else {
+    return(plot_branch)
   }
 }
