@@ -27,6 +27,7 @@ library(eve)
 [![Codecov test coverage](https://codecov.io/gh/DavisVaughan/furrr/branch/master/graph/badge.svg)](https://codecov.io/gh/DavisVaughan/furrr?branch=master)
 [![Codecov test coverage](https://codecov.io/gh/EvoLandEco/eve/branch/main/graph/badge.svg)](https://app.codecov.io/gh/EvoLandEco/eve?branch=main)
 [![R-CMD-check](https://github.com/EvoLandEco/eve/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
+[![R-CMD-check](https://github.com/EvoLandEco/eve/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EvoLandEco/eve/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview

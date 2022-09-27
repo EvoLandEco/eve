@@ -745,6 +745,16 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
 
 
 
+edd_plot_branch_significance <- function(stat_branch, params, save_plot = FALSE) {
+  stat_branch <- stat_branch %>% mutate(value = )
+  plot_data <- dplyr::filter(stat_branch, !(metric == "pd" & offset != "Simulation time"))
+
+  ggstatsplot::grouped_ggbetweenstats(x = )
+}
+
+
+
+
 edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = FALSE) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
