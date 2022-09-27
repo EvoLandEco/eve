@@ -6,9 +6,9 @@
 <!-- badges: start -->
 
 [![CRAN
-status](https://www.r-pkg.org/badges/version/furrr)](https://cran.r-project.org/package=eve)
+status](https://www.r-pkg.org/badges/version/eve)](https://cran.r-project.org/package=eve)
 [![R build
-status](https://github.com/DavisVaughan/furrr/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
+status](https://github.com/DEvoLandEco/eve/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
 
 ## Overview
 
