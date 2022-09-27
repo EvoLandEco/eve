@@ -59,7 +59,12 @@ edd_plot <- function(raw_data = NULL,
   }
 
   if ("all" %in% which | "balance" %in% which) {
-    plot_balance <- edd_plot_balance(raw_data$data, save_plot = save_plot)
+    plot_balance <- edd_plot_balance(raw_data, save_plot = save_plot)
+    plots <- list(plots, plot_balance)
+  }
+
+  if ("all" %in% which | "branch" %in% which) {
+    plot_balance <- edd_plot_branch(raw_data, save_plot = save_plot)
     plots <- list(plots, plot_balance)
   }
 
@@ -211,13 +216,13 @@ edd_plot_ltt <-
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
-  grouping <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_ltt <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_ltt(raw_data$data[[y]], save_plot = FALSE))
     grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
     if (save_plot == TRUE) {
-      pars_list = extract_parameters(raw_data$data[[x[1]]])
+      pars_list <-  extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_ltt",
@@ -314,13 +319,13 @@ edd_plot_las <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
-  grouping <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_las <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_las(raw_data$data[[y]], save_plot = FALSE))
     grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
     if (save_plot == TRUE) {
-      pars_list = extract_parameters(raw_data$data[[x[1]]])
+      pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_las",
@@ -413,13 +418,13 @@ edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
-  grouping <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_mus <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_mus(raw_data$data[[y]], save_plot = FALSE))
     grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
     if (save_plot == TRUE) {
-      pars_list = extract_parameters(raw_data$data[[x[1]]])
+      pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_mus",
@@ -513,13 +518,13 @@ edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
-  grouping <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_eds <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_eds(raw_data$data[[y]], save_plot = FALSE))
     grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
     if (save_plot == TRUE) {
-      pars_list = extract_parameters(raw_data$data[[x[1]]])
+      pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_eds",
@@ -544,7 +549,7 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @keywords phylogenetics
 #' @export edd_plot_balance
 edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = FALSE) {
-  stat_balance <- edd_stat(raw_data, stat = "balance", method = method)
+  stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
   stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", sackin, colless, blum)
   stat_balance <- transform_data(stat_balance)
 
@@ -552,18 +557,22 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, save_plot = save_plot)
-  plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, offset = "None", save_plot = save_plot)
-  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, offset = "Simulation time", save_plot = save_plot)
-  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, offset = "Species count", save_plot = save_plot)
+  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot)
+  plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot)
+  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
+  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot)
 
   if (save_plot != TRUE) {
-    return(list(plot_pd_offsets, plot_pd_ed_none, plot_pd_ed_simtime, plot_pd_ed_spcount))
+    return(list(pd_pffsets = plot_pd_offsets,
+                pd_none_ed = plot_pd_ed_none,
+                pd_simetime_ed = plot_pd_ed_simtime,
+                pd_spcount_ed = plot_pd_ed_spcount))
   }
 }
 
 
-edd_plot_balance_pd_offsets <- function(rates, stat_balance, save_plot = FALSE) {
+
+edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -601,7 +610,7 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, save_plot = FALSE) 
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
-    ggplot2::scale_x_discrete(labels = c("-0.05", "-0.01", "0", "0.0005", "0.001")) +
+    ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
     ggplot2::ylab("Sackin (Yule)") +
     ggplot2::xlab(expression(beta[italic(Phi)])) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
@@ -623,7 +632,7 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, save_plot = FALSE) 
 }
 
 
-edd_plot_balance_pd_ed <- function(rates, stat_balance, offset = NULL, save_plot = FALSE) {
+edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, save_plot = FALSE) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -679,7 +688,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, offset = NULL, save_plot
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     #ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::scale_x_discrete(labels = c("-0.05", "-0.01", "0", "0.0005", "0.001")) +
+    ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
     ggplot2::ylab("Sackin (Yule)") +
     ggplot2::xlab(expression(beta[italic(Phi)])) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
@@ -712,26 +721,31 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, offset = NULL, save_plot
 #' @keywords phylogenetics
 #' @export edd_plot_branch
 edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = FALSE) {
-  stat_branch <- edd_stat(raw_data, stat = c("mbl", "pd", "mntd"), method = method)
+  stat_branch <- edd_stat(raw_data$data, stat = c("mbl", "pd", "mntd"), method = method)
   stat_branch <- transform_data(stat_branch)
 
   lambdas <- levels(stat_branch$lambda)
   mus <- levels(stat_branch$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, save_plot = save_plot)
-  plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, offset = "None", save_plot = save_plot)
-  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, offset = "Simulation time", save_plot = save_plot)
-  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, offset = "Species count", save_plot = save_plot)
+  plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, params = raw_data$params, save_plot = save_plot)
+  plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "None", save_plot = save_plot)
+  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
+  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Species count", save_plot = save_plot)
 
   if (save_plot != TRUE) {
-    return(list(plot_pd_offsets, plot_pd_ed_none, plot_pd_ed_simtime, plot_pd_ed_spcount))
+    return(list(pd_pffsets = plot_pd_offsets,
+                pd_none_ed = plot_pd_ed_none,
+                pd_simetime_ed = plot_pd_ed_simtime,
+                pd_spcount_ed = plot_pd_ed_spcount))
+  } else {
+    ggsave(branch_plots[[2]][[1]], filename = "branch.png", width = 10, height = 8, units = "in", dpi = 300)
   }
 }
 
 
 
-edd_plot_branch_pd_offsets <- function(rates, stat_branch, save_plot = FALSE) {
+edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = FALSE) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -769,7 +783,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, save_plot = FALSE) {
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mntd, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
-    ggplot2::scale_x_discrete(labels = c("-0.05", "-0.01", "0", "0.0005", "0.001")) +
+    ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
     ggplot2::ylab("Mean nearest taxon index") +
     ggplot2::xlab(expression(beta[italic(Phi)])) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
@@ -792,7 +806,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, save_plot = FALSE) {
 
 
 
-edd_plot_branch_pd_ed <- function(rates, stat_branch, offset = NULL, save_plot = FALSE) {
+edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, save_plot = FALSE) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -811,7 +825,12 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, offset = NULL, save_plot =
                                   mu == mu_num &
                                   metric == "ed")
 
-  plot_data <- rbind(plot_data_pd, plot_data_ed)
+  plot_data_nnd <- dplyr::filter(stat_branch,
+                                lambda == lambda_num &
+                                  mu == mu_num &
+                                  metric == "nnd")
+
+  plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
   mbl_plot <- ggplot2::ggplot(plot_data) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mbl, fill = metric)) +
@@ -839,8 +858,8 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, offset = NULL, save_plot =
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mntd, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     #ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::scale_x_discrete(labels = c("-0.05", "-0.01", "0", "0.0005", "0.001")) +
-    ggplot2::ylab("Sackin (Yule)") +
+    ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+    ggplot2::ylab("Mean nearest taxon index") +
     ggplot2::xlab(expression(beta[italic(Phi)])) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
                    strip.text.x = ggplot2::element_blank())
