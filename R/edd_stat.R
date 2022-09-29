@@ -35,6 +35,7 @@ edd_summarize <- function(raw_data, stat = NULL, method = NULL) {
 }
 
 
+
 edd_stat <- function(raw_data, stat = "all", method = "treestats", strategy = "sequential",
                      workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
