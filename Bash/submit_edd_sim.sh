@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --job-name=edd_sim
 #SBATCH --output=logs/edd_sim-%j.log
-#SBATCH --mem=3GB
+#SBATCH --mem=2GB
 #SBATCH --partition=regular
 
 name=${1}
