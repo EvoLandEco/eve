@@ -461,7 +461,3 @@ check_pars_list <- function(pars_list) {
       stop("No such model")
     }
 }
-
-testid <- find_pars_id(params, lambda=0.5,mu=0.1,age=6,offset="none",beta_n=-0.01,beta_phi=-0.05,metric="ed",model="dsce2")
-testtree <- extract_tree(raw_data,testid, 25)
-plot(testtree)
