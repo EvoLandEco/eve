@@ -387,8 +387,11 @@ extract_tree <- function(raw_data = NULL, pars_id = NULL, rep_id = 1, drop_extin
 
 
 # params is the parameter sets contained in the raw data, ... should include all the parameters that are to be extracted
-find_pars_id <- function(params, ...) {
-  pars_list <- list(...)
+find_pars_id <- function(params, pars_list = NULL, ...) {
+  if (is.null(pars_list)) {
+    pars_list <- list(...)
+  }
+
   check_pars_list(pars_list)
 
   if (pars_list$model == "dsce2") {
@@ -431,33 +434,50 @@ find_pars_id <- function(params, ...) {
 
 
 check_pars_list <- function(pars_list) {
-    if (is.null(pars_list$model)) {
-      stop("Model not specified")
-    }
+  if (is.null(pars_list$model)) {
+    stop("Model not specified")
+  }
 
-    if (pars_list$model == "dsce2") {
-      if (is.null(pars_list$lambda) |
-        is.null(pars_list$mu) |
-        is.null(pars_list$beta_n) |
-        is.null(pars_list$beta_phi) |
-        is.null(pars_list$age) |
-        is.null(pars_list$metric) |
-        is.null(pars_list$offset)) {
-        stop("Parameter set incomplete")
-      }
-    } else if (pars_list$model == "dsde2") {
-      if (is.null(pars_list$lambda) |
-        is.null(pars_list$mu) |
-        is.null(pars_list$beta_n) |
-        is.null(pars_list$beta_phi) |
-        is.null(pars_list$gamma_n) |
-        is.null(pars_list$gamma_phi) |
-        is.null(pars_list$age) |
-        is.null(pars_list$metric) |
-        is.null(pars_list$offset)) {
-        stop("Parameter set incomplete")
-      }
-    } else {
-      stop("No such model")
+  if (pars_list$model == "dsce2") {
+    if (is.null(pars_list$lambda) |
+      is.null(pars_list$mu) |
+      is.null(pars_list$beta_n) |
+      is.null(pars_list$beta_phi) |
+      is.null(pars_list$age) |
+      is.null(pars_list$metric) |
+      is.null(pars_list$offset)) {
+      stop("Parameter set incomplete")
     }
+  } else if (pars_list$model == "dsde2") {
+    if (is.null(pars_list$lambda) |
+      is.null(pars_list$mu) |
+      is.null(pars_list$beta_n) |
+      is.null(pars_list$beta_phi) |
+      is.null(pars_list$gamma_n) |
+      is.null(pars_list$gamma_phi) |
+      is.null(pars_list$age) |
+      is.null(pars_list$metric) |
+      is.null(pars_list$offset)) {
+      stop("Parameter set incomplete")
+    }
+  } else {
+    stop("No such model")
+  }
+}
+
+
+
+# quickly find the replicate ID of a row in the statistics table
+find_rep_id <- function(row_id, nrep) {
+  if (row_id <= 0) {
+      stop("Row ID must be positive")
+  }
+
+  if (nrep <= 0) {
+      stop("Number of replicates must be positive")
+  }
+
+  rep_id <- row_id %% nrep
+
+  return(rep_id)
 }
