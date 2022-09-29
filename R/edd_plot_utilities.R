@@ -386,7 +386,7 @@ extract_tree <- function(raw_data = NULL, pars_id = NULL, rep_id = 1, drop_extin
 }
 
 
-
+# params is the parameter sets contained in the raw data, ... should include all the parameters that are to be extracted
 find_pars_id <- function(params, ...) {
   pars_list <- list(...)
   check_pars_list(pars_list)
