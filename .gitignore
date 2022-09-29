@@ -11,3 +11,5 @@ test_functions2.R
 logs/
 test
 .idea/
+R/params
+Script/local_edd_workflow.R
