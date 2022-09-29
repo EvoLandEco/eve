@@ -356,3 +356,112 @@ create_indexes_by_group <- function(tally = NULL, unlist = FALSE) {
     return(indexes_list)
   }
 }
+
+
+
+extract_tree <- function(raw_data = NULL, pars_id = NULL, rep_id = 1, drop_extinct = TRUE) {
+  if (rep_id <= 0) {
+    stop("Replicate ID must be positive")
+  }
+
+  if (pars_id <= 0) {
+    stop("Parameter ID must be positive")
+  }
+
+  if (rep_id > length(raw_data$data$`1`$las)) {
+    stop("Replicate ID exceeded number of replicates")
+  }
+
+  if (pars_id > nrow(raw_data$params)) {
+    stop("Parameter ID exceeded number of parameter sets")
+  }
+
+  if (drop_extinct == TRUE) {
+    tree <- raw_data$data[[pars_id]]$tes[[rep_id]]
+  } else {
+    tree <- raw_data$data[[pars_id]]$tas[[rep_id]]
+  }
+
+  return(tree)
+}
+
+
+
+find_pars_id <- function(params, ...) {
+  pars_list <- list(...)
+  check_pars_list(pars_list)
+
+  if (pars_list$model == "dsce2") {
+    pars_id <- which(
+      params$lambda == pars_list$lambda &
+        params$mu == pars_list$mu &
+        params$beta_n == pars_list$beta_n &
+        params$beta_phi == pars_list$beta_phi &
+        params$age == pars_list$age &
+        params$model == pars_list$model &
+        params$metric == pars_list$metric &
+        params$offset == pars_list$offset
+    )
+  } else if (pars_list$model == "dsde2") {
+    pars_id <- which(
+      params$lambda == pars_list$lambda &
+        params$mu == pars_list$mu &
+        params$beta_n == pars_list$beta_n &
+        params$beta_phi == pars_list$beta_phi &
+        params$gamma_n == pars_list$gamma_n &
+        params$gamma_phi == pars_list$gamma_phi &
+        params$age == pars_list$age &
+        params$model == pars_list$model &
+        params$metric == pars_list$metric &
+        params$offset == pars_list$offset
+    )
+  } else {
+    stop("No such model")
+  }
+
+  if (length(pars_id) == 0) {
+    stop("No such parameter set")
+  } else if (length(pars_id) > 1) {
+    stop("More than one parameter set")
+  }
+
+  return(pars_id)
+}
+
+
+
+check_pars_list <- function(pars_list) {
+    if (is.null(pars_list$model)) {
+      stop("Model not specified")
+    }
+
+    if (pars_list$model == "dsce2") {
+      if (is.null(pars_list$lambda) |
+        is.null(pars_list$mu) |
+        is.null(pars_list$beta_n) |
+        is.null(pars_list$beta_phi) |
+        is.null(pars_list$age) |
+        is.null(pars_list$metric) |
+        is.null(pars_list$offset)) {
+        stop("Parameter set incomplete")
+      }
+    } else if (pars_list$model == "dsde2") {
+      if (is.null(pars_list$lambda) |
+        is.null(pars_list$mu) |
+        is.null(pars_list$beta_n) |
+        is.null(pars_list$beta_phi) |
+        is.null(pars_list$gamma_n) |
+        is.null(pars_list$gamma_phi) |
+        is.null(pars_list$age) |
+        is.null(pars_list$metric) |
+        is.null(pars_list$offset)) {
+        stop("Parameter set incomplete")
+      }
+    } else {
+      stop("No such model")
+    }
+}
+
+testid <- find_pars_id(params, lambda=0.5,mu=0.1,age=6,offset="none",beta_n=-0.01,beta_phi=-0.05,metric="ed",model="dsce2")
+testtree <- extract_tree(raw_data,testid, 25)
+plot(testtree)
