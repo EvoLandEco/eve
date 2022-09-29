@@ -716,7 +716,15 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
   plot_data <- stat_balance %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
     dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi)
-  plot_balance <- ggstatsplot::grouped_ggbetweenstats(x = metric, y = value, data = plot_data, grouping.var = balance)
+  plot_balance <- ggstatsplot::grouped_ggbetweenstats(x = metric,
+                                                      y = value,
+                                                      data = plot_data,
+                                                      grouping.var = balance,
+                                                      pairwise.comparisons = FALSE,
+                                                      results.subtitle = FALSE,
+                                                      subtitle = FALSE,
+                                                      bf.message = FALSE,
+                                                      caption = FALSE)
 
   if (save_plot == TRUE) {
     eve:::save_with_parameters(params, plot_balance, "balance_significance", "png", 12, 5, "retina")
@@ -902,7 +910,15 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE)
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
     dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi) %>%
     tidyr::gather(key = "measure", value = "value", mbl, pd, mntd)
-  plot_branch <- ggstatsplot::grouped_ggbetweenstats(x = metric, y = value, data = plot_data, grouping.var = measure)
+  plot_branch <- ggstatsplot::grouped_ggbetweenstats(x = metric,
+                                                     y = value,
+                                                     data = plot_data,
+                                                     grouping.var = measure,
+                                                     pairwise.comparisons = FALSE,
+                                                     results.subtitle = FALSE,
+                                                     subtitle = FALSE,
+                                                     bf.message = FALSE,
+                                                     caption = FALSE)
 
   if (save_plot == TRUE) {
     eve:::save_with_parameters(params, plot_branch, "branch_significance", "png", 12, 5, "retina")
