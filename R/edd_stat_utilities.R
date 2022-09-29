@@ -158,3 +158,10 @@ transform_data <- function(stat) {
 
   return(stat)
 }
+
+
+
+reverse_l_table <- function(l_table, age) {
+  l_table[, 1] <- age - l_table[, 1]
+  return(l_table)
+}
