@@ -21,32 +21,34 @@ library(eve)
 
 # eve <a href='https://github.com/EvoLandEco/eve/'><img src='man/eve-logos/eve-logos_transparent.png' align="right" height="139" /></a>
 
-<!-- badges: start -->
-[![CRAN status](https://www.r-pkg.org/badges/version/furrr)](https://cran.r-project.org/package=furrr)
-[![R build status](https://github.com/DavisVaughan/furrr/workflows/R-CMD-check/badge.svg)](https://github.com/DavisVaughan/furrr/actions)
-[![Codecov test coverage](https://codecov.io/gh/DavisVaughan/furrr/branch/master/graph/badge.svg)](https://codecov.io/gh/DavisVaughan/furrr?branch=master)
-[![Codecov test coverage](https://codecov.io/gh/EvoLandEco/eve/branch/main/graph/badge.svg)](https://app.codecov.io/gh/EvoLandEco/eve?branch=main)
-[![R-CMD-check](https://github.com/EvoLandEco/eve/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
-[![R-CMD-check](https://github.com/EvoLandEco/eve/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EvoLandEco/eve/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
+[![CRAN
+status](https://www.r-pkg.org/badges/version/eve)](https://cran.r-project.org/package=eve)
+[![R build
+status](https://github.com/DEvoLandEco/eve/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
 
 ## Overview
 
-The package `eve` is an evolution emulator which provides pipelines to do phylogenetic-diversity-dependent simulation, analyse outputs and generate publication-ready plots and tables conveniently. It serves as a companion package to [DDD](https://github.com/rsetienne/DDD) and [DAISIE](https://github.com/rsetienne/DAISIE) now, and maybe expanded to accommodate more models and functions.
+The package `eve` is an evolution emulator which provides pipelines to
+do phylogenetic-diversity-dependent simulation, analyse outputs and
+generate publication-ready plots and statistics conveniently. 
+
+`eve` supports mainly three different scenarios, the species diversification process is regualated by ***phylogenetic diversity (PD)*** or ***evolutionary distinctiveness (ED)*** or ***nearest neighbor distance (NND)*** respectively. 
+
+`eve` supports parallel computing , this feature is implemented with [furrr](https://furrr.futureverse.org/), read through its documentation before using this feature. Note that parralel computing may use a huge amount of memory and may have large overhead.
 
 ## Installation
 
-You can install the development version from [GitHub](https://github.com/) with:
+You can install the developmental version from
+[GitHub](https://github.com/) by running the following commands in R console:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("rsetienne/DDD@tianjian_Rampal")
 remotes::install_github("EvoLandEco/eve")
 ```
 
+
 ## Example
 
-`eve` now only supports EDD simulation from the `DDD` package. The first thing to do is to generate a combo consists of all the parameter sets we need:
 
 ```{r combo}
 library(eve)
@@ -69,23 +71,7 @@ combo <- edd_combo_maker(
 combo[1:3]
 ```
 
-A large combo may take too long to finish, as an example a minimal combo will do:
-
-```{r minimal_combo}
-# make a minimal combo
-combo <- edd_combo_maker(
-  la = c(0.5, 0.8),
-  mu = c(0.1, 0.2),
-  beta_n = -0.001,
-  beta_phi = -0.001,
-  gamma_n = 0.001,
-  gamma_phi = 0.001,
-  age = 5,
-  model = "dsde2",
-  metric = "ed",
-  offset = "none"
-)
-```
+All the unique and possible combinations of parameters will be created automatically. 
 
 `eve` supports parallel simulation, the following example shows how to do a 8-session parallel EDD simulation given the combo, with 3 replications for each parameter set . The result will be saved to `/result/example`. If `name` is not specified, a folder will be created according to time and date at the moment. 
 
