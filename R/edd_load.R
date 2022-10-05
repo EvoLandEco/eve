@@ -245,15 +245,18 @@ edd_merge <- function(path = NULL, verbose = TRUE) {
 edd_load <- function(path = NULL,
                      strategy = "sequential",
                      workers = 1,
+                     save_file = TRUE,
                      verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
 
   merged_data <- edd_merge(path, verbose)
   loaded_data <- edd_load_split(merged_data, verbose)
-
   params <- read.table(file.path(path, "../params"))
-
   loaded_data <- list(params = params, data = loaded_data)
+
+  if (save_file == TRUE) {
+    save(loaded_data, file = file.path(path, "../loaded_data.RData"))
+  }
 
   return(loaded_data)
 }
