@@ -16,6 +16,7 @@
 edd_plot <- function(raw_data = NULL,
                      which = "all",
                      save_plot = FALSE,
+                     path = NULL,
                      strategy = "sequential",
                      workers = 1,
                      verbose = TRUE) {
@@ -30,41 +31,41 @@ edd_plot <- function(raw_data = NULL,
 
   # plot normalized lineages through time
   if ("all" %in% which | "nltt" %in% which) {
-    plot_nltt <- lapply(raw_data$data, edd_plot_nltt, save_plot = save_plot)
+    plot_nltt <- lapply(raw_data$data, edd_plot_nltt, save_plot = save_plot, path = path)
     plots <- list(plots, plot_nltt)
   }
 
   # plot lineages through time
   if ("all" %in% which | "ltt" %in% which) {
-    plot_ltt <- lapply(raw_data$data, edd_plot_ltt, save_plot = save_plot)
+    plot_ltt <- lapply(raw_data$data, edd_plot_ltt, save_plot = save_plot, path = path)
     plots <- list(plots, plot_ltt)
   }
 
   # plot speciation rates
   if ("all" %in% which | "las" %in% which) {
-    plot_las <- lapply(raw_data$data, edd_plot_las, save_plot = save_plot)
+    plot_las <- lapply(raw_data$data, edd_plot_las, save_plot = save_plot, path = path)
     plots <- list(plots, plot_las)
   }
 
   # plot extinction rates
   if ("all" %in% which | "mus" %in% which) {
-    plot_mus <- lapply(raw_data$data, edd_plot_mus, save_plot = save_plot)
+    plot_mus <- lapply(raw_data$data, edd_plot_mus, save_plot = save_plot, path = path)
     plots <- list(plots, plot_mus)
   }
 
   # plot evolutionary distinctiveness-es
   if ("all" %in% which | "eds" %in% which) {
-    plot_eds <- lapply(raw_data$data, edd_plot_eds, save_plot = save_plot)
+    plot_eds <- lapply(raw_data$data, edd_plot_eds, save_plot = save_plot, path = path)
     plots <- list(plots, plot_eds)
   }
 
   if ("all" %in% which | "balance" %in% which) {
-    plot_balance <- edd_plot_balance(raw_data, save_plot = save_plot)
+    plot_balance <- edd_plot_balance(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_balance)
   }
 
   if ("all" %in% which | "branch" %in% which) {
-    plot_balance <- edd_plot_branch(raw_data, save_plot = save_plot)
+    plot_balance <- edd_plot_branch(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_balance)
   }
 
@@ -87,7 +88,8 @@ edd_plot <- function(raw_data = NULL,
 #' @export edd_plot_nltt
 edd_plot_nltt <- function(raw_data = NULL,
                           drop_extinct = TRUE,
-                          save_plot = FALSE
+                          save_plot = FALSE,
+                          path = NULL
 ) {
   if (drop_extinct == TRUE) {
     message("Drawing nLTT plot with trees of extant species")
@@ -131,7 +133,14 @@ edd_plot_nltt <- function(raw_data = NULL,
                      aspect.ratio = 3 / 4)
 
   if (save_plot == TRUE) {
-    save_with_parameters(pars_list, plot_nltt, "nltt", "png", 5, 4, "retina")
+    save_with_parameters(pars_list = pars_list,
+                         plot = plot_nltt,
+                         which = "nltt",
+                         path = path,
+                         device = "png",
+                         width = 5,
+                         height = 4,
+                         dpi = "retina")
   } else {
     return(plot_nltt)
   }
@@ -152,7 +161,8 @@ edd_plot_nltt <- function(raw_data = NULL,
 edd_plot_ltt <-
   function(raw_data = NULL,
            alpha = 0.05,
-           save_plot = FALSE
+           save_plot = FALSE,
+           path = NULL
   ) {
     pars_list <- extract_parameters(raw_data)
 
@@ -194,7 +204,14 @@ edd_plot_ltt <-
         )
 
     if (save_plot == TRUE) {
-      save_with_parameters(pars_list, plot_ltt, "ltt", "png", 5, 4, "retina")
+      save_with_parameters(pars_list = pars_list,
+                           plot = plot_ltt,
+                           which = "ltt",
+                           path = path,
+                           device = "png",
+                           width = 5,
+                           height = 4,
+                           dpi = "retina")
     } else {
       return(plot_ltt)
     }
@@ -215,7 +232,7 @@ edd_plot_ltt <-
 #' @export edd_plot_grouped_ltt
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
+edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_ltt <- lapply(indexes, function(x) {
@@ -226,6 +243,7 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_ltt",
+                           path = path,
                            device = "png",
                            width = 10,
                            height = 4 * tally$groups,
@@ -249,7 +267,7 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_las
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_las <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
+edd_plot_las <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = NULL) {
   pars_list <- extract_parameters(raw_data)
 
   las_table <- cbind(Time = raw_data$ltt[[rep_id]]$time, raw_data$las[[rep_id]])
@@ -296,6 +314,7 @@ edd_plot_las <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
     save_with_parameters(pars_list = pars_list,
                          plot = plot_las,
                          which = "las",
+                         path = path,
                          device = "png",
                          width = 10,
                          height = 8,
@@ -318,7 +337,7 @@ edd_plot_las <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @export edd_plot_grouped_las
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
+edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_las <- lapply(indexes, function(x) {
@@ -329,6 +348,7 @@ edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = 
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_las",
+                           path = path,
                            device = "png",
                            width = 10,
                            height = 4 * tally$groups,
@@ -352,7 +372,7 @@ edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_mus
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
+edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = NULL) {
   pars_list <- extract_parameters(raw_data)
 
   mus_table <- cbind(Time = raw_data$ltt[[rep_id]]$time, raw_data$mus[[rep_id]])
@@ -396,7 +416,14 @@ edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
   plot_mus <- plot_mus1 + plot_mus2
 
   if (save_plot == TRUE) {
-    save_with_parameters(pars_list, plot_mus, "mus", "png", 10, 8, "retina")
+    save_with_parameters(pars_list = pars_list,
+                         plot = plot_mus,
+                         which = "mus",
+                         path = path,
+                         device = "png",
+                         width = 10,
+                         height = 8,
+                         dpi = "retina")
   } else {
     return(plot_mus)
   }
@@ -417,7 +444,7 @@ edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @export edd_plot_grouped_mus
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
+edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_mus <- lapply(indexes, function(x) {
@@ -428,6 +455,7 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_mus",
+                           path = path,
                            device = "png",
                            width = 10,
                            height = 4 * tally$groups,
@@ -452,7 +480,7 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_eds
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
+edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = NULL) {
   pars_list <- extract_parameters(raw_data)
 
   eds_table <- cbind(Time = raw_data$ltt[[rep_id]]$time, raw_data$eds[[rep_id]])
@@ -496,7 +524,14 @@ edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
   plot_eds <- plot_eds1 + plot_eds2
 
   if (save_plot == TRUE) {
-    save_with_parameters(pars_list, plot_eds, "eds", "png", 10, 8, "retina")
+    save_with_parameters(pars_list = pars_list,
+                         plot = plot_eds,
+                         which = "eds",
+                         path = path,
+                         device = "png",
+                         width = 10,
+                         height = 8,
+                         dpi = "retina")
   } else {
     return(plot_eds)
   }
@@ -517,7 +552,7 @@ edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE) {
 #' @export edd_plot_grouped_eds
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = FALSE) {
+edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_eds <- lapply(indexes, function(x) {
@@ -528,6 +563,7 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_eds",
+                           path = path,
                            device = "png",
                            width = 10,
                            height = 4 * tally$groups,
@@ -548,7 +584,7 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_plot_balance
-edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = FALSE) {
+edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
   stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
   stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", sackin, colless, blum)
   stat_balance <- transform_data(stat_balance)
@@ -557,11 +593,11 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot)
-  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot)
-  plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot)
-  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
-  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot)
+  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
+  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
+  plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
+  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
+  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot, path = path)
 
   if (save_plot != TRUE) {
     return(list(significance = plot_significance,
@@ -574,7 +610,7 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
 
 
 
-edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE) {
+edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -627,14 +663,20 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot =
     ggplot2::labs(fill = expression(beta[italic(N)]))
 
   if (save_plot == TRUE) {
-    save_with_rates(rates, pd_offsets_plot, "balance_pd_offsets", "png", 10, 8, "retina")
+    save_with_rates(rates = rates,
+                    plot = pd_offsets_plot,
+                    which = "balance_pd_offsets",
+                    path = path,
+                    device = "png",
+                    width = 10, height = 8,
+                    dpi = "retina")
   } else {
     return(pd_offsets_plot)
   }
 }
 
 
-edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, save_plot = FALSE) {
+edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -704,7 +746,14 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
     ggplot2::labs(fill = "Metric")
 
   if (save_plot == TRUE) {
-    save_with_rates_offset(rates, offset, pd_ed_plot, "balance_pd_ed", "png", 10, 8, "retina")
+    save_with_rates_offset(rates = rates,
+                           offset = offset,
+                           plot = pd_ed_plot,
+                           which = "balance_pd_ed",
+                           path = path,
+                           device = "png",
+                           width = 10, height = 8,
+                           dpi = "retina")
   } else {
     return(pd_ed_plot)
   }
@@ -712,7 +761,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
 
 
 
-edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALSE) {
+edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALSE, path = NULL) {
   plot_data <- stat_balance %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
     dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi)
@@ -727,7 +776,14 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       caption = FALSE)
 
   if (save_plot == TRUE) {
-    eve:::save_with_parameters(params, plot_balance, "balance_significance", "png", 12, 5, "retina")
+    save_with_parameters(pars_list = params,
+                         plot = plot_balance,
+                         which = "balance_signif",
+                         path = path,
+                         device = "png",
+                         width = 12,
+                         height = 5,
+                         dpi = "retina")
   } else {
     return(plot_balance)
   }
@@ -745,7 +801,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export edd_plot_branch
-edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = FALSE) {
+edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
   stat_branch <- edd_stat(raw_data$data, stat = c("mbl", "pd", "mntd"), method = method)
   stat_branch <- transform_data(stat_branch)
 
@@ -753,11 +809,11 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
   mus <- levels(stat_branch$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_branch_significance, stat_branch = stat_branch, save_plot = save_plot)
-  plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, params = raw_data$params, save_plot = save_plot)
-  plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "None", save_plot = save_plot)
-  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Simulation time", save_plot = save_plot)
-  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Species count", save_plot = save_plot)
+  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_branch_significance, stat_branch = stat_branch, save_plot = save_plot, path = path)
+  plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, params = raw_data$params, save_plot = save_plot, path = path)
+  plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
+  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
+  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Species count", save_plot = save_plot, path = path)
 
   if (save_plot != TRUE) {
     return(list(significance = plot_significance,
@@ -770,7 +826,7 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
 
 
 
-edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = FALSE) {
+edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -823,7 +879,13 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
     ggplot2::labs(fill = expression(beta[italic(N)]))
 
   if (save_plot == TRUE) {
-    save_with_rates(rates, pd_offsets_plot, "branch_pd_offsets", "png", 10, 8, "retina")
+    save_with_rates(rates = rates,
+                    plot = pd_offsets_plot,
+                    which = "branch_pd_offsets",
+                    path = path,
+                    device = "png",
+                    width = 10, height = 8,
+                    dpi = "retina")
   } else {
     return(pd_offsets_plot)
   }
@@ -831,7 +893,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
 
 
 
-edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, save_plot = FALSE) {
+edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
 
@@ -897,7 +959,14 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
     ggplot2::labs(fill = "Metric")
 
   if (save_plot == TRUE) {
-    save_with_rates_offset(rates, offset, pd_ed_plot, "branch_pd_ed", "png", 10, 8, "retina")
+    save_with_rates(rates = rates,
+                    offset = offset,
+                    plot = pd_ed_plot,
+                    which = "branch_pd_ed",
+                    path = path,
+                    device = "png",
+                    width = 10, height = 8,
+                    dpi = "retina")
   } else {
     return(pd_ed_plot)
   }
@@ -905,7 +974,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
 
 
 
-edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE) {
+edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE, path = NULL) {
   plot_data <- stat_branch %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
     dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi) %>%
@@ -921,7 +990,14 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE)
                                                      caption = FALSE)
 
   if (save_plot == TRUE) {
-    eve:::save_with_parameters(params, plot_branch, "branch_significance", "png", 12, 5, "retina")
+    save_with_parameters(pars_list = params,
+                         plot = plot_branch,
+                         which = "branch_signif",
+                         path = path,
+                         device = "png",
+                         width = 12,
+                         height = 5,
+                         dpi = "retina")
   } else {
     return(plot_branch)
   }

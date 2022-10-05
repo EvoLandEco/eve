@@ -99,10 +99,13 @@ create_annotation <- function(pars_list = NULL,
 
 }
 
+
+
 save_with_parameters <-
   function(pars_list = NULL,
            plot = NULL,
            which = NULL,
+           path = stop("Path not specified"),
            device = "png",
            width = 5,
            height = 4,
@@ -111,96 +114,13 @@ save_with_parameters <-
       stop("Plot type not specified")
     }
 
-    save_path <- paste0("plot/", which, "/")
+    save_path <- file.path(path, "plot", which)
 
     check_folder(save_path, verbose = FALSE)
 
     if (pars_list$model == "dsce2") {
       ggplot2::ggsave(
         paste0(
-          "result/",
-          save_path,
-          pars_list$lambda,
-          "_",
-          pars_list$mu,
-          "_",
-          pars_list$beta_n,
-          "_",
-          pars_list$beta_phi,
-          "_",
-          pars_list$age,
-          "_",
-          pars_list$model,
-          "_",
-          pars_list$metric,
-          "_",
-          pars_list$offset,
-          ".png"
-        ),
-        plot = plot,
-        device = device,
-        width = width,
-        height = height,
-        dpi = dpi
-      )
-    } else if (pars_list$model == "dsde2") {
-      ggplot2::ggsave(
-        paste0(
-          save_path,
-          pars_list$lambda,
-          "_",
-          pars_list$mu,
-          "_",
-          pars_list$beta_n,
-          "_",
-          pars_list$beta_phi,
-          "_",
-          pars_list$gamma_n,
-          "_",
-          pars_list$gamma_phi,
-          "_",
-          pars_list$age,
-          "_",
-          pars_list$model,
-          "_",
-          pars_list$metric,
-          "_",
-          pars_list$offset,
-          ".png"
-        ),
-        plot = plot,
-        device = device,
-        width = width,
-        height = height,
-        dpi = dpi
-      )
-    } else {
-      stop("No such model")
-    }
-  }
-
-
-
-save_with_parameters <-
-  function(pars_list = NULL,
-           plot = NULL,
-           which = NULL,
-           device = "png",
-           width = 5,
-           height = 4,
-           dpi = "retina") {
-    if (is.null(which)) {
-      stop("Plot type not specified")
-    }
-
-    save_path <- paste0("plot/", which, "/")
-
-    check_folder(save_path, verbose = FALSE)
-
-    if (pars_list$model == "dsce2") {
-      ggplot2::ggsave(
-        paste0(
-          "result/",
           save_path,
           pars_list$lambda,
           "_",
@@ -267,6 +187,7 @@ save_with_rates <-
   function(rates = NULL,
            plot = NULL,
            which = NULL,
+           path = stop("Path not specified"),
            device = "png",
            width = 5,
            height = 4,
@@ -275,13 +196,12 @@ save_with_rates <-
       stop("Plot type not specified")
     }
 
-    save_path <- paste0("plot/", which, "/")
+    save_path <- file.path(path, "plot", which)
 
     check_folder(save_path, verbose = FALSE)
 
     ggplot2::ggsave(
       paste0(
-        "result/",
         save_path,
         rates[1],
         "_",
@@ -303,6 +223,7 @@ save_with_rates_offset <-
            offset = NULL,
            plot = NULL,
            which = NULL,
+           path = stop("Path not specified"),
            device = "png",
            width = 5,
            height = 4,
@@ -311,13 +232,12 @@ save_with_rates_offset <-
       stop("Plot type not specified")
     }
 
-    save_path <- paste0("plot/", which, "/")
+    save_path <- file.path(path, "plot", which)
 
     check_folder(save_path, verbose = FALSE)
 
     ggplot2::ggsave(
       paste0(
-        "result/",
         save_path,
         rates[1],
         "_",
@@ -384,6 +304,7 @@ extract_tree <- function(raw_data = NULL, pars_id = NULL, rep_id = 1, drop_extin
 
   return(tree)
 }
+
 
 
 # params is the parameter sets contained in the raw data, ... should include all the parameters that are to be extracted
