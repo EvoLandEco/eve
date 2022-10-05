@@ -116,7 +116,7 @@ save_with_parameters <-
 
     save_path <- file.path(path, "plot", which)
 
-    check_folder(save_path, verbose = FALSE)
+    check_path(save_path, verbose = FALSE)
 
     if (pars_list$model == "dsce2") {
       ggplot2::ggsave(
@@ -198,7 +198,7 @@ save_with_rates <-
 
     save_path <- file.path(path, "plot", which)
 
-    check_folder(save_path, verbose = FALSE)
+    check_path(save_path, verbose = FALSE)
 
     ggplot2::ggsave(
       paste0(
@@ -234,7 +234,7 @@ save_with_rates_offset <-
 
     save_path <- file.path(path, "plot", which)
 
-    check_folder(save_path, verbose = FALSE)
+    check_path(save_path, verbose = FALSE)
 
     ggplot2::ggsave(
       paste0(

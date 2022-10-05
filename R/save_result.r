@@ -58,7 +58,36 @@ check_folder <- function(name, verbose = TRUE) {
     stop(paste0("Failed to create folder", out_folder, "\n"))
   } else {
     if (verbose == TRUE) {
-      message("Folder created\n")
+      message("Folder exists\n")
+    }
+  }
+}
+
+
+
+#' check_path
+#' @param path Specify the path to be checked
+#' @param verbose Logical, decides whether to print information
+#' @author Tianjian Qin
+check_path <- function(path, verbose = TRUE) {
+  if (!dir.exists(path)) {
+    if (verbose == TRUE) {
+      message(paste0("Attempting to create path ",
+                     path,
+                     "\n"))
+    }
+    dir.create(path, recursive = TRUE)
+  } else {
+    if (verbose == TRUE) {
+      message(path, " already exists\n")
+    }
+  }
+
+  if (!dir.exists(path)) {
+    stop(paste0("Failed to create path", path, "\n"))
+  } else {
+    if (verbose == TRUE) {
+      message("Path exists\n")
     }
   }
 }
