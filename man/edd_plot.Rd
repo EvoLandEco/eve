@@ -8,6 +8,7 @@ edd_plot(
   raw_data = NULL,
   which = "all",
   save_plot = FALSE,
+  path = NULL,
   strategy = "sequential",
   workers = 1,
   verbose = TRUE

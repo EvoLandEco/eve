@@ -4,7 +4,13 @@
 \alias{edd_load}
 \title{edd_load}
 \usage{
-edd_load(path = NULL, strategy = "sequential", workers = 1, verbose = TRUE)
+edd_load(
+  path = NULL,
+  strategy = "sequential",
+  workers = 1,
+  save_file = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{path}{Name of the simulation to be loaded}
