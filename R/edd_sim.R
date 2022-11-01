@@ -62,7 +62,7 @@ edd_update_lamu <- function(ed, ed_max, params, model) {
     if (beta_phi < 0) {
       newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed)
     } else {
-      newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed_max)
+      newlas <- pmin(la0 + beta_num * num + beta_phi * ed, la0 + beta_num * num + beta_phi * ed_max)
     }
     newmus <- rep(mu0, length(newlas))
   } else if (model == "dsde2") {
@@ -75,12 +75,12 @@ edd_update_lamu <- function(ed, ed_max, params, model) {
     if (beta_phi < 0) {
       newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed)
     } else {
-      newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed_max)
+      newlas <- pmin(la0 + beta_num * num + beta_phi * ed, la0 + beta_num * num + beta_phi * ed_max)
     }
     if (gamma_phi < 0) {
       newmus <- pmax(0, mu0 + gamma_num * num + gamma_phi * ed)
     } else {
-      newmus <- pmax(0, mu0 + gamma_num * num + gamma_phi * ed_max)
+      newmus <- pmin(mu0 + gamma_num * num + gamma_phi * ed, mu0 + gamma_num * num + gamma_phi * ed_max)
     }
   }
   return(list(newlas = newlas, newmus = newmus))
@@ -90,12 +90,12 @@ edd_get_edmax <-
   function(num, l_table, t, metric, offset, converter = "cpp") {
     if (metric == "ed") {
       if (converter == "cpp") {
-        ed_max <- as.vector(L2ED_cpp(l_table, t))
+        ed_max <- as.vector(rep(2 * t, num))
       } else {
-        ed_max <- as.vector(L2ED(l_table, t))
+        ed_max <- as.vector(rep(2 * t, num))
       }
     } else if (metric == "nnd") {
-      ed_max <- as.vector(L2NND(l_table, t))
+      ed_max <- as.vector(rep(2 * t, num))
     } else if (metric == "pd") {
       if (offset == "none") {
         if (converter == "cpp") {
@@ -109,24 +109,6 @@ edd_get_edmax <-
             rep(as.vector(L2Phi_cpp(l_table, t, metric) - t), num)
         } else {
           ed_max <- rep(as.vector(L2Phi(l_table, t, metric) - t), num)
-        }
-      } else if (offset == "spcount") {
-        if (converter == "cpp") {
-          ed_max <- rep(as.vector(L2Phi_cpp(l_table, t, metric) / num), num)
-        } else {
-          ed_max <- rep(as.vector(L2Phi(l_table, t, metric) / num), num)
-        }
-      } else if (offset == "both") {
-        if (converter == "cpp") {
-          ed_max <-
-            rep(as.vector((
-              L2Phi_cpp(l_table, t, metric) - t
-            ) / num), num)
-        } else {
-          ed_max <-
-            rep(as.vector((
-              L2Phi_cpp(l_table, t, metric) - t
-            ) / num), num)
         }
       } else {
         stop("no such offset method")
@@ -159,24 +141,6 @@ edd_get_ed <-
           ed <- rep(as.vector(L2Phi_cpp(l_table, t, metric) - t), num)
         } else {
           ed <- rep(as.vector(L2Phi(l_table, t, metric) - t), num)
-        }
-      } else if (offset == "spcount") {
-        if (converter == "cpp") {
-          ed <- rep(as.vector(L2Phi_cpp(l_table, t, metric) / num), num)
-        } else {
-          ed <- rep(as.vector(L2Phi(l_table, t, metric) / num), num)
-        }
-      } else if (offset == "both") {
-        if (converter == "cpp") {
-          ed <-
-            rep(as.vector((
-              L2Phi_cpp(l_table, t, metric) - t
-            ) / num), num)
-        } else {
-          ed <-
-            rep(as.vector((
-              L2Phi_cpp(l_table, t, metric) - t
-            ) / num), num)
         }
       } else {
         stop("no such offset method")
@@ -306,7 +270,7 @@ edd_sim <- function(pars,
       }
       ed <-
         edd_get_ed(num[i - 1], l_table, t[i], metric, offset, converter)
-      lamu_real <- edd_update_lamu(ed, ed, params, model)
+      lamu_real <- edd_update_lamu(ed, ed_max, params, model)
 
       event_type <- sample(c("real", "fake"),
                            1,
