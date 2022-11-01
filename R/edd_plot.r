@@ -30,15 +30,20 @@ edd_plot <- function(raw_data = NULL,
   }
 
   # plot normalized lineages through time
-  if ("all" %in% which | "nltt" %in% which) {
-    plot_nltt <- lapply(raw_data$data, edd_plot_nltt, save_plot = save_plot, path = path)
-    plots <- list(plots, plot_nltt)
-  }
+  #if ("all" %in% which | "nltt" %in% which) {
+  #  plot_nltt <- lapply(raw_data$data, edd_plot_nltt, save_plot = save_plot, path = path)
+  #  plots <- list(plots, plot_nltt)
+  #}
 
   # plot lineages through time
   if ("all" %in% which | "ltt" %in% which) {
     plot_ltt <- lapply(raw_data$data, edd_plot_ltt, save_plot = save_plot, path = path)
     plots <- list(plots, plot_ltt)
+  }
+
+  if ("all" %in% which | "grouped_ltt" %in% which) {
+    plot_grouped_ltt <- edd_plot_grouped_ltt(raw_data, save_plot = save_plot, path = path)
+    plots <- list(plots, plot_grouped_ltt)
   }
 
   # plot speciation rates
@@ -47,16 +52,31 @@ edd_plot <- function(raw_data = NULL,
     plots <- list(plots, plot_las)
   }
 
+  if ("all" %in% which | "grouped_las" %in% which) {
+    plot_grouped_las <- edd_plot_grouped_las(raw_data, save_plot = save_plot, path = path)
+    plots <- list(plots, plot_grouped_las)
+  }
+
   # plot extinction rates
   if ("all" %in% which | "mus" %in% which) {
     plot_mus <- lapply(raw_data$data, edd_plot_mus, save_plot = save_plot, path = path)
     plots <- list(plots, plot_mus)
   }
 
+  if ("all" %in% which | "grouped_mus" %in% which) {
+    plot_grouped_mus <- edd_plot_grouped_mus(raw_data, save_plot = save_plot, path = path)
+    plots <- list(plots, plot_grouped_mus)
+  }
+
   # plot evolutionary distinctiveness-es
   if ("all" %in% which | "eds" %in% which) {
     plot_eds <- lapply(raw_data$data, edd_plot_eds, save_plot = save_plot, path = path)
     plots <- list(plots, plot_eds)
+  }
+
+  if ("all" %in% which | "grouped_eds" %in% which) {
+    plot_grouped_eds <- edd_plot_grouped_eds(raw_data, save_plot = save_plot, path = path)
+    plots <- list(plots, plot_grouped_eds)
   }
 
   if ("all" %in% which | "balance" %in% which) {
@@ -593,7 +613,7 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
+  plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
   plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
@@ -809,7 +829,7 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
   mus <- levels(stat_branch$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_significance <- lapply(split(raw_data$params,seq(nrow(params))), edd_plot_branch_significance, stat_branch = stat_branch, save_plot = save_plot, path = path)
+  plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_branch_significance, stat_branch = stat_branch, save_plot = save_plot, path = path)
   plot_pd_offsets <- apply(rates, 1, edd_plot_branch_pd_offsets, stat_branch = stat_branch, params = raw_data$params, save_plot = save_plot, path = path)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_branch_pd_ed, stat_branch = stat_branch, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
