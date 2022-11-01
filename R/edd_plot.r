@@ -979,7 +979,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
     ggplot2::labs(fill = "Metric")
 
   if (save_plot == TRUE) {
-    save_with_rates(rates = rates,
+    save_with_rates_offset(rates = rates,
                     offset = offset,
                     plot = pd_ed_plot,
                     which = "branch_pd_ed",
