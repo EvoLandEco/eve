@@ -120,8 +120,11 @@ save_with_parameters <-
 
     if (pars_list$model == "dsce2") {
       ggplot2::ggsave(
-        paste0(
+        filename = paste0(
           save_path,
+          "/",
+          which,
+          "_",
           pars_list$lambda,
           "_",
           pars_list$mu,
@@ -149,6 +152,9 @@ save_with_parameters <-
       ggplot2::ggsave(
         paste0(
           save_path,
+          "/",
+          which,
+          "_",
           pars_list$lambda,
           "_",
           pars_list$mu,
@@ -203,6 +209,9 @@ save_with_rates <-
     ggplot2::ggsave(
       paste0(
         save_path,
+        "/",
+        which,
+        "_",
         rates[1],
         "_",
         rates[2],
@@ -239,6 +248,9 @@ save_with_rates_offset <-
     ggplot2::ggsave(
       paste0(
         save_path,
+        "/",
+        which,
+        "_",
         rates[1],
         "_",
         rates[2],
