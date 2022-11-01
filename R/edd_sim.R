@@ -271,15 +271,27 @@ edd_sim <- function(pars,
       ed <-
         edd_get_ed(num[i - 1], l_table, t[i], metric, offset, converter)
       lamu_real <- edd_update_lamu(ed, ed_max, params, model)
+      if (verbose == TRUE) {
+        message("Current rates:")
+        print(lamu_real)
+      }
+
+      prob_real <- sum(lamu_real$newlas + lamu_real$newmus)
+
+      prob_diff_la <- max(0, sum(lamu$newlas - lamu_real$newlas))
+      prob_diff_mu <- max(0, sum(lamu$newmus - lamu_real$newmus))
+      prob_fake <- sum(prob_diff_la + prob_diff_mu)
+
+      if (verbose == TRUE) {
+        message("Sum of probabilities of real events:")
+        print(prob_real)
+        message("Sum of probabilities of fake events:")
+        print(prob_fake)
+      }
 
       event_type <- sample(c("real", "fake"),
                            1,
-                           prob = c(
-                             sum(lamu_real$newlas + lamu_real$newmus),
-                             sum(
-                               lamu$newlas - lamu_real$newlas + lamu$newmus - lamu_real$newmus
-                             )
-                           ))
+                           prob = c(prob_real, prob_fake))
 
       if (verbose == TRUE) {
         message(paste0("Simulation step ", i, " started"))
