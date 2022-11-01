@@ -63,6 +63,7 @@ edd_update_lamu <- function(ed, ed_max, params, model) {
       newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed)
     } else {
       newlas <- pmin(la0 + beta_num * num + beta_phi * ed, la0 + beta_num * num + beta_phi * ed_max)
+      newlas <- pmax(0, newlas)
     }
     newmus <- rep(mu0, length(newlas))
   } else if (model == "dsde2") {
@@ -76,11 +77,13 @@ edd_update_lamu <- function(ed, ed_max, params, model) {
       newlas <- pmax(0, la0 + beta_num * num + beta_phi * ed)
     } else {
       newlas <- pmin(la0 + beta_num * num + beta_phi * ed, la0 + beta_num * num + beta_phi * ed_max)
+      newlas <- pmax(0, newlas)
     }
     if (gamma_phi < 0) {
       newmus <- pmax(0, mu0 + gamma_num * num + gamma_phi * ed)
     } else {
       newmus <- pmin(mu0 + gamma_num * num + gamma_phi * ed, mu0 + gamma_num * num + gamma_phi * ed_max)
+      newmus <- pmax(0, newmus)
     }
   }
   return(list(newlas = newlas, newmus = newmus))
@@ -345,6 +348,11 @@ edd_sim <- function(pars,
           edd_get_edmax(num[i], l_table, age, metric, offset, converter)
         params[1] <- num[i]
         lamu <- edd_update_lamu(ed, ed_max, params, model)
+
+        if (verbose == TRUE) {
+          message("Current rates:")
+          print(lamu)
+        }
 
         if (history == TRUE) {
           eds <- c(eds, list(ed))
