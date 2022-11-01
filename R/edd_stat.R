@@ -48,7 +48,7 @@ edd_stat <- function(raw_data, stat = "all", method = "treestats", strategy = "s
 
   # Binding metadata
   nrep <- length(raw_data$`1`$tes)
-  meta <- lapply(sim_data, function(x) {
+  meta <- lapply(raw_data, function(x) {
     meta_data <- as.data.frame(extract_parameters(x))
     dplyr::slice(meta_data, rep(1, nrep))
   })
