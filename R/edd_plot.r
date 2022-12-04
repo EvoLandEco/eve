@@ -210,6 +210,7 @@ edd_plot_ltt <-
                        aspect.ratio = 3 / 4) +
         ggplot2::xlab("Time") +
         ggplot2::ylab("Number of lineages") +
+        ggplot2::scale_y_continuous(trans = 'log10') +
         ggtext::geom_richtext(
           data = anno,
           ggplot2::aes(
