@@ -20,6 +20,7 @@ Imports:
     future,
     ggplot2,
     ggtext,
+    ggtree,
     gtools,
     magrittr,
     nLTT,

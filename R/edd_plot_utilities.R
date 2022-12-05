@@ -414,3 +414,30 @@ find_rep_id <- function(row_id, nrep) {
 
   return(rep_id)
 }
+
+
+
+pars_to_title <- function(pars_list) {
+  pars <- unlist(pars_list$pars)
+  if (pars_list$model == "dsce2") {
+    lambda <- as.character(pars[1])
+    mu <- as.character(pars[2])
+    beta_n <- as.character(pars[3])
+    beta_phi <- as.character(pars[4])
+
+    plot_title <- bquote(lambda[italic(0)] ~ "=" ~ .(lambda) ~ mu[italic(0)] ~ "=" ~ .(mu) ~ beta[italic(N)] ~ "=" ~ .(beta_n) ~ beta[italic(Phi)] ~ "=" ~ .(beta_phi))
+  } else if (pars_list$model == "dsde2") {
+    lambda <- as.character(pars[1])
+    mu <- as.character(pars[2])
+    beta_n <- as.character(pars[3])
+    beta_phi <- as.character(pars[4])
+    gamma_n <- as.character(pars[5])
+    gamma_phi <- as.character(pars[6])
+
+    plot_title <- bquote(lambda[italic(0)] ~ "=" ~ .(lambda) ~ mu[italic(0)] ~ "=" ~ .(mu) ~ beta[italic(N)] ~ "=" ~ .(beta_n) ~ beta[italic(Phi)] ~ "=" ~ .(beta_phi) ~ gamma[italic(N)] ~ "=" ~ .(gamma_n) ~ gamma[italic(Phi)] ~ "=" ~ .(gamma_phi))
+  } else {
+    stop("No such model")
+  }
+
+  return(plot_title)
+}
