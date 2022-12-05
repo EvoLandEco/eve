@@ -134,6 +134,7 @@ edd_plot_tree <- function(raw_data = NULL,
       tree <- mark_extinct_tips(tree)
       plot_tree <- ggtree::ggtree(tree, aes(linetype = linetype)) +
         ggplot2::ylab("Representative tree") +
+        ggtree::theme_tree2() +
         ggplot2::theme(legend.position = "none")
     } else {
       plot_tree <- ggtree::ggtree(tree) +
