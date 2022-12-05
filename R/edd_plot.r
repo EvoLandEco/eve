@@ -37,54 +37,64 @@ edd_plot <- function(raw_data = NULL,
 
   # plot lineages through time
   if ("all" %in% which | "ltt" %in% which) {
+    message("Plotting lineages-through-time")
     plot_ltt <- lapply(raw_data$data, edd_plot_ltt, save_plot = save_plot, path = path)
     plots <- list(plots, plot_ltt)
   }
 
   if ("all" %in% which | "grouped_ltt" %in% which) {
+    message("Plotting grouped lineages-through-time")
     plot_grouped_ltt <- edd_plot_grouped_ltt(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_grouped_ltt)
   }
 
   # plot speciation rates
   if ("all" %in% which | "las" %in% which) {
+    message("Plotting speciation rates")
     plot_las <- lapply(raw_data$data, edd_plot_las, save_plot = save_plot, path = path)
     plots <- list(plots, plot_las)
   }
 
   if ("all" %in% which | "grouped_las" %in% which) {
+    message("Plotting grouped speciation rates")
     plot_grouped_las <- edd_plot_grouped_las(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_grouped_las)
   }
 
   # plot extinction rates
   if ("all" %in% which | "mus" %in% which) {
+    message("Plotting extinction rates")
     plot_mus <- lapply(raw_data$data, edd_plot_mus, save_plot = save_plot, path = path)
     plots <- list(plots, plot_mus)
   }
 
   if ("all" %in% which | "grouped_mus" %in% which) {
+    message("Plotting grouped extinction rates")
     plot_grouped_mus <- edd_plot_grouped_mus(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_grouped_mus)
   }
 
   # plot evolutionary distinctiveness-es
   if ("all" %in% which | "eds" %in% which) {
+    message("Plotting evolutionary distinctiveness-es")
     plot_eds <- lapply(raw_data$data, edd_plot_eds, save_plot = save_plot, path = path)
     plots <- list(plots, plot_eds)
   }
 
   if ("all" %in% which | "grouped_eds" %in% which) {
+    message("Plotting grouped evolutionary distinctiveness-es")
     plot_grouped_eds <- edd_plot_grouped_eds(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_grouped_eds)
   }
 
   if ("all" %in% which | "balance" %in% which) {
+    message("Plotting balance metrics")
     plot_balance <- edd_plot_balance(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_balance)
   }
 
   if ("all" %in% which | "branch" %in% which) {
+    message("Plotting branching metrics")
     plot_balance <- edd_plot_branch(raw_data, save_plot = save_plot, path = path)
     plots <- list(plots, plot_balance)
   }
@@ -118,7 +128,24 @@ edd_plot_tree <- function(raw_data = NULL,
   } else {
     tree <- raw_data$tas[[rep_id]]
   }
-  plot_tree <- ggtree::ggtree(tree) + ggtree::theme_tree2() + ggplot2::ylab("Representative tree")
+
+  if (drop_extinct == FALSE) {
+    if (!is.null(find_extinct(tree, which = "tip_label"))) {
+      tree <- mark_extinct_tips(tree)
+      plot_tree <- ggtree::ggtree(tree, aes(linetype = linetype)) +
+        ggplot2::ylab("Representative tree") +
+        ggplot2::theme(legend.position = "none")
+    } else {
+      plot_tree <- ggtree::ggtree(tree) +
+        ggtree::theme_tree2() +
+        ggplot2::ylab("Representative tree")
+    }
+  } else {
+    plot_tree <- ggtree::ggtree(tree) +
+      ggtree::theme_tree2() +
+      ggplot2::ylab("Representative tree")
+  }
+
   if (save_plot == TRUE) {
     stop("Saving plots to files is not supported for this function")
   } else {
@@ -355,18 +382,19 @@ edd_plot_las <- function(raw_data = NULL,
                    aspect.ratio = 1 / 1)
 
   if (annotation == TRUE) {
-    plot_las1 <- plot_las1 + ggtext::geom_richtext(
-      data = anno,
-      ggplot2::aes(
-        x = x,
-        y = y,
-        label = label,
-        angle = angle,
-        hjust = hjust,
-        vjust = vjust
-      ),
-      fill = "#E8CB9C"
-    )
+    plot_las1 <- plot_las1 +
+      ggtext::geom_richtext(
+        data = anno,
+        ggplot2::aes(
+          x = x,
+          y = y,
+          label = label,
+          angle = angle,
+          hjust = hjust,
+          vjust = vjust
+        ),
+        fill = "#E8CB9C"
+      )
   }
 
   if (deviation == TRUE) {
@@ -386,7 +414,7 @@ edd_plot_las <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
-    plot_las <- plot_las1 + plot_las2 + patchwork::plot_layout(ncol = 1)
+    plot_las <- patchwork::wrap_plots(plot_las1 + plot_las2, ncol = 1)
   } else {
     plot_las <- plot_las1
   }
@@ -402,7 +430,7 @@ edd_plot_las <- function(raw_data = NULL,
                          which = "las",
                          path = path,
                          device = "png",
-                         width = 10,
+                         width = 5,
                          height = 8,
                          dpi = "retina")
   } else {
@@ -460,7 +488,12 @@ edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_mus
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = NULL) {
+edd_plot_mus <- function(raw_data = NULL,
+                         rep_id = 1,
+                         save_plot = FALSE,
+                         path = NULL,
+                         deviation = FALSE,
+                         annotation = TRUE) {
   pars_list <- extract_parameters(raw_data)
 
   mus_table <- cbind(Time = raw_data$ltt[[rep_id]]$time, raw_data$mus[[rep_id]])
@@ -468,40 +501,68 @@ edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = 
     mus_table %>%
       tidyr::gather("Tip", "Mu", -Time) %>%
       na.omit()
-  mus_long <- mus_long %>%
-    dplyr::group_by(Time) %>%
-    dplyr::mutate(Deviation = Mu - mean(Mu))
 
-  anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-0.8, 0))
+  if (deviation == TRUE) {
+    mus_long <- mus_long %>%
+      dplyr::group_by(Time) %>%
+      dplyr::mutate(Deviation = Mu - mean(Mu))
+  }
+
+  if (annotation == TRUE) {
+    anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-1, 0))
+  }
 
   plot_mus1 <- ggplot2::ggplot(mus_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Mu, group = Tip, color = Mu)) +
     viridis::scale_color_viridis(option = "D") +
-    ggtext::geom_richtext(
-      data = anno,
-      ggplot2::aes(
-        x = x,
-        y = y,
-        label = label,
-        angle = angle,
-        hjust = hjust,
-        vjust = vjust
-      ),
-      fill = "#E8CB9C"
-    ) +
+    ylab("Extinction rate") +
+    xlab("Age") +
+    xlim(0, 6) +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
-  plot_mus2 <- ggplot2::ggplot(mus_long) +
-    ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Mu)) +
-    viridis::scale_color_viridis(option = "D") +
-    ggplot2::geom_hline(yintercept = 0,
-                        linetype = "twodash",
-                        color = "grey") +
-    ggplot2::theme(legend.position = "right",
-                   aspect.ratio = 1 / 1)
+  if (annotation == TRUE) {
+    plot_mus1 <- plot_mus1 +
+      ggtext::geom_richtext(
+        data = anno,
+        ggplot2::aes(
+          x = x,
+          y = y,
+          label = label,
+          angle = angle,
+          hjust = hjust,
+          vjust = vjust
+        ),
+        fill = "#E8CB9C"
+      )
+  }
 
-  plot_mus <- plot_mus1 + plot_mus2
+  if (deviation == TRUE) {
+    plot_mus1 <- plot_mus1 + ggplot2::theme(legend.position = "none")
+  }
+
+  if (deviation == TRUE) {
+    plot_mus2 <- ggplot2::ggplot(mus_long) +
+      ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Mu)) +
+      viridis::scale_color_viridis(option = "D") +
+      ggplot2::geom_hline(yintercept = 0,
+                          linetype = "twodash",
+                          color = "grey") +
+      xlim(0, 6) +
+      ggplot2::theme(legend.position = "right",
+                     aspect.ratio = 1 / 1)
+  }
+
+  if (deviation == TRUE) {
+    plot_mus <- patchwork::wrap_plots(plot_mus1, plot_mus2, ncol = 1)
+  } else {
+    plot_mus <- plot_mus1
+  }
+
+  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
+    ggplot2::ggtitle(toupper(pars_list$metric))
+
+  plot_mus <- patchwork::wrap_plots(plot_tree, plot_mus, ncol = 1)
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = pars_list,
@@ -509,7 +570,7 @@ edd_plot_mus <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = 
                          which = "mus",
                          path = path,
                          device = "png",
-                         width = 10,
+                         width = 5,
                          height = 8,
                          dpi = "retina")
   } else {
@@ -536,8 +597,10 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_mus <- lapply(indexes, function(x) {
-    plots <- lapply(x, function(y) edd_plot_mus(raw_data$data[[y]], save_plot = FALSE))
-    grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
+    plots <- lapply(x, function(y) edd_plot_mus(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
+    grouped_plot <- patchwork::wrap_plots(plots, nrow = 1) +
+      patchwork::plot_annotation(title = pars_to_title(raw_data$data[[x[1]]]$all_pars),
+                                 theme = ggplot2::theme(plot.title = element_text(size = 25)))
     if (save_plot == TRUE) {
       pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
@@ -545,8 +608,8 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
                            which = "grouped_mus",
                            path = path,
                            device = "png",
-                           width = 10,
-                           height = 4 * tally$groups,
+                           width = 4 * tally$groups,
+                           height = 10,
                            dpi = "retina")
     }
   })

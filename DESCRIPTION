@@ -27,6 +27,7 @@ Imports:
     patchwork,
     progressr,
     purrr,
+    phylobase,
     RCurl,
     Rfast,
     readr,
