@@ -271,6 +271,7 @@ edd_plot_ltt <-
         ggplot2::xlab("Time") +
         ggplot2::ylab("Number of lineages") +
         ggplot2::scale_y_continuous(trans = 'log10') +
+        ggplot2::xlim(0, 6) +
         ggtext::geom_richtext(
           data = anno,
           ggplot2::aes(
@@ -419,7 +420,7 @@ edd_plot_las <- function(raw_data = NULL,
     plot_las <- plot_las1
   }
 
-  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = TRUE, save_plot = FALSE) +
+  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
     ggplot2::ggtitle(toupper(pars_list$metric))
 
   plot_las <- patchwork::wrap_plots(plot_tree, plot_las, ncol = 1)
