@@ -374,9 +374,9 @@ edd_plot_las <- function(raw_data = NULL,
   plot_las1 <- ggplot2::ggplot(las_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Lambda, group = Tip, color = Lambda)) +
     viridis::scale_color_viridis(option = "D") +
-    ylab("Speciation rate") +
-    xlab("Age") +
-    xlim(0, 6) +
+    ggplot2::ylab("Speciation rate") +
+    ggplot2::xlab("Age") +
+    ggplot2::xlim(0, 6) +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -407,7 +407,7 @@ edd_plot_las <- function(raw_data = NULL,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "twodash",
                           color = "grey") +
-      xlim(0, 6) +
+      ggplot2::xlim(0, 6) +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_las <- patchwork::wrap_plots(plot_las1 + plot_las2, ncol = 1)
@@ -501,9 +501,9 @@ edd_plot_mus <- function(raw_data = NULL,
    plot_mus1 <- ggplot2::ggplot(mus_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Mu, group = Tip, color = Mu)) +
     viridis::scale_color_viridis(option = "D") +
-    ylab("Extinction rate") +
-    xlab("Age") +
-    xlim(0, 6) +
+    ggplot2::ylab("Extinction rate") +
+    ggplot2::xlab("Age") +
+    ggplot2::xlim(0, 6) +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -534,7 +534,7 @@ edd_plot_mus <- function(raw_data = NULL,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "twodash",
                           color = "grey") +
-      xlim(0, 6) +
+      ggplot2::xlim(0, 6) +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_mus <- patchwork::wrap_plots(plot_mus1, plot_mus2, ncol = 1)
@@ -631,9 +631,9 @@ edd_plot_eds <- function(raw_data = NULL,
   plot_eds1 <- ggplot2::ggplot(eds_long) +
     ggplot2::geom_path(ggplot2::aes(Time, ED, group = Tip, color = ED)) +
     viridis::scale_color_viridis(option = "D") +
-    ylab("Evolutionary distinctiveness") +
-    xlab("Age") +
-    xlim(0, 6) +
+    ggplot2::ylab("Evolutionary distinctiveness") +
+    ggplot2::xlab("Age") +
+    ggplot2::xlim(0, 6) +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -664,7 +664,7 @@ edd_plot_eds <- function(raw_data = NULL,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "twodash",
                           color = "grey") +
-      xlim(0, 6)
+      ggplot2::xlim(0, 6)
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_eds <- patchwork::wrap_plots(plot_eds1, plot_eds2, ncol = 1)
@@ -866,6 +866,10 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous(trans = "sqrt") +
+    ggplot2::scale_x_continuous(sec.axis = sec_axis(~ . ,
+                                                    name = expression(beta[italic(N)]),
+                                                    breaks = NULL,
+                                                    labels = NULL)) +
     ggplot2::ylab("Blum") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
@@ -1081,6 +1085,10 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mbl, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous() +
+    ggplot2::scale_x_continuous(sec.axis = sec_axis(~ . ,
+                                                    name = expression(beta[italic(N)]),
+                                                    breaks = NULL,
+                                                    labels = NULL)) +
     ggplot2::ylab("Mean branch length") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
