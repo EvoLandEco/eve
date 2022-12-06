@@ -749,8 +749,8 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
-  plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
-  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
+  #plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
+  #plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
   plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot, path = path)
@@ -864,13 +864,11 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
 
   blum_plot <- ggplot2::ggplot(plot_data_blum) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
-    ggplot2::facet_wrap(. ~ beta_n) +
+    ggplot2::facet_wrap(. ~ beta_n, labeller = as_labeller(
+      ~ paste0("beta[italic(N)]:", .x), label_parsed
+    )) +
     ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::scale_x_discrete(sec.axis = sec_axis(~ . ,
-                                                    name = expression(beta[italic(N)]),
-                                                    breaks = NULL,
-                                                    labels = NULL)) +
-    ggplot2::ylab("Blum") +
+    ggplot2::ylab("Blum (sqrt)") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
                    axis.ticks.x = ggplot2::element_blank(),
@@ -1083,12 +1081,10 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
 
   mbl_plot <- ggplot2::ggplot(plot_data) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MBL, fill = metric)) +
-    ggplot2::facet_wrap(. ~ beta_n) +
+    ggplot2::facet_wrap(. ~ beta_n, labeller = as_labeller(
+      ~ paste0("beta[italic(N)]:", .x), label_parsed
+    )) +
     ggplot2::scale_y_continuous() +
-    ggplot2::scale_x_discrete(sec.axis = sec_axis(~ . ,
-                                                    name = expression(beta[italic(N)]),
-                                                    breaks = NULL,
-                                                    labels = NULL)) +
     ggplot2::ylab("Mean branch length") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
