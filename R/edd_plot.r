@@ -866,7 +866,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::scale_x_continuous(sec.axis = sec_axis(~ . ,
+    ggplot2::scale_x_discrete(sec.axis = sec_axis(~ . ,
                                                     name = expression(beta[italic(N)]),
                                                     breaks = NULL,
                                                     labels = NULL)) +
@@ -1085,7 +1085,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MBL, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous() +
-    ggplot2::scale_x_continuous(sec.axis = sec_axis(~ . ,
+    ggplot2::scale_x_discrete(sec.axis = sec_axis(~ . ,
                                                     name = expression(beta[italic(N)]),
                                                     breaks = NULL,
                                                     labels = NULL)) +
