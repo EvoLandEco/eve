@@ -938,7 +938,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       grouping.var = balance,
                                                       pairwise.comparisons = FALSE,
                                                       results.subtitle = FALSE,
-                                                      subtitle = FALSE,
+                                                      subtitle = NULL,
                                                       bf.message = FALSE,
                                                       caption = FALSE)
 
@@ -1152,7 +1152,7 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
                                                      grouping.var = measure,
                                                      pairwise.comparisons = FALSE,
                                                      results.subtitle = FALSE,
-                                                     subtitle = FALSE,
+                                                     subtitle = NULL,
                                                      bf.message = FALSE,
                                                      caption = FALSE)
 
