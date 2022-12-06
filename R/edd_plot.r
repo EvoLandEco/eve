@@ -400,10 +400,6 @@ edd_plot_las <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
-    plot_las1 <- plot_las1 + ggplot2::theme(legend.position = "none")
-  }
-
-  if (deviation == TRUE) {
     plot_las2 <- ggplot2::ggplot(las_long) +
       ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Lambda)) +
       viridis::scale_color_viridis(option = "D") +
@@ -413,9 +409,6 @@ edd_plot_las <- function(raw_data = NULL,
       xlim(0, 6) +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
-  }
-
-  if (deviation == TRUE) {
     plot_las <- patchwork::wrap_plots(plot_las1 + plot_las2, ncol = 1)
   } else {
     plot_las <- plot_las1
@@ -540,10 +533,6 @@ edd_plot_mus <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
-    plot_mus1 <- plot_mus1 + ggplot2::theme(legend.position = "none")
-  }
-
-  if (deviation == TRUE) {
     plot_mus2 <- ggplot2::ggplot(mus_long) +
       ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Mu)) +
       viridis::scale_color_viridis(option = "D") +
@@ -553,9 +542,6 @@ edd_plot_mus <- function(raw_data = NULL,
       xlim(0, 6) +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
-  }
-
-  if (deviation == TRUE) {
     plot_mus <- patchwork::wrap_plots(plot_mus1, plot_mus2, ncol = 1)
   } else {
     plot_mus <- plot_mus1
@@ -633,7 +619,12 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_eds
 #' @importFrom magrittr %>%
 #' @import patchwork
-edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = NULL) {
+edd_plot_eds <- function(raw_data = NULL,
+                         rep_id = 1,
+                         save_plot = FALSE,
+                         path = NULL,
+                         deviation = FALSE,
+                         annotation = TRUE) {
   pars_list <- extract_parameters(raw_data)
 
   eds_table <- cbind(Time = raw_data$ltt[[rep_id]]$time, raw_data$eds[[rep_id]])
@@ -641,40 +632,61 @@ edd_plot_eds <- function(raw_data = NULL, rep_id = 1, save_plot = FALSE, path = 
     eds_table %>%
       tidyr::gather("Tip", "ED", -Time) %>%
       na.omit()
-  eds_long <- eds_long %>%
-    dplyr::group_by(Time) %>%
-    dplyr::mutate(Deviation = ED - mean(ED))
 
-  anno <- create_annotation(pars_list, y = c(Inf, Inf), vjust = c(1, 2.1))
+  if (deviation == TRUE) {
+    eds_long <- eds_long %>%
+      dplyr::group_by(Time) %>%
+      dplyr::mutate(Deviation = ED - mean(ED))
+  }
+
+  if (annotation == TRUE) {
+    anno <- create_annotation(pars_list, y = c(Inf, Inf), vjust = c(1, 2.1))
+  }
 
   plot_eds1 <- ggplot2::ggplot(eds_long) +
     ggplot2::geom_path(ggplot2::aes(Time, ED, group = Tip, color = ED)) +
     viridis::scale_color_viridis(option = "D") +
-    ggtext::geom_richtext(
-      data = anno,
-      ggplot2::aes(
-        x = x,
-        y = y,
-        label = label,
-        angle = angle,
-        hjust = hjust,
-        vjust = vjust
-      ),
-      fill = "#E8CB9C"
-    ) +
+    ylab("Evolutionary distinctiveness") +
+    xlab("Age") +
+    xlim(0, 6) +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
-  plot_eds2 <- ggplot2::ggplot(eds_long) +
-    ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = ED)) +
-    viridis::scale_color_viridis(option = "D") +
-    ggplot2::geom_hline(yintercept = 0,
-                        linetype = "twodash",
-                        color = "grey") +
-    ggplot2::theme(legend.position = "right",
-                   aspect.ratio = 1 / 1)
+  if (annotation == TRUE) {
+    plot_eds1 <-  plot_eds1 +
+      ggtext::geom_richtext(
+        data = anno,
+        ggplot2::aes(
+          x = x,
+          y = y,
+          label = label,
+          angle = angle,
+          hjust = hjust,
+          vjust = vjust
+        ),
+        fill = "#E8CB9C"
+      )
+  }
 
-  plot_eds <- plot_eds1 + plot_eds2
+  if (deviation == TRUE) {
+    plot_eds2 <- ggplot2::ggplot(eds_long) +
+      ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = ED)) +
+      viridis::scale_color_viridis(option = "D") +
+      ggplot2::geom_hline(yintercept = 0,
+                          linetype = "twodash",
+                          color = "grey") +
+      xlim(0, 6)
+      ggplot2::theme(legend.position = "right",
+                     aspect.ratio = 1 / 1)
+    plot_eds <- patchwork::wrap_plots(plot_eds1, plot_eds2, ncol = 1)
+  } else {
+    plot_eds <- plot_eds1
+  }
+
+  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
+    ggplot2::ggtitle(toupper(pars_list$metric))
+
+  plot_eds <- patchwork::wrap_plots(plot_tree, plot_eds, ncol = 1)
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = pars_list,
@@ -709,8 +721,10 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_eds <- lapply(indexes, function(x) {
-    plots <- lapply(x, function(y) edd_plot_eds(raw_data$data[[y]], save_plot = FALSE))
-    grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
+    plots <- lapply(x, function(y) edd_plot_eds(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
+    grouped_plot <- patchwork::wrap_plots(plots, nrow = 1) +
+      patchwork::plot_annotation(title = pars_to_title(raw_data$data[[x[1]]]$all_pars),
+                                 theme = ggplot2::theme(plot.title = element_text(size = 25)))
     if (save_plot == TRUE) {
       pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
@@ -718,8 +732,8 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
                            which = "grouped_eds",
                            path = path,
                            device = "png",
-                           width = 10,
-                           height = 4 * tally$groups,
+                           width = 4 * tally$groups,
+                           height = 10,
                            dpi = "retina")
     }
   })
