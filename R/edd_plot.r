@@ -243,7 +243,9 @@ edd_plot_ltt <-
   function(raw_data = NULL,
            alpha = 0.05,
            save_plot = FALSE,
-           path = NULL
+           path = NULL,
+           annotation = TRUE,
+           trans = "log10"
   ) {
     pars_list <- extract_parameters(raw_data)
 
@@ -259,20 +261,22 @@ edd_plot_ltt <-
     colnames(df) <- c("t", "median", "minalpha", "maxalpha", "mean")
     df <- as.data.frame(df)
 
-    anno <- create_annotation(pars_list, vjust = c(1, 2.1))
-
     plot_ltt <-
       ggplot2::ggplot(df) +
         ggplot2::geom_line(ggplot2::aes(t, mean)) +
         ggplot2::geom_ribbon(ggplot2::aes(t, mean, ymax =
           maxalpha, ymin = minalpha), alpha = 0.2) +
-        ggplot2::ggtitle("Lineage-Through-Time Plot") +
         ggplot2::theme(legend.position = "none",
                        aspect.ratio = 3 / 4) +
-        ggplot2::xlab("Time") +
-        ggplot2::ylab("Number of lineages") +
-        ggplot2::scale_y_continuous(trans = 'log10') +
+        ggplot2::xlab("Age") +
+        ggplot2::ylab(paste0("Number of lineages ", "(", trans, ")")) +
+        ggplot2::scale_y_continuous(trans = trans, labels = function(x) format(x, scientific = FALSE)) +
         ggplot2::xlim(0, 6) +
+        ggplot2::ggtitle(toupper(pars_list$metric))
+
+    if (annotation == TRUE) {
+      anno <- create_annotation(pars_list, vjust = c(1, 2.1))
+      plot_ltt <- plot_ltt +
         ggtext::geom_richtext(
           data = anno,
           ggplot2::aes(
@@ -285,6 +289,7 @@ edd_plot_ltt <-
           ),
           fill = "#E8CB9C"
         )
+    }
 
     if (save_plot == TRUE) {
       save_with_parameters(pars_list = pars_list,
@@ -319,8 +324,10 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
   tally <- tally_by_group(raw_data, group)
   indexes <- create_indexes_by_group(tally)
   grouped_ltt <- lapply(indexes, function(x) {
-    plots <- lapply(x, function(y) edd_plot_ltt(raw_data$data[[y]], save_plot = FALSE))
-    grouped_plot <- patchwork::wrap_plots(plots, ncol = 1)
+    plots <- lapply(x, function(y) edd_plot_ltt(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
+    grouped_plot <- patchwork::wrap_plots(plots, nrow = 1) +
+      patchwork::plot_annotation(title = pars_to_title(raw_data$data[[x[1]]]$all_pars),
+                                 theme = ggplot2::theme(plot.title = element_text(size = 25)))
     if (save_plot == TRUE) {
       pars_list <-  extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
@@ -328,8 +335,8 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
                            which = "grouped_ltt",
                            path = path,
                            device = "png",
-                           width = 10,
-                           height = 4 * tally$groups,
+                           width = 4 * tally$groups,
+                           height = 10,
                            dpi = "retina")
     }
   })
@@ -364,16 +371,6 @@ edd_plot_las <- function(raw_data = NULL,
       tidyr::gather("Tip", "Lambda", -Time) %>%
       na.omit()
 
-  if (deviation == TRUE) {
-    las_long <- las_long %>%
-      dplyr::group_by(Time) %>%
-      dplyr::mutate(Deviation = Lambda - mean(Lambda))
-  }
-
-  if (annotation == TRUE) {
-    anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-1, 0))
-  }
-
   plot_las1 <- ggplot2::ggplot(las_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Lambda, group = Tip, color = Lambda)) +
     viridis::scale_color_viridis(option = "D") +
@@ -384,6 +381,7 @@ edd_plot_las <- function(raw_data = NULL,
                    aspect.ratio = 1 / 1)
 
   if (annotation == TRUE) {
+    anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-1, 0))
     plot_las1 <- plot_las1 +
       ggtext::geom_richtext(
         data = anno,
@@ -400,6 +398,9 @@ edd_plot_las <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
+    las_long <- las_long %>%
+      dplyr::group_by(Time) %>%
+      dplyr::mutate(Deviation = Lambda - mean(Lambda))
     plot_las2 <- ggplot2::ggplot(las_long) +
       ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Lambda)) +
       viridis::scale_color_viridis(option = "D") +
@@ -497,17 +498,7 @@ edd_plot_mus <- function(raw_data = NULL,
       tidyr::gather("Tip", "Mu", -Time) %>%
       na.omit()
 
-  if (deviation == TRUE) {
-    mus_long <- mus_long %>%
-      dplyr::group_by(Time) %>%
-      dplyr::mutate(Deviation = Mu - mean(Mu))
-  }
-
-  if (annotation == TRUE) {
-    anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-1, 0))
-  }
-
-  plot_mus1 <- ggplot2::ggplot(mus_long) +
+   plot_mus1 <- ggplot2::ggplot(mus_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Mu, group = Tip, color = Mu)) +
     viridis::scale_color_viridis(option = "D") +
     ylab("Extinction rate") +
@@ -517,6 +508,7 @@ edd_plot_mus <- function(raw_data = NULL,
                    aspect.ratio = 1 / 1)
 
   if (annotation == TRUE) {
+    anno <- create_annotation(pars_list, y = c(-Inf, -Inf), vjust = c(-1, 0))
     plot_mus1 <- plot_mus1 +
       ggtext::geom_richtext(
         data = anno,
@@ -533,6 +525,9 @@ edd_plot_mus <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
+    mus_long <- mus_long %>%
+      dplyr::group_by(Time) %>%
+      dplyr::mutate(Deviation = Mu - mean(Mu))
     plot_mus2 <- ggplot2::ggplot(mus_long) +
       ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = Mu)) +
       viridis::scale_color_viridis(option = "D") +
@@ -633,16 +628,6 @@ edd_plot_eds <- function(raw_data = NULL,
       tidyr::gather("Tip", "ED", -Time) %>%
       na.omit()
 
-  if (deviation == TRUE) {
-    eds_long <- eds_long %>%
-      dplyr::group_by(Time) %>%
-      dplyr::mutate(Deviation = ED - mean(ED))
-  }
-
-  if (annotation == TRUE) {
-    anno <- create_annotation(pars_list, y = c(Inf, Inf), vjust = c(1, 2.1))
-  }
-
   plot_eds1 <- ggplot2::ggplot(eds_long) +
     ggplot2::geom_path(ggplot2::aes(Time, ED, group = Tip, color = ED)) +
     viridis::scale_color_viridis(option = "D") +
@@ -653,6 +638,7 @@ edd_plot_eds <- function(raw_data = NULL,
                    aspect.ratio = 1 / 1)
 
   if (annotation == TRUE) {
+    anno <- create_annotation(pars_list, y = c(Inf, Inf), vjust = c(1, 2.1))
     plot_eds1 <-  plot_eds1 +
       ggtext::geom_richtext(
         data = anno,
@@ -669,6 +655,9 @@ edd_plot_eds <- function(raw_data = NULL,
   }
 
   if (deviation == TRUE) {
+    eds_long <- eds_long %>%
+      dplyr::group_by(Time) %>%
+      dplyr::mutate(Deviation = ED - mean(ED))
     plot_eds2 <- ggplot2::ggplot(eds_long) +
       ggplot2::geom_path(ggplot2::aes(Time, Deviation, group = Tip, color = ED)) +
       viridis::scale_color_viridis(option = "D") +
