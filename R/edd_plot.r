@@ -940,7 +940,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       results.subtitle = FALSE,
                                                       subtitle = NULL,
                                                       bf.message = FALSE,
-                                                      caption = FALSE)
+                                                      caption = NULL)
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = params,
@@ -1154,7 +1154,7 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
                                                      results.subtitle = FALSE,
                                                      subtitle = NULL,
                                                      bf.message = FALSE,
-                                                     caption = FALSE)
+                                                     caption = NULL)
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = params,
