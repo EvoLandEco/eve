@@ -933,7 +933,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       results.subtitle = FALSE,
                                                       subtitle = NULL,
                                                       bf.message = FALSE,
-                                                      caption = pars_to_title(raw_data$data[[x[1]]]$all_pars),
+                                                      caption = pars_to_title2(params),
                                                       xlab = "Metric",
                                                       ylab = "Value")
 
@@ -1153,7 +1153,7 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
                                                      results.subtitle = FALSE,
                                                      subtitle = NULL,
                                                      bf.message = FALSE,
-                                                     caption = pars_to_title(raw_data$data[[x[1]]]$all_pars),
+                                                     caption = pars_to_title2(params),
                                                      xlab = "Metric",
                                                      ylab = "Value")
 

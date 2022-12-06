@@ -441,3 +441,17 @@ pars_to_title <- function(pars_list) {
 
   return(plot_title)
 }
+
+
+# Use with params argument in edd_stat functions
+pars_to_title2 <- function(params) {
+  if (params$model == "dsce2") {
+    plot_title <- bquote(lambda[italic(0)] ~ "=" ~ .(params$lambda) ~ mu[italic(0)] ~ "=" ~ .(params$mu) ~ beta[italic(N)] ~ "=" ~ .(params$beta_n) ~ beta[italic(Phi)] ~ "=" ~ .(params$beta_phi))
+  } else if (params$model == "dsde2") {
+    plot_title <- bquote(lambda[italic(0)] ~ "=" ~ .(params$lambda) ~ mu[italic(0)] ~ "=" ~ .(params$mu) ~ beta[italic(N)] ~ "=" ~ .(params$beta_n) ~ beta[italic(Phi)] ~ "=" ~ .(params$beta_phi) ~ gamma[italic(N)] ~ "=" ~ .(params$gamma_n) ~ gamma[italic(Phi)] ~ "=" ~ .(params$gamma_phi))
+  } else {
+    stop("No such model")
+  }
+
+  return(plot_title)
+}
