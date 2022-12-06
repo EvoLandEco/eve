@@ -753,7 +753,7 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @export edd_plot_balance
 edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
   stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
-  stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", sackin, colless, blum)
+  stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", Sackin, Colless, Blum)
   stat_balance <- transform_data(stat_balance)
 
   lambdas <- levels(stat_balance$lambda)
@@ -940,7 +940,9 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       results.subtitle = FALSE,
                                                       subtitle = NULL,
                                                       bf.message = FALSE,
-                                                      caption = NULL)
+                                                      caption = NULL,
+                                                      xlab = "Metric",
+                                                      ylab = "Value")
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = params,
@@ -1145,7 +1147,7 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
   plot_data <- stat_branch %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
     dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi) %>%
-    tidyr::gather(key = "measure", value = "value", mbl, pd, mntd)
+    tidyr::gather(key = "measure", value = "value", MBL, PD, MNTD)
   plot_branch <- ggstatsplot::grouped_ggbetweenstats(x = metric,
                                                      y = value,
                                                      data = plot_data,
@@ -1154,7 +1156,9 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
                                                      results.subtitle = FALSE,
                                                      subtitle = NULL,
                                                      bf.message = FALSE,
-                                                     caption = NULL)
+                                                     caption = NULL,
+                                                     xlab = "Metric",
+                                                     ylab = "Value")
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = params,

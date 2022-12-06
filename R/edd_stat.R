@@ -6,29 +6,29 @@ edd_summarize <- function(raw_data, stat = NULL, method = NULL) {
     sackin <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Sackin")
     colless <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Colless")
     blum <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Blum")
-    balance <- cbind(sackin = unlist(sackin), colless = unlist(colless), blum = unlist(blum))
+    balance <- cbind(Sackin = unlist(sackin), Colless = unlist(colless), Blum = unlist(blum))
 
     statistics <- cbind(statistics, balance)
   }
 
   if ("all" %in% stat | "mbl" %in% stat) {
     mean_branch_length <- lapply(raw_data$tes, calculate_mean_branch_length, method = method)
-    statistics <- cbind(statistics, mbl = unlist(mean_branch_length))
+    statistics <- cbind(statistics, MBL = unlist(mean_branch_length))
   }
 
   if ("all" %in% stat | "gamma" %in% stat) {
     gamma_statistics <- lapply(raw_data$tes, calculate_gamma_statistics, method = method)
-    statistics <- cbind(statistics, gamma = unlist(gamma_statistics))
+    statistics <- cbind(statistics, Gamma = unlist(gamma_statistics))
   }
 
   if ("all" %in% stat | "pd" %in% stat) {
     phylogenetic_diversity <- lapply(raw_data$tes, calculate_phylogenetic_diversity, method = method)
-    statistics <- cbind(statistics, pd = unlist(phylogenetic_diversity))
+    statistics <- cbind(statistics, PD = unlist(phylogenetic_diversity))
   }
 
   if ("all" %in% stat | "mntd" %in% stat) {
     mean_nearest_neighbor_distance <- lapply(raw_data$tes, calculate_mean_nearest_neighbor_distance, method = method)
-    statistics <- cbind(statistics, mntd = unlist(mean_nearest_neighbor_distance))
+    statistics <- cbind(statistics, MNTD = unlist(mean_nearest_neighbor_distance))
   }
 
   return(within(statistics, rm(id)))
