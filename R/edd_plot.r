@@ -778,7 +778,7 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot =
                                mu == mu_num &
                                metric == "pd")
 
-  blum_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "blum")) +
+  blum_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Blum")) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous(trans = "sqrt") +
@@ -788,7 +788,7 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot =
                    axis.ticks.x = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_blank())
 
-  colless_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "colless")) +
+  colless_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Colless")) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
@@ -800,7 +800,7 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot =
                    strip.text.x = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_blank())
 
-  sackin_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "sackin")) +
+  sackin_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Sackin")) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
@@ -858,9 +858,9 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
-  plot_data_blum <- dplyr::filter(plot_data, balance == "blum")
-  plot_data_colless <- dplyr::filter(plot_data, balance == "colless")
-  plot_data_sackin <- dplyr::filter(plot_data, balance == "sackin")
+  plot_data_blum <- dplyr::filter(plot_data, balance == "Blum")
+  plot_data_colless <- dplyr::filter(plot_data, balance == "Colless")
+  plot_data_sackin <- dplyr::filter(plot_data, balance == "Sackin")
 
   blum_plot <- ggplot2::ggplot(plot_data_blum) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
@@ -933,7 +933,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
                                                       results.subtitle = FALSE,
                                                       subtitle = NULL,
                                                       bf.message = FALSE,
-                                                      caption = NULL,
+                                                      caption = pars_to_title(raw_data$data[[x[1]]]$all_pars),
                                                       xlab = "Metric",
                                                       ylab = "Value")
 
@@ -1001,7 +1001,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
                                metric == "pd")
 
   mbl_plot <- ggplot2::ggplot(data = plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mbl, fill = beta_n)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MBL, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
     ggplot2::ylab("Mean branch length") +
@@ -1011,7 +1011,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
                    axis.line.x = ggplot2::element_blank())
 
   pd_plot <- ggplot2::ggplot(data = plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, pd, fill = beta_n)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, PD, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous(trans = "log2") +
     ggplot2::ylab("Phylogenetic diversity") +
@@ -1023,7 +1023,7 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
                    axis.line.x = ggplot2::element_blank())
 
   mntd_plot <- ggplot2::ggplot(data = plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mntd, fill = beta_n)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MNTD, fill = beta_n)) +
     ggplot2::facet_wrap(. ~ offset, nrow = 1) +
     ggplot2::scale_y_continuous() +
     ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
@@ -1082,7 +1082,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
   mbl_plot <- ggplot2::ggplot(plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mbl, fill = metric)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MBL, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous() +
     ggplot2::scale_x_continuous(sec.axis = sec_axis(~ . ,
@@ -1096,7 +1096,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
                    axis.line.x = ggplot2::element_blank())
 
   pd_plot <- ggplot2::ggplot(plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, pd, fill = metric)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, PD, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     ggplot2::scale_y_continuous(trans = "log2") +
     ggplot2::ylab("Phylogenetic diversity") +
@@ -1108,7 +1108,7 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
                    strip.text.x = ggplot2::element_blank())
 
   mntd_plot <- ggplot2::ggplot(plot_data) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, mntd, fill = metric)) +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MNTD, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n) +
     #ggplot2::scale_y_continuous(trans = "sqrt") +
     ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
@@ -1153,7 +1153,7 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
                                                      results.subtitle = FALSE,
                                                      subtitle = NULL,
                                                      bf.message = FALSE,
-                                                     caption = NULL,
+                                                     caption = pars_to_title(raw_data$data[[x[1]]]$all_pars),
                                                      xlab = "Metric",
                                                      ylab = "Value")
 
