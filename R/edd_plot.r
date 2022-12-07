@@ -778,8 +778,8 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   mus <- levels(stat_balance$mu)
   rates <- expand.grid(lambdas, mus)
 
-  #plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
-  #plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
+  plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
+  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
   plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
   plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
   plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot, path = path)
