@@ -17,6 +17,8 @@ edd_plot_branch(
 \item{method}{Specify which package to be used to calculate statistics}
 
 \item{save_plot}{Logical, whether save to file or return a ggplot object}
+
+\item{path}{Path to save the plot}
 }
 \value{
 an ggplot object

@@ -17,6 +17,8 @@ edd_plot_balance(
 \item{method}{Specify which package to be used to calculate calculate statistics}
 
 \item{save_plot}{Logical, whether save to file or return a ggplot object}
+
+\item{path}{The path to save the plots}
 }
 \value{
 an ggplot object

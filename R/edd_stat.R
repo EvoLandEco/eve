@@ -36,6 +36,25 @@ edd_summarize <- function(raw_data, stat = NULL, method = NULL) {
 
 
 
+edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "sequential",
+                                            workers = 1, verbose = TRUE) {
+  check_parallel_arguments(strategy, workers, verbose)
+  check_raw_data(raw_data)
+
+  temporal_dynamics <- furrr::future_map(.x = raw_data,
+                                  .f = function (x) {
+                                    stats <- reconstruct_temporal_dynamics(x$l_tables[[rep_id]], x$all_pars$age)
+                                    meta <- as.data.frame(extract_parameters(x))
+                                    return(cbind(meta, stats))
+                                  })
+
+  temporal_dynamics <- dplyr::bind_rows(temporal_dynamics)
+
+  return(temporal_dynamics)
+}
+
+
+
 edd_stat <- function(raw_data, stat = "all", method = "treestats", strategy = "sequential",
                      workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)

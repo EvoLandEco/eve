@@ -17,6 +17,8 @@ edd_plot_grouped_eds(
 \item{group}{specify the group to plot}
 
 \item{save_plot}{Logical, whether save to file or return a ggplot object}
+
+\item{path}{The path to save the plots}
 }
 \value{
 an ggplot object

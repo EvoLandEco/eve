@@ -54,3 +54,87 @@ mark_extinct_tips <- function(phy) {
 
   return(tree_data)
 }
+
+
+
+# Reconstruct the growth of the phylo tree from the present L-table, with simulation time provided.
+# Will output Blum, Colless, Sackin, PD, MNTD and MBL statistics for each time step.
+reconstruct_temporal_dynamics <- function(l_table = NULL, age = NULL) {
+  if (is.null(l_table)) {
+      stop("No L-table provided")
+  }
+  if (is.null(age)) {
+      stop("No age provided")
+  }
+  time_speciation <- unique(l_table[, 1])
+  time_extinction <- unique(l_table[l_table[, 4] > 0, 4])
+  event_table <- data.frame(Age = c(time_speciation, time_extinction),
+                            Event = c(rep("speciation", length(time_speciation)),
+                                      rep("extinction", length(time_extinction))))
+  event_table <- event_table[order(event_table[, 1]),]
+  temporal_dynamic <- data.frame(Age = 0,
+                                 Event = "speciation",
+                                 Blum = NA,
+                                 Colless = NA,
+                                 Sackin = NA,
+                                 PD = 0,
+                                 MNTD = 0,
+                                 MBL = 0)
+
+  # might be safe given often used rates
+  moment <- 0.00001
+
+  for (i in seq_along(event_table[, 1])) {
+    if (i > 1) {
+      if (event_table[i, 2] == "speciation") {
+        t <- event_table[i, 1]
+        l_temp <- l_table[l_table[, 1] < t,]
+        l_temp[l_temp[, 4] > t, 4] <- -1
+        temporal_dynamic <- rbind(temporal_dynamic,
+                                  sample_tree_metrics(l_temp, t, event_table[i, 2], drop_extinct = TRUE))
+      } else {
+        # firstly sample the stats at the moment before extinction
+        t <- event_table[i, 1] - moment
+        l_temp <- l_table[l_table[, 1] < t,]
+        l_temp[l_temp[, 4] > t, 4] <- -1
+        temporal_dynamic <- rbind(temporal_dynamic,
+                                  sample_tree_metrics(l_temp, t, event_table[i, 2], drop_extinct = TRUE))
+        # then sample again the stats at the moment after extinction
+        t <- event_table[i, 1] + moment
+        l_temp <- l_table[l_table[, 1] < t,]
+        l_temp[l_temp[, 4] > t, 4] <- -1
+        temporal_dynamic <- rbind(temporal_dynamic,
+                                  sample_tree_metrics(l_temp, t, event_table[i, 2], drop_extinct = TRUE))
+      }
+    }
+  }
+
+  temporal_dynamic <- rbind(temporal_dynamic,
+                            sample_tree_metrics(l_table, age, "present", drop_extinct = TRUE))
+
+  return(temporal_dynamic)
+}
+
+
+
+sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
+  phy <- treestats::l_to_phylo_ed(l_table, age, drop_extinct = drop_extinct)
+  Blum <- calculate_tree_balance(phy, metric = "Blum")
+  Colless <- calculate_tree_balance(phy, metric = "Colless")
+  Sackin <- calculate_tree_balance(phy, metric = "Sackin")
+  PD <- calculate_phylogenetic_diversity(phy)
+  MNTD <- calculate_mean_nearest_neighbor_distance(phy)
+  MBL <- calculate_mean_branch_length(phy)
+
+  return(data.frame(Age = age,
+                    Event = event,
+                    Blum = Blum,
+                    Colless = Colless,
+                    Sackin = Sackin,
+                    PD = PD,
+                    MNTD = MNTD,
+                    MBL = MBL))
+}
+
+
+
