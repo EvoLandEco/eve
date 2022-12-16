@@ -138,3 +138,177 @@ sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
 
 
 
+sample_end_state <- function(l_table, params) {
+  metric <- params$metric
+  model <- params$model
+  age <- params$age
+  num <- nrow(l_table[l_table[, 4] == -1,])
+  linlist <- l_table[l_table[, 4] == -1,][, 3]
+  if (model == "dsce2") {
+    pars <- c(num, unlist(params$pars)[1],
+              unlist(params$pars)[2],
+              unlist(params$pars)[3],
+              unlist(params$pars)[4])
+  }
+  if (model == "dsde2") {
+    pars <- c(num, unlist(params$pars)[1],
+              unlist(params$pars)[2],
+              unlist(params$pars)[3],
+              unlist(params$pars)[4],
+              unlist(params$pars)[5],
+              unlist(params$pars)[6])
+  }
+
+  if (metric == "pd") {
+    ed <- rep(as.vector(L2Phi_cpp(l_table, age, "pd")), num)
+  }
+  if (metric == "ed") {
+    ed <- L2ED_cpp(l_table, age)
+  }
+  if (metric == "nnd") {
+    ed <- L2NND(l_table, age)
+  }
+
+  rates <- edd_update_lamu(ed, ed, pars, model)
+  las <- purrr::set_names(rates$newlas, paste0('t', abs(linlist)))
+  las <- c(time = age, las)
+  mus <- purrr::set_names(rates$newmus, paste0('t', abs(linlist)))
+  mus <- c(time = age, mus)
+  eds <- purrr::set_names(ed, paste0('t', abs(linlist)))
+  eds <- c(time = age, eds)
+
+  return(list(las = las, mus = mus, eds = eds))
+}
+
+
+
+stat_histree <- function(phy, history){
+  # get the skeleton of the phylo tree, all the key coordinates
+  xs <- ape::node.depth.edgelength(phy)
+  ys <- ape::node.height(phy)
+  nodes <- data.frame(x = xs, y = ys)
+
+  # find the root node and its coordinates
+  root_node <- nodes[which(nodes$x == 0),]
+  root_node$id <- ape::Ntip(phy) + 1
+
+  segments <- data.frame()
+  # an iterator function to look up and draw the state history of two daughter edges connected to a node
+  draw_daughter_lineages(parent_node =  root_node,
+                         phy = phy,
+                         history= history,
+                         nodes = nodes,
+                         tolerance = 1e-8)
+
+  return(segments)
+}
+
+
+
+draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, history, nodes, tolerance = 1e-9) {
+  tolerance_r <- 1 / tolerance
+  parent_age <- parent_node$x
+  daughters <- phy$edge[phy$edge[, 1] == parent_node$id,]
+  daughters_nodes <- daughters[, 2]
+  daughters_lengths <- phy$edge.length[which(phy$edge[, 1] == parent_node$id)]
+
+  #find the representative decendant of each daughter lineage, which is the earliest speciated decendant
+  decendants1 <- geiger::tips(phy, daughters_nodes[1])
+  if (length(decendants1) > 1) {
+    rep_decendants1 <- gtools::mixedsort(decendants1)[1]
+    history1 <- history %>%
+      dplyr::select(time, rep_decendants1) %>%
+      dplyr::filter(time >= (floor(parent_age * tolerance_r) / tolerance_r) &
+                      time <= (ceiling((parent_age + daughters_lengths[1]) * tolerance_r) / tolerance_r))
+    daughter1_coord <- nodes[dplyr::near(nodes$x, parent_age + daughters_lengths[1], tolerance),]
+  } else {
+    rep_decendants1 <- decendants1
+    history1 <- history %>%
+      dplyr::select(time, rep_decendants1) %>%
+      dplyr::filter(time >= (floor(parent_age * tolerance_r) / tolerance_r) &
+                      time <= (ceiling((parent_age + daughters_lengths[1]) * tolerance_r) / tolerance_r))
+    daughter1_coord <- nodes[which(phy$tip.label == rep_decendants1),]
+  }
+
+  segments1h <- data.frame()
+  for (i in 1:(nrow(history1) - 1)) {
+    x <- history1$time[i]
+    xend <- history1$time[i + 1]
+    y <- daughter1_coord$y
+    yend <- daughter1_coord$y
+    state <- (history1[rep_decendants1][i,] + history1[rep_decendants1][i + 1,]) / 2
+    segments1hnew <- data.frame(x = x, y = y, xend = xend, yend = yend, state = state)
+    segments1h <- rbind(segments1h, segments1hnew)
+  }
+  segments1v <- data.frame(x = parent_age,
+                           y = parent_node$y,
+                           xend = parent_age,
+                           yend = daughter1_coord$y,
+                           state = history1[rep_decendants1][1,])
+
+  decendants2 <- geiger::tips(phy, daughters_nodes[2])
+  if (length(decendants2) > 1) {
+    rep_decendants2 <- gtools::mixedsort(decendants2)[1]
+    history2 <- history %>%
+      dplyr::select(time, rep_decendants2) %>%
+      dplyr::filter(time >= (floor(parent_age * tolerance_r) / tolerance_r) &
+                      time <= (ceiling((parent_age + daughters_lengths[2]) * tolerance_r) / tolerance_r))
+    daughter2_coord <- nodes[dplyr::near(nodes$x, parent_age + daughters_lengths[2], tolerance),]
+  } else {
+    rep_decendants2 <- decendants2
+    history2 <- history %>%
+      dplyr::select(time, rep_decendants2) %>%
+      dplyr::filter(time >= (floor(parent_age * tolerance_r) / tolerance_r) &
+                      time <= (ceiling((parent_age + daughters_lengths[2]) * tolerance_r) / tolerance_r))
+    daughter2_coord <- nodes[which(phy$tip.label == rep_decendants2),]
+  }
+
+  segments2h <- data.frame()
+  for (i in 1:(nrow(history2) - 1)) {
+    x <- history2$time[i]
+    xend <- history2$time[i + 1]
+    y <- daughter2_coord$y
+    yend <- daughter2_coord$y
+    state <- (history2[rep_decendants2][i,] + history2[rep_decendants2][i + 1,]) / 2
+    segments2hnew <- data.frame(x = x, y = y, xend = xend, yend = yend, state = state)
+    segments2h <- rbind(segments2h, segments2hnew)
+  }
+  segments2v <- data.frame(x = parent_age,
+                           y = parent_node$y,
+                           xend = parent_age,
+                           yend = daughter2_coord$y,
+                           state = history2[rep_decendants2][1,])
+
+  # amend segments in the outer scope
+  envir$segments <- rbind(envir$segments, segments1h, segments1v, segments2h, segments2v)
+
+  if (length(decendants1) > 1) {
+    daughter1 <- data.frame(x = daughter1_coord$x,
+                            y = daughter1_coord$y,
+                            id = daughters_nodes[1])
+    if (nrow(daughter1) > 1) {
+      stop("Error: daughter1 has more than one row")
+    }
+    draw_daughter_lineages(envir = envir,
+                           parent_node = daughter1,
+                           phy = phy,
+                           history = history,
+                           nodes = nodes)
+  }
+
+  if (length(decendants2) > 1) {
+    daughter2 <- data.frame(x = daughter2_coord$x,
+                            y = daughter2_coord$y,
+                            id = daughters_nodes[2])
+    if (nrow(daughter2) > 1) {
+      stop("Error: daughter2 has more than one row")
+    }
+    draw_daughter_lineages(envir = envir,
+                           parent_node = daughter2,
+                           phy = phy,
+                           history = history,
+                           nodes = nodes)
+  }
+}
+
+
