@@ -18,6 +18,7 @@ Imports:
     dplyr,
     furrr,
     future,
+    geiger,
     ggplot2,
     ggtext,
     ggtree,

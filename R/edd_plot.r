@@ -168,6 +168,55 @@ edd_plot_tree <- function(raw_data = NULL,
 
 
 
+edd_plot_histree <- function(raw_data = NULL,
+                          rep_id = stop("Please specify the id of the replicate to be plotted"),
+                          which = stop("Please specify which history to be plotted"),
+                          drop_extinct = FALSE,
+                          save_plot = FALSE
+) {
+  l_table <- raw_data$l_tables[[rep_id]]
+  if(drop_extinct == TRUE){
+    phy <- raw_data$tes[[rep_id]]
+  } else {
+    phy <- raw_data$tas[[rep_id]]
+  }
+  params <- raw_data$all_pars
+  stopifnot(which %in% c("las", "mus", "eds"))
+  if (which == "las") {
+    history <- raw_data$las[[rep_id]]
+  }
+  if (which == "mus") {
+    history <- raw_data$mus[[rep_id]]
+  }
+  if (which == "eds") {
+    history <- raw_data$eds[[rep_id]]
+  }
+  history <- cbind(time = raw_data$ltt[[rep_id]]$time, history)
+
+  end_state <- sample_end_state(l_table, params, which)
+  history <- dplyr::bind_rows(history, end_state)
+
+  segments <- stat_histree(phy, history)
+  histree <- ggplot2::ggplot(segments) + ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, color = state)) +
+    ggplot2::theme(panel.grid.major = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   panel.background = element_blank(),
+                   axis.line.x = element_line(colour = "black"),
+                   axis.text.y=element_blank(),
+                   axis.ticks.y=element_blank()) +
+    ggplot2::labs(x = NULL, y = NULL) +
+    ggplot2::guides(title = "State") +
+    viridis::scale_color_viridis(discrete = FALSE, option = "D")
+
+  if (save_plot == TRUE) {
+    stop("Saving plots to files is not supported for this function")
+  } else {
+    return(histree)
+  }
+}
+
+
+
 #' @name edd_plot_nltt
 #' @title Generating nLTT plot for a replicated edd simulation
 #' @description Function to generate normalized lineages through time plot from
@@ -396,6 +445,7 @@ edd_plot_las <- function(raw_data = NULL,
     ggplot2::ylab("Speciation rate") +
     ggplot2::xlab("Age") +
     ggplot2::xlim(0, 6) +
+    ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -427,6 +477,7 @@ edd_plot_las <- function(raw_data = NULL,
                           linetype = "twodash",
                           color = "grey") +
       ggplot2::xlim(0, 6) +
+      ggplot2::theme_classic() +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_las <- patchwork::wrap_plots(plot_las1 + plot_las2, ncol = 1)
@@ -434,7 +485,7 @@ edd_plot_las <- function(raw_data = NULL,
     plot_las <- plot_las1
   }
 
-  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
+  plot_tree <- edd_plot_histree(raw_data, rep_id = rep_id, which = "las", drop_extinct = FALSE, save_plot = FALSE) +
     ggplot2::ggtitle(toupper(pars_list$metric))
 
   plot_las <- patchwork::wrap_plots(plot_tree, plot_las, ncol = 1)
@@ -527,6 +578,7 @@ edd_plot_mus <- function(raw_data = NULL,
     ggplot2::ylab("Extinction rate") +
     ggplot2::xlab("Age") +
     ggplot2::xlim(0, 6) +
+     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -558,6 +610,7 @@ edd_plot_mus <- function(raw_data = NULL,
                           linetype = "twodash",
                           color = "grey") +
       ggplot2::xlim(0, 6) +
+      ggplot2::theme_classic() +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_mus <- patchwork::wrap_plots(plot_mus1, plot_mus2, ncol = 1)
@@ -565,7 +618,7 @@ edd_plot_mus <- function(raw_data = NULL,
     plot_mus <- plot_mus1
   }
 
-  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
+  plot_tree <- edd_plot_histree(raw_data, rep_id = rep_id, which = "mus", drop_extinct = FALSE, save_plot = FALSE) +
     ggplot2::ggtitle(toupper(pars_list$metric))
 
   plot_mus <- patchwork::wrap_plots(plot_tree, plot_mus, ncol = 1)
@@ -661,6 +714,7 @@ edd_plot_eds <- function(raw_data = NULL,
     ggplot2::ylab("Evolutionary distinctiveness") +
     ggplot2::xlab("Age") +
     ggplot2::xlim(0, 6) +
+    ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -691,7 +745,8 @@ edd_plot_eds <- function(raw_data = NULL,
       ggplot2::geom_hline(yintercept = 0,
                           linetype = "twodash",
                           color = "grey") +
-      ggplot2::xlim(0, 6)
+      ggplot2::xlim(0, 6) +
+      ggplot2::theme_classic() +
       ggplot2::theme(legend.position = "right",
                      aspect.ratio = 1 / 1)
     plot_eds <- patchwork::wrap_plots(plot_eds1, plot_eds2, ncol = 1)
@@ -699,7 +754,7 @@ edd_plot_eds <- function(raw_data = NULL,
     plot_eds <- plot_eds1
   }
 
-  plot_tree <- edd_plot_tree(raw_data, rep_id = rep_id, drop_extinct = FALSE, save_plot = FALSE) +
+  plot_tree <- edd_plot_histree(raw_data, rep_id = rep_id, which = "eds", drop_extinct = FALSE, save_plot = FALSE) +
     ggplot2::ggtitle(toupper(pars_list$metric))
 
   plot_eds <- patchwork::wrap_plots(plot_tree, plot_eds, ncol = 1)

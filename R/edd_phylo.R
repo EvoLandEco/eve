@@ -138,7 +138,7 @@ sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
 
 
 
-sample_end_state <- function(l_table, params) {
+sample_end_state <- function(l_table, params, which = stop("Please specify which end state to sample")) {
   metric <- params$metric
   model <- params$model
   age <- params$age
@@ -177,18 +177,26 @@ sample_end_state <- function(l_table, params) {
   eds <- purrr::set_names(ed, paste0('t', abs(linlist)))
   eds <- c(time = age, eds)
 
+  if (which == "las") {
+    return(las)
+  } else if (which == "mus") {
+    return(mus)
+  } else if (which == "eds") {
+    return(eds)
+  }
+
   return(list(las = las, mus = mus, eds = eds))
 }
 
 
 
 stat_histree <- function(phy, history){
-  # get the skeleton of the phylo tree, all the key coordinates
+  # get the skeleton of the phylo tree, get all the key coordinates
   xs <- ape::node.depth.edgelength(phy)
   ys <- ape::node.height(phy)
   nodes <- data.frame(x = xs, y = ys)
 
-  # find the root node and its coordinates
+  # find the root node and its coordinate
   root_node <- nodes[which(nodes$x == 0),]
   root_node$id <- ape::Ntip(phy) + 1
 
