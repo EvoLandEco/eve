@@ -189,7 +189,18 @@ sample_end_state <- function(l_table, params, which = stop("Please specify which
 }
 
 
-
+#' @name stat_histree
+#' @title Mapping historical states to a phylo tree
+#' @description Function to map historical states to a phylo tree and output a data frame of segments of the tree
+#' @param phy A phylo object, the tree to map historical states to
+#' @param history A data frame containing time steps and the historical states of each lineage. The first row of the data
+#' frame should be time, which has each time step as a row. The other rows should be named t1, t2, t3, etc, and the names
+#' should be in the same order as they speciated. The rows should contain the values of its historical states at each time
+#' step. At each time step where a lineage is not present, the value should be NA.
+#' @return A data frame of the segments of the tree
+#' @author Tianjian Qin
+#' @keywords phylogenetics
+#' @export stat_histree
 stat_histree <- function(phy, history){
   # get the skeleton of the phylo tree, get all the key coordinates
   xs <- ape::node.depth.edgelength(phy)
@@ -211,8 +222,9 @@ stat_histree <- function(phy, history){
   return(segments)
 }
 
-
-
+#' @name draw_daughter_lineages
+#' @title Draw the state history of two daughter edges connected to a node
+#' @description An iterator function to look up and draw the state history of two daughter edges connected to a node
 draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, history, nodes, tolerance = 1e-9) {
   tolerance_r <- 1 / tolerance
   parent_age <- parent_node$x
