@@ -220,8 +220,15 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
   daughters_nodes <- daughters[, 2]
   daughters_lengths <- phy$edge.length[which(phy$edge[, 1] == parent_node$id)]
 
-  #find the representative decendant of each daughter lineage, which is the earliest speciated decendant
+  # find the representative descendant of each daughter lineage, which is the earliest speciated descendant,
+  # note that this function requires the lineages to be label like t1, t2, ... tn, and in the order of the
+  # time of speciation, that's why gtools::mixedsort() is required here, after all, the earliest speciated
+  # descendant has the full history to be able to map onto the shared ancestral edges
+  # I mis-spelled descendant here and after
   decendants1 <- geiger::tips(phy, daughters_nodes[1])
+
+
+  # find matching history given the time frame (age of parent node plus edge length)
   if (length(decendants1) > 1) {
     rep_decendants1 <- gtools::mixedsort(decendants1)[1]
     history1 <- history %>%
@@ -238,6 +245,7 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
     daughter1_coord <- nodes[which(phy$tip.label == rep_decendants1),]
   }
 
+  # generate coordinates to arrange the horizontal segments
   segments1h <- data.frame()
   for (i in 1:(nrow(history1) - 1)) {
     x <- history1$time[i]
@@ -248,12 +256,15 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
     segments1hnew <- data.frame(x = x, y = y, xend = xend, yend = yend, state = state)
     segments1h <- rbind(segments1h, segments1hnew)
   }
+
+  # generate coordinates for the two vertical segments (connected to the parent node)
   segments1v <- data.frame(x = parent_age,
                            y = parent_node$y,
                            xend = parent_age,
                            yend = daughter1_coord$y,
                            state = history1[rep_decendants1][1,])
 
+  # repeat the same process for another descendant edge from the parent node
   decendants2 <- geiger::tips(phy, daughters_nodes[2])
   if (length(decendants2) > 1) {
     rep_decendants2 <- gtools::mixedsort(decendants2)[1]
@@ -281,15 +292,17 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
     segments2hnew <- data.frame(x = x, y = y, xend = xend, yend = yend, state = state)
     segments2h <- rbind(segments2h, segments2hnew)
   }
+
   segments2v <- data.frame(x = parent_age,
                            y = parent_node$y,
                            xend = parent_age,
                            yend = daughter2_coord$y,
                            state = history2[rep_decendants2][1,])
 
-  # amend segments in the outer scope
+  # amend segments data frame in the outer scope
   envir$segments <- rbind(envir$segments, segments1h, segments1v, segments2h, segments2v)
 
+  # iteration starts here, apply the function itself to the end nodes of the two descendant edges
   if (length(decendants1) > 1) {
     daughter1 <- data.frame(x = daughter1_coord$x,
                             y = daughter1_coord$y,
