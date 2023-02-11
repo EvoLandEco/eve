@@ -189,6 +189,7 @@ sample_end_state <- function(l_table, params, which = stop("Please specify which
 }
 
 
+
 #' @name stat_histree
 #' @title Mapping historical states to a phylo tree
 #' @description Function to map historical states to a phylo tree and output a data frame of segments of the tree
@@ -221,6 +222,8 @@ stat_histree <- function(phy, history){
 
   return(segments)
 }
+
+
 
 #' @name draw_daughter_lineages
 #' @title Draw the state history of two daughter edges connected to a node
