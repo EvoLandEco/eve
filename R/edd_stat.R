@@ -31,6 +31,11 @@ edd_summarize <- function(raw_data, stat = NULL, method = NULL) {
     statistics <- cbind(statistics, MNTD = unlist(mean_nearest_neighbor_distance))
   }
 
+  if ("all" %in% stat | "sr" %in% stat) {
+    tree_sizes <- get_tree_sizes(raw_data$tes)
+    statistics <- cbind(statistics, SR = tree_sizes)
+  }
+
   return(within(statistics, rm(id)))
 }
 

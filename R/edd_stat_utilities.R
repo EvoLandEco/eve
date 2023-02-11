@@ -165,3 +165,37 @@ reverse_l_table <- function(l_table, age) {
   l_table[, 1] <- age - l_table[, 1]
   return(l_table)
 }
+
+
+
+distance_to_mean <- function(cols, means) {
+  sqrt(sum((cols - means)^2))
+}
+
+
+
+find_best_rep_ids <- function(raw_data) {
+  stats <- edd_stat(raw_data$data)
+  stats <- stats %>% dplyr::select(-Sackin, -Blum, -Gamma) %>%
+    dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model,metric, offset)) %>%
+    dplyr::group_by(group)
+
+  cols <- stats %>% dplyr::ungroup() %>%
+    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset, -group)
+
+  col_means <- cols %>% colMeans()
+
+  stats$distance <- apply(cols, 1, distance_to_mean, means = col_means)
+
+  rep_ids <- stats %>% dplyr::group_by(group) %>%
+    dplyr::mutate(row_id = dplyr::row_number()) %>%
+    dplyr::slice_min(n = 1, order_by = distance) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(lambda, mu, beta_n, beta_phi, age, model, metric, offset, row_id)
+
+  return(rep_ids)
+}
+
+
+
+

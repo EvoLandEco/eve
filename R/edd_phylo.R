@@ -348,3 +348,10 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
 }
 
 
+
+get_tree_sizes <- function(trees) {
+  sizes <- lapply(trees, function(x) {
+    length(x$tip.label)
+  })
+  return(unlist(sizes))
+}
