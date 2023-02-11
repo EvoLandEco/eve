@@ -320,7 +320,7 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
                             y = daughter1_coord$y,
                             id = daughters_nodes[1])
     if (nrow(daughter1) > 1) {
-      stop("Error: daughter1 has more than one row")
+      stop("Error: daughter1 has more than one row, consider adjusting tolerance")
     }
     draw_daughter_lineages(envir = envir,
                            parent_node = daughter1,
@@ -334,7 +334,7 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
                             y = daughter2_coord$y,
                             id = daughters_nodes[2])
     if (nrow(daughter2) > 1) {
-      stop("Error: daughter2 has more than one row")
+      stop("Error: daughter2 has more than one row, consider adjusting tolerance")
     }
     draw_daughter_lineages(envir = envir,
                            parent_node = daughter2,
