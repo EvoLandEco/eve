@@ -1542,7 +1542,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                          path = path,
                          device = "png",
                          width = 10,
-                         height = 16,
+                         height = 15,
                          dpi = "retina")
   } else {
     return(plot_grouped_histrees)
