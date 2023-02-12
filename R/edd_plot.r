@@ -111,12 +111,23 @@ edd_plot <- function(raw_data = NULL,
     plots <- list(plots, plot_grouped_temporal)
   }
 
+  if ("all" %in% which | "best_histrees" %in% which) {
+    message("Plotting best represented histrees")
+    message("Looking for best representatives")
+    rep_ids <- find_best_rep_ids(raw_data)
+    plot_best_histrees <- edd_plot_best_histrees(raw_data,
+                                                 rep_ids = rep_ids,
+                                                 which = "las",
+                                                 save_plot = save_plot,
+                                                 path = path)
+    plots <- list(plots, plot_best_histrees)
+  }
+
   if (save_plot != TRUE) {
     message("Plots are not saved, returning ggplot2 objects as a list")
     return(plots)
   }
 }
-
 
 
 #' @name edd_plot_tree
@@ -167,15 +178,14 @@ edd_plot_tree <- function(raw_data = NULL,
 }
 
 
-
 edd_plot_histree <- function(raw_data = NULL,
-                          rep_id = stop("Please specify the id of the replicate to be plotted"),
-                          which = stop("Please specify which history to be plotted"),
-                          drop_extinct = FALSE,
-                          save_plot = FALSE
+                             rep_id = stop("Please specify the id of the replicate to be plotted"),
+                             which = stop("Please specify which history to be plotted"),
+                             drop_extinct = FALSE,
+                             save_plot = FALSE
 ) {
   l_table <- raw_data$l_tables[[rep_id]]
-  if(drop_extinct == TRUE){
+  if (drop_extinct == TRUE) {
     phy <- raw_data$tes[[rep_id]]
   } else {
     phy <- raw_data$tas[[rep_id]]
@@ -197,13 +207,14 @@ edd_plot_histree <- function(raw_data = NULL,
   history <- dplyr::bind_rows(history, end_state)
 
   segments <- stat_histree(phy, history)
-  histree <- ggplot2::ggplot(segments) + ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, color = state)) +
+  histree <- ggplot2::ggplot(segments) +
+    ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, color = state)) +
     ggplot2::theme(panel.grid.major = element_blank(),
                    panel.grid.minor = element_blank(),
                    panel.background = element_blank(),
                    axis.line.x = element_line(colour = "black"),
-                   axis.text.y=element_blank(),
-                   axis.ticks.y=element_blank()) +
+                   axis.text.y = element_blank(),
+                   axis.ticks.y = element_blank()) +
     ggplot2::labs(x = NULL, y = NULL) +
     ggplot2::guides(title = "State") +
     viridis::scale_color_viridis(discrete = FALSE, option = "D")
@@ -214,7 +225,6 @@ edd_plot_histree <- function(raw_data = NULL,
     return(histree)
   }
 }
-
 
 
 #' @name edd_plot_nltt
@@ -370,7 +380,6 @@ edd_plot_ltt <-
   }
 
 
-
 #' @name edd_plot_grouped_ltt
 #' @title Generating LTT plot for a replicated edd simulation
 #' @description Function to generate grouped lineages through time plot from
@@ -386,7 +395,7 @@ edd_plot_ltt <-
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
-  tally <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data$params, group)
   indexes <- create_indexes_by_group(tally)
   grouped_ltt <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_ltt(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
@@ -394,7 +403,7 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
       patchwork::plot_annotation(title = pars_to_title(raw_data$data[[x[1]]]$all_pars),
                                  theme = ggplot2::theme(plot.title = element_text(size = 25)))
     if (save_plot == TRUE) {
-      pars_list <-  extract_parameters(raw_data$data[[x[1]]])
+      pars_list <- extract_parameters(raw_data$data[[x[1]]])
       save_with_parameters(pars_list = pars_list,
                            plot = grouped_plot,
                            which = "grouped_ltt",
@@ -406,7 +415,6 @@ edd_plot_grouped_ltt <- function(raw_data = NULL, group = "metric", save_plot = 
     }
   })
 }
-
 
 
 #' @name edd_plot_las
@@ -519,7 +527,7 @@ edd_plot_las <- function(raw_data = NULL,
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
-  tally <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data$params, group)
   indexes <- create_indexes_by_group(tally)
   grouped_las <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_las(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
@@ -539,7 +547,6 @@ edd_plot_grouped_las <- function(raw_data = NULL, group = "metric", save_plot = 
     }
   })
 }
-
 
 
 #' @name edd_plot_mus
@@ -572,13 +579,13 @@ edd_plot_mus <- function(raw_data = NULL,
       tidyr::gather("Tip", "Mu", -Time) %>%
       na.omit()
 
-   plot_mus1 <- ggplot2::ggplot(mus_long) +
+  plot_mus1 <- ggplot2::ggplot(mus_long) +
     ggplot2::geom_path(ggplot2::aes(Time, Mu, group = Tip, color = Mu)) +
     viridis::scale_color_viridis(option = "D") +
     ggplot2::ylab("Extinction rate") +
     ggplot2::xlab("Age") +
     ggplot2::xlim(0, 6) +
-     ggplot2::theme_classic() +
+    ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "none",
                    aspect.ratio = 1 / 1)
 
@@ -638,7 +645,6 @@ edd_plot_mus <- function(raw_data = NULL,
 }
 
 
-
 #' @name edd_plot_grouped_mus
 #' @title Generating line plot of extinction rates of each lineage by group
 #' @description Function to generate a plot showing the transition of extinction
@@ -654,7 +660,7 @@ edd_plot_mus <- function(raw_data = NULL,
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
-  tally <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data$params, group)
   indexes <- create_indexes_by_group(tally)
   grouped_mus <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_mus(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
@@ -674,8 +680,6 @@ edd_plot_grouped_mus <- function(raw_data = NULL, group = "metric", save_plot = 
     }
   })
 }
-
-
 
 
 #' @name edd_plot_eds
@@ -720,7 +724,7 @@ edd_plot_eds <- function(raw_data = NULL,
 
   if (annotation == TRUE) {
     anno <- create_annotation(pars_list, y = c(Inf, Inf), vjust = c(1, 2.1))
-    plot_eds1 <-  plot_eds1 +
+    plot_eds1 <- plot_eds1 +
       ggtext::geom_richtext(
         data = anno,
         ggplot2::aes(
@@ -774,7 +778,6 @@ edd_plot_eds <- function(raw_data = NULL,
 }
 
 
-
 #' @name edd_plot_grouped_eds
 #' @title Generating line plot of evolutionary distinctiveness of each lineage by group
 #' @description Function to generate a plot showing the transition of evolutionary distinctiveness
@@ -790,7 +793,7 @@ edd_plot_eds <- function(raw_data = NULL,
 #' @importFrom magrittr %>%
 #' @import patchwork
 edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = FALSE, path = NULL) {
-  tally <- tally_by_group(raw_data, group)
+  tally <- tally_by_group(raw_data$params, group)
   indexes <- create_indexes_by_group(tally)
   grouped_eds <- lapply(indexes, function(x) {
     plots <- lapply(x, function(y) edd_plot_eds(raw_data$data[[y]], save_plot = FALSE, annotation = FALSE))
@@ -810,7 +813,6 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
     }
   })
 }
-
 
 
 #' @name edd_plot_balance
@@ -847,7 +849,6 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
                 pd_spcount_ed = plot_pd_ed_spcount))
   }
 }
-
 
 
 edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE, path = NULL) {
@@ -916,7 +917,6 @@ edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot =
 }
 
 
-
 edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
@@ -937,9 +937,9 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
                                   metric == "ed")
 
   plot_data_nnd <- dplyr::filter(stat_balance,
-                                lambda == lambda_num &
-                                  mu == mu_num &
-                                  metric == "nnd")
+                                 lambda == lambda_num &
+                                   mu == mu_num &
+                                   metric == "nnd")
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
@@ -950,7 +950,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
   blum_plot <- ggplot2::ggplot(plot_data_blum) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n, labeller = as_labeller(
-      ~ paste0("beta[italic(N)]:", .x), label_parsed
+      ~paste0("beta[italic(N)]:", .x), label_parsed
     )) +
     ggplot2::scale_y_continuous(trans = "sqrt") +
     ggplot2::ylab("Blum (sqrt)") +
@@ -1003,11 +1003,13 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
 }
 
 
-
 edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALSE, path = NULL) {
   plot_data <- stat_balance %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
-    dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi)
+    dplyr::filter(lambda == params$lambda &
+                    mu == params$mu &
+                    beta_n == params$beta_n &
+                    beta_phi == params$beta_phi)
   plot_balance <- ggstatsplot::grouped_ggbetweenstats(x = metric,
                                                       y = value,
                                                       data = plot_data,
@@ -1033,7 +1035,6 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
     return(plot_balance)
   }
 }
-
 
 
 #' @name edd_plot_branch
@@ -1069,7 +1070,6 @@ edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = F
                 pd_spcount_ed = plot_pd_ed_spcount))
   }
 }
-
 
 
 edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = FALSE, path = NULL) {
@@ -1138,7 +1138,6 @@ edd_plot_branch_pd_offsets <- function(rates, stat_branch, params, save_plot = F
 }
 
 
-
 edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
@@ -1159,16 +1158,16 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
                                   metric == "ed")
 
   plot_data_nnd <- dplyr::filter(stat_branch,
-                                lambda == lambda_num &
-                                  mu == mu_num &
-                                  metric == "nnd")
+                                 lambda == lambda_num &
+                                   mu == mu_num &
+                                   metric == "nnd")
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
   mbl_plot <- ggplot2::ggplot(plot_data) +
     ggplot2::geom_boxplot(ggplot2::aes(beta_phi, MBL, fill = metric)) +
     ggplot2::facet_wrap(. ~ beta_n, labeller = as_labeller(
-      ~ paste0("beta[italic(N)]:", .x), label_parsed
+      ~paste0("beta[italic(N)]:", .x), label_parsed
     )) +
     ggplot2::scale_y_continuous() +
     ggplot2::ylab("Mean branch length") +
@@ -1208,24 +1207,26 @@ edd_plot_branch_pd_ed <- function(rates, stat_branch, params, offset = NULL, sav
 
   if (save_plot == TRUE) {
     save_with_rates_offset(rates = rates,
-                    offset = offset,
-                    plot = pd_ed_plot,
-                    which = "branch_pd_ed",
-                    path = path,
-                    device = "png",
-                    width = 10, height = 8,
-                    dpi = "retina")
+                           offset = offset,
+                           plot = pd_ed_plot,
+                           which = "branch_pd_ed",
+                           path = path,
+                           device = "png",
+                           width = 10, height = 8,
+                           dpi = "retina")
   } else {
     return(pd_ed_plot)
   }
 }
 
 
-
 edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE, path = NULL) {
   plot_data <- stat_branch %>%
     dplyr::filter(!(metric == "pd" & offset != "Simulation time")) %>%
-    dplyr::filter(lambda == params$lambda & mu == params$mu & beta_n == params$beta_n & beta_phi == params$beta_phi) %>%
+    dplyr::filter(lambda == params$lambda &
+                    mu == params$mu &
+                    beta_n == params$beta_n &
+                    beta_phi == params$beta_phi) %>%
     tidyr::gather(key = "measure", value = "value", MBL, PD, MNTD)
   plot_branch <- ggstatsplot::grouped_ggbetweenstats(x = metric,
                                                      y = value,
@@ -1254,7 +1255,6 @@ edd_plot_branch_significance <- function(params, stat_branch, save_plot = FALSE,
 }
 
 
-
 #' @name edd_plot_temporal_dynamics
 #' @title Generating plots of temporal dynamics of a single simulation
 #' @description Function to generate plots of temporal dynamics of a single simulation, metrics including tree balance
@@ -1281,8 +1281,8 @@ edd_plot_temporal_dynamics <- function(raw_data = NULL,
     ggplot2::geom_line(ggplot2::aes(Age, Value)) +
     ggplot2::geom_point(ggplot2::aes(Age, Value, color = Event, shape = Event)) +
     ggplot2::facet_wrap(. ~ Metric, scales = "free_y") +
-    ggplot2::scale_color_discrete(labels = c("Speciation","Extinction","Present")) +
-    ggplot2::scale_shape_discrete(labels = c("Speciation","Extinction","Present")) +
+    ggplot2::scale_color_discrete(labels = c("Speciation", "Extinction", "Present")) +
+    ggplot2::scale_shape_discrete(labels = c("Speciation", "Extinction", "Present")) +
     ggplot2::theme(legend.title = element_blank(),
                    aspect.ratio = 1 / 1) +
     ggplot2::ggtitle(pars_to_title2(pars_list))
@@ -1302,7 +1302,6 @@ edd_plot_temporal_dynamics <- function(raw_data = NULL,
 }
 
 
-
 #' @name edd_plot_grouped_temporal_dynamics
 #' @title Generating plots of grouped temporal dynamics of a single simulation
 #' @description Function to generate plots of groupedtemporal dynamics of a single simulation, metrics including tree
@@ -1316,12 +1315,13 @@ edd_plot_temporal_dynamics <- function(raw_data = NULL,
 #' @keywords phylogenetics
 #' @export edd_plot_grouped_temporal_dynamics
 edd_plot_grouped_temporal_dynamics <- function(raw_data = NULL,
-                                       rep_id = 1,
-                                       save_plot = FALSE,
-                                       path = NULL) {
+                                               rep_id = 1,
+                                               save_plot = FALSE,
+                                               path = NULL) {
   stat_temporal <- edd_summarize_temporal_dynamics(raw_data$data, rep_id = rep_id)
   stat_temporal <- stat_temporal %>%
-    tidyr::gather("Metric", "Value", Blum, Colless, Sackin, PD, MNTD, MBL) %>% transform_data()
+    tidyr::gather("Metric", "Value", Blum, Colless, Sackin, PD, MNTD, MBL) %>%
+    transform_data()
   stat_temporal$Metric <- factor(stat_temporal$Metric, levels = c("Blum", "Colless", "Sackin", "PD", "MNTD", "MBL"))
   stat_temporal$Event <- factor(stat_temporal$Event, levels = c("speciation", "extinction", "present"))
   rates <- expand.grid(unique(raw_data$params$lambda),
@@ -1335,7 +1335,6 @@ edd_plot_grouped_temporal_dynamics <- function(raw_data = NULL,
     return(plot_pd_ed_simtime)
   }
 }
-
 
 
 edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FALSE, path = NULL) {
@@ -1371,8 +1370,8 @@ edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FA
     ggplot2::geom_line(ggplot2::aes(Age, Value)) +
     ggplot2::geom_point(ggplot2::aes(Age, Value, color = Event, shape = Event)) +
     ggplot2::facet_wrap(. ~ Metric, scales = "free_y", nrow = 1) +
-    ggplot2::scale_color_discrete(labels = c("Speciation","Extinction","Present")) +
-    ggplot2::scale_shape_discrete(labels = c("Speciation","Extinction","Present")) +
+    ggplot2::scale_color_discrete(labels = c("Speciation", "Extinction", "Present")) +
+    ggplot2::scale_shape_discrete(labels = c("Speciation", "Extinction", "Present")) +
     ggplot2::ylab("PD") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
@@ -1385,8 +1384,8 @@ edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FA
     ggplot2::geom_line(ggplot2::aes(Age, Value)) +
     ggplot2::geom_point(ggplot2::aes(Age, Value, color = Event, shape = Event)) +
     ggplot2::facet_wrap(. ~ Metric, scales = "free_y", nrow = 1) +
-    ggplot2::scale_color_discrete(labels = c("Speciation","Extinction","Present")) +
-    ggplot2::scale_shape_discrete(labels = c("Speciation","Extinction","Present")) +
+    ggplot2::scale_color_discrete(labels = c("Speciation", "Extinction", "Present")) +
+    ggplot2::scale_shape_discrete(labels = c("Speciation", "Extinction", "Present")) +
     ggplot2::ylab("ED") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
@@ -1401,8 +1400,8 @@ edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FA
     ggplot2::geom_line(ggplot2::aes(Age, Value)) +
     ggplot2::geom_point(ggplot2::aes(Age, Value, color = Event, shape = Event)) +
     ggplot2::facet_wrap(. ~ Metric, scales = "free_y", nrow = 1) +
-    ggplot2::scale_color_discrete(labels = c("Speciation","Extinction","Present")) +
-    ggplot2::scale_shape_discrete(labels = c("Speciation","Extinction","Present")) +
+    ggplot2::scale_color_discrete(labels = c("Speciation", "Extinction", "Present")) +
+    ggplot2::scale_shape_discrete(labels = c("Speciation", "Extinction", "Present")) +
     ggplot2::ylab("NND") +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
                    strip.text.x = ggplot2::element_blank(),
@@ -1429,7 +1428,8 @@ edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FA
 
   plot_grouped_temporal <- plot_pd +
     ggplot2::ggtitle(bquote("Temporal dynamics of tree topology, comparisons between PD (" ~ .(offset) ~ "), ED and NND, " ~ lambda[0] ~ "=" ~ .(lambda_num) ~ mu[0] ~ "=" ~ .(mu_num) ~ beta[italic(N)] ~ "=" ~ .(beta_n_num) ~ beta[italic(Phi)] ~ "=" ~ .(beta_phi_num))) +
-    plot_ed + plot_nnd +
+    plot_ed +
+    plot_nnd +
     patchwork::plot_layout(nrow = 3, guides = "collect") &
     ggplot2::labs(fill = "Metric")
 
@@ -1443,6 +1443,97 @@ edd_plot_temporal_pd_ed <- function(rates, stat_temporal, offset, save_plot = FA
                      height = 10,
                      dpi = "retina")
   } else {
-    return( plot_grouped_temporala)
+    return(plot_grouped_temporala)
   }
+}
+
+
+edd_plot_best_histrees <- function(raw_data = NULL,
+                                   rep_ids = stop("Best replication IDs not provided"),
+                                   which = stop("Please specify which history to be plotted"),
+                                   drop_extinct = FALSE,
+                                   save_plot = FALSE,
+                                   path = NULL) {
+  if (length(raw_data$data) != length(rep_ids$row_id)) {
+    stop("The lengths of the data and the replication IDs do not match")
+  }
+
+  for (i in seq_along(raw_data$data)) {
+    if (save_plot == TRUE) {
+      plot_temp <- edd_plot_histree(raw_data$data[[i]],
+                                    rep_id = rep_ids$row_id[i],
+                                    which = which,
+                                    drop_extinct = drop_extinct,
+                                    save_plot = FALSE)
+      save_with_parameters(pars_list = extract_parameters(raw_data$data[[i]]),
+                           plot = plot_temp,
+                           which = "best_histrees",
+                           path = path,
+                           device = "png",
+                           width = 5,
+                           height = 8,
+                           dpi = "retina")
+    } else {
+      edd_plot_histree(raw_data$data[[i]],
+                       rep_id = rep_ids$row_id[i],
+                       which = which,
+                       drop_extinct = drop_extinct,
+                       save_plot = save_plot)
+    }
+  }
+}
+
+
+edd_plot_grouped_histrees <- function(raw_data = NULL,
+                                      sample_rep = NULL,
+                                      which = "las",
+                                      drop_extinct = FALSE,
+                                      save_plot = FALSE,
+                                      path = NULL) {
+  sample_rep <- sample_rep %>%
+    filter(lambda == 0.6, mu == 0, beta_n == 0) %>%
+    filter(!(metric == "pd" & offset == "none"))
+
+  tally <- tally_by_group(sample_rep, "metric")
+  indexes <- create_indexes_by_group(tally, unlist = TRUE)
+  plots <- list()
+  j <- 1
+  for (i in indexes) {
+    plots[[j]] <- edd_plot_histree(raw_data$data[[sample_rep$pars_id[i]]],
+                                   rep_id = sample_rep$rep_id[i],
+                                   which = which,
+                                   drop_extinct = FALSE,
+                                   save_plot = FALSE) +
+      ggplot2::theme(legend.position = "none")
+    if (j <= tally$groups) {
+      plots[[j]] <- plots[[j]] +
+        ggplot2::ggtitle(bquote(.(sample_rep$metric[i])))
+    }
+    if ((j + tally$groups - 1) %% tally$groups == 0) {
+      plots[[j]] <- plots[[j]] +
+        ggplot2::ylab(bquote(.(sample_rep$beta_phi[i])))
+    }
+    plots[[j]] <- plots[[j]] + ggplot2::theme(axis.text.x = element_blank(),
+                                              axis.line.x = element_blank(),
+                                              axis.ticks.x = element_blank())
+    j <- j + 1
+  }
+
+  plot_grouped_histrees <- patchwork::wrap_plots(plots, nrow = tally$rows)
+
+  # best_histrees <- lapply(indexes, function(x) {
+  #   plots <- lapply(x, function(y) {
+  #     edd_plot_histree(raw_data$data[[sample_rep$pars_id[y]]],
+  #                      rep_id = sample_rep$rep_id[y],
+  #                      which = which,
+  #                      drop_extinct = FALSE,
+  #                      save_plot = FALSE)
+  #   })
+  #   grouped_plot <- patchwork::wrap_plots(plots, nrow = 1) + patchwork::plot_layout(guides = "collect")
+  #   return(grouped_plot)
+  # })
+  #
+  # patchwork::wrap_plots(best_histrees, nrow = tally$rows)
+
+  return(plot_grouped_histrees)
 }
