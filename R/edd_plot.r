@@ -1535,5 +1535,16 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
   #
   # patchwork::wrap_plots(best_histrees, nrow = tally$rows)
 
-  return(plot_grouped_histrees)
+  if (save_plot == TRUE) {
+    save_with_parameters(pars_list = extract_parameters(raw_data$data[[i]]),
+                         plot = plot_grouped_histrees,
+                         which = "grouped_histrees",
+                         path = path,
+                         device = "png",
+                         width = 10,
+                         height = 16,
+                         dpi = "retina")
+  } else {
+    return(plot_grouped_histrees)
+  }
 }
