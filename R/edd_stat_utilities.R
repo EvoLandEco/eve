@@ -160,12 +160,10 @@ transform_data <- function(stat) {
 }
 
 
-
 reverse_l_table <- function(l_table, age) {
   l_table[, 1] <- age - l_table[, 1]
   return(l_table)
 }
-
 
 
 distance_to_mean <- function(cols, means) {
@@ -173,29 +171,29 @@ distance_to_mean <- function(cols, means) {
 }
 
 
-
 find_best_rep_ids <- function(raw_data) {
   stats <- edd_stat(raw_data$data)
-  stats <- stats %>% dplyr::select(-Sackin, -Blum, -Gamma) %>%
-    dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model,metric, offset)) %>%
+  stats <- stats %>%
+    dplyr::select(-Sackin, -Blum, -Gamma, -MBL, -MNTD) %>%
+    dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model, metric, offset)) %>%
     dplyr::group_by(group)
 
-  cols <- stats %>% dplyr::ungroup() %>%
-    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset, -group)
+  cols <- stats %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset, -group) %>%
+    mutate_all(~(scale(.) %>% as.vector))
 
   col_means <- cols %>% colMeans()
 
   stats$distance <- apply(cols, 1, distance_to_mean, means = col_means)
 
-  rep_ids <- stats %>% dplyr::group_by(group) %>%
-    dplyr::mutate(row_id = dplyr::row_number()) %>%
+  rep_ids <- stats %>%
+    dplyr::group_by(group) %>%
+    dplyr::mutate(rep_id = dplyr::row_number()) %>%
     dplyr::slice_min(n = 1, order_by = distance) %>%
     dplyr::ungroup() %>%
-    dplyr::select(lambda, mu, beta_n, beta_phi, age, model, metric, offset, row_id)
+    dplyr::select(-group) %>%
+    dplyr::mutate(pars_id = row_number())
 
   return(rep_ids)
 }
-
-
-
-
