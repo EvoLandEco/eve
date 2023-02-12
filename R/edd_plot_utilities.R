@@ -311,9 +311,9 @@ save_with_rates_offset <-
 
 
 
-tally_by_group <- function(raw_data = NULL, group = NULL) {
+tally_by_group <- function(data = NULL, group = NULL) {
   if (group=="metric") {
-    counts <- raw_data$params %>% group_by(metric, offset) %>% tally()
+    counts <- data %>% group_by(metric, offset) %>% tally()
     return(list(rows = counts$n[1], groups = nrow(counts)))
   }
 }
