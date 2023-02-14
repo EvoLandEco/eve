@@ -851,6 +851,89 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
 }
 
 
+edd_plot_balance_single <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
+  stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
+  stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", Sackin, Colless, Blum)
+  stat_balance <- transform_data(stat_balance)
+
+  lambda <- 0.6
+  mu <- 0.2
+  beta_n <- 0
+  rates <- c(lambda, mu, beta_n)
+
+  plot_pd_ed_simtime <- edd_plot_balance_pd_ed_single(rates,
+                                                      stat_balance = stat_balance,
+                                                      offset = "Simulation time",
+                                                      save_plot = save_plot,
+                                                      path = path)
+
+  if (save_plot != TRUE) {
+    return(plot_pd_ed_simtime)
+  }
+}
+
+
+edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, save_plot = FALSE, path = NULL) {
+  lambda_num <- rates[1]
+  mu_num <- rates[2]
+  beta_n_num <- rates[3]
+
+  lambda <- as.character(rates[1])
+  mu <- as.character(rates[2])
+  offset_char <- as.character(offset)
+
+  plot_data_pd <- dplyr::filter(stat_balance,
+                                lambda == lambda_num &
+                                  mu == mu_num &
+                                  metric == "pd" &
+                                  offset == offset_char)
+
+  plot_data_ed <- dplyr::filter(stat_balance,
+                                lambda == lambda_num &
+                                  mu == mu_num &
+                                  metric == "ed")
+
+  plot_data_nnd <- dplyr::filter(stat_balance,
+                                 lambda == lambda_num &
+                                   mu == mu_num &
+                                   metric == "nnd")
+
+  plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
+
+  plot_data_colless <- plot_data %>% dplyr::filter(balance == "Colless") %>%
+    dplyr::filter(beta_n == beta_n_num)
+
+  colless_plot <- ggplot2::ggplot(plot_data_colless) +
+    ggplot2::facet_wrap(. ~ beta_phi, ncol = 1) +
+    ggplot2::geom_boxplot(ggplot2::aes(metric, value, fill = metric)) +
+    ggplot2::scale_y_continuous(position = "right") +
+    ggplot2::ylab(NULL) +
+    ggplot2::ggtitle("Colless (Yule)") +
+    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(),
+                   axis.line.x = ggplot2::element_blank(),
+                   axis.ticks.x = ggplot2::element_blank(),
+                   strip.text.x = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank())
+
+  pd_ed_plot <- colless_plot +
+    ggplot2::labs(fill = "Metric")
+
+  if (save_plot == TRUE) {
+    save_with_rates_offset(rates = rates[1:2],
+                           offset = offset,
+                           plot = pd_ed_plot,
+                           which = "balance_pd_ed_single",
+                           path = path,
+                           device = "png",
+                           width = 2, height = 20,
+                           dpi = "retina")
+  } else {
+    return(pd_ed_plot)
+  }
+}
+
+
 edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
@@ -1491,7 +1574,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                                       save_plot = FALSE,
                                       path = NULL) {
   sample_rep <- sample_rep %>%
-    filter(lambda == 0.6, mu == 0, beta_n == 0) %>%
+    filter(lambda == 0.6, mu == 0.2, beta_n == 0) %>%
     filter(!(metric == "pd" & offset == "none"))
 
   tally <- tally_by_group(sample_rep, "metric")
@@ -1507,19 +1590,37 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
       ggplot2::theme(legend.position = "none")
     if (j <= tally$groups) {
       plots[[j]] <- plots[[j]] +
-        ggplot2::ggtitle(bquote(.(sample_rep$metric[i])))
+        ggplot2::ggtitle(bquote(.(toupper(sample_rep$metric[i]))))
     }
     if ((j + tally$groups - 1) %% tally$groups == 0) {
       plots[[j]] <- plots[[j]] +
-        ggplot2::ylab(bquote(.(sample_rep$beta_phi[i])))
+        ggplot2::ylab(bquote(beta[italic(Phi)] ~ "=" ~ .(sample_rep$beta_phi[i])))
     }
-    plots[[j]] <- plots[[j]] + ggplot2::theme(axis.text.x = element_blank(),
-                                              axis.line.x = element_blank(),
-                                              axis.ticks.x = element_blank())
+    plots[[j]] <- plots[[j]] + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                                              axis.line.x = ggplot2::element_blank(),
+                                              axis.ticks.x = ggplot2::element_blank(),
+                                              axis.line.y = ggplot2::element_blank()) +
+      edd_plot_ltt(raw_data$data[[sample_rep$pars_id[i]]],
+                   save_plot = FALSE,
+                   annotation = FALSE) +
+      ggplot2::ylab(NULL) +
+      ggplot2::xlab(NULL) +
+      ggplot2::ggtitle(NULL) +
+      ggplot2::theme(aspect.ratio = NULL,
+                     panel.background = ggplot2::element_blank()) +
+      patchwork::plot_layout(nrow = 2)
+
+
     j <- j + 1
   }
 
   plot_grouped_histrees <- patchwork::wrap_plots(plots, nrow = tally$rows)
+
+  plot_balance <- edd_plot_balance_single(raw_data)
+
+  plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_balance, nrow = 1, widths = c(8, 1)) +
+    patchwork::plot_annotation(title = bquote("Phylogenetic patterns (birth-death, no species richness effect)"),
+                               subtitle = bquote(lambda[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ mu[0] ~ "=" ~ .(sample_rep$mu[1]) ~ beta[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
   # best_histrees <- lapply(indexes, function(x) {
   #   plots <- lapply(x, function(y) {
@@ -1537,7 +1638,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
 
   if (save_plot == TRUE) {
     save_with_parameters(pars_list = extract_parameters(raw_data$data[[i]]),
-                         plot = plot_grouped_histrees,
+                         plot = plot_final,
                          which = "grouped_histrees",
                          path = path,
                          device = "png",
@@ -1545,6 +1646,6 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                          height = 15,
                          dpi = "retina")
   } else {
-    return(plot_grouped_histrees)
+    return(plot_final)
   }
 }
