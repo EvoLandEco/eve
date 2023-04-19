@@ -355,3 +355,45 @@ get_tree_sizes <- function(trees) {
   })
   return(unlist(sizes))
 }
+
+
+
+# Function to calculate the sum of branch lengths for a given subtree
+subtree_branch_length_sum <- function(envir = parent.frame(), tree, node) {
+  if (node <= (tree$Nnode + 1)) {
+    return(0)
+  }
+
+  edges <- which(tree$edge[, 1] == node)
+  child_nodes <- tree$edge[edges, 2]
+  child_edges_lengths <- tree$edge.length[edges]
+
+  envir$subtree_sum <- envir$subtree_sum + sum(child_edges_lengths)
+
+  for (i in seq_along(child_nodes)) {
+    subtree_branch_length_sum(envir = envir, tree = tree, node = child_nodes[i])
+  }
+}
+
+
+
+mass_weighted_balance <- function(tree) {
+  diff_vec <- numeric(tree$Nnode)
+
+  for (node in 1:tree$Nnode) {
+    internal_node <- node + tree$Nnode + 1
+    edges <- which(tree$edge[, 1] == internal_node)
+    child_nodes <- tree$edge[edges, 2]
+
+    subtree_sum <- 0
+    subtree_branch_length_sum(tree = tree, node = child_nodes[1])
+    left_subtree_sum <- subtree_sum + tree$edge.length[edges[1]]
+    subtree_sum <- 0
+    subtree_branch_length_sum(tree = tree, node = child_nodes[2])
+    right_subtree_sum <-  + subtree_sum + tree$edge.length[edges[2]]
+
+    diff_vec[node] <- abs(left_subtree_sum - right_subtree_sum)
+  }
+
+  return(sum(diff_vec))
+}

@@ -831,22 +831,12 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
   stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", Sackin, Colless, Blum)
   stat_balance <- transform_data(stat_balance)
 
-  lambdas <- levels(stat_balance$lambda)
-  mus <- levels(stat_balance$mu)
-  rates <- expand.grid(lambdas, mus)
+  rates <- levels(stat_balance$lambda)
 
-  plot_significance <- lapply(split(raw_data$params, seq(nrow(raw_data$params))), edd_plot_balance_significance, stat_balance = stat_balance, save_plot = save_plot, path = path)
-  plot_pd_offsets <- apply(rates, 1, edd_plot_balance_pd_offsets, stat_balance = stat_balance, params = raw_data$params, save_plot = save_plot, path = path)
-  plot_pd_ed_none <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "None", save_plot = save_plot, path = path)
-  plot_pd_ed_simtime <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
-  plot_pd_ed_spcount <- apply(rates, 1, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Species count", save_plot = save_plot, path = path)
+  plot_pd_ed_simtime <- lapply(rates, edd_plot_balance_pd_ed, stat_balance = stat_balance, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
 
   if (save_plot != TRUE) {
-    return(list(significance = plot_significance,
-                pd_pffsets = plot_pd_offsets,
-                pd_none_ed = plot_pd_ed_none,
-                pd_simetime_ed = plot_pd_ed_simtime,
-                pd_spcount_ed = plot_pd_ed_spcount))
+    return(plot_pd_ed_simtime)
   }
 }
 
@@ -857,7 +847,7 @@ edd_plot_balance_single <- function(raw_data = NULL, method = "treestats", save_
   stat_balance <- transform_data(stat_balance)
 
   lambda <- 0.6
-  mu <- 0.2
+  mu <- 0
   beta_n <- 0
   rates <- c(lambda, mu, beta_n)
 
@@ -903,10 +893,13 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
   plot_data_colless <- plot_data %>% dplyr::filter(balance == "Colless") %>%
     dplyr::filter(beta_n == beta_n_num)
 
+  sts <- boxplot.stats(plot_data_colless$value)$stats
+
   colless_plot <- ggplot2::ggplot(plot_data_colless) +
     ggplot2::facet_wrap(. ~ beta_phi, ncol = 1) +
-    ggplot2::geom_boxplot(ggplot2::aes(metric, value, fill = metric)) +
+    ggplot2::geom_boxplot(ggplot2::aes(metric, value, fill = metric), outlier.shape = NA) +
     ggplot2::scale_y_continuous(position = "right") +
+    ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
     ggplot2::ylab(NULL) +
     ggplot2::ggtitle("Colless (Yule)") +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
@@ -914,7 +907,8 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
                    axis.line.x = ggplot2::element_blank(),
                    axis.ticks.x = ggplot2::element_blank(),
                    strip.text.x = ggplot2::element_blank(),
-                   panel.background = ggplot2::element_blank())
+                   panel.background = ggplot2::element_blank(),
+                   panel.grid = ggplot2::element_blank())
 
   pd_ed_plot <- colless_plot +
     ggplot2::labs(fill = "Metric")
@@ -934,141 +928,46 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
 }
 
 
-edd_plot_balance_pd_offsets <- function(rates, stat_balance, params, save_plot = FALSE, path = NULL) {
-  lambda_num <- rates[1]
-  mu_num <- rates[2]
-
-  lambda <- as.character(rates[1])
-  mu <- as.character(rates[2])
-
-  plot_data <- dplyr::filter(stat_balance,
-                             lambda == lambda_num &
-                               mu == mu_num &
-                               metric == "pd")
-
-  blum_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Blum")) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
-    ggplot2::facet_wrap(. ~ offset, nrow = 1) +
-    ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::ylab("Blum") +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
-                   axis.line.x = ggplot2::element_blank())
-
-  colless_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Colless")) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
-    ggplot2::facet_wrap(. ~ offset, nrow = 1) +
-    ggplot2::scale_y_continuous() +
-    ggplot2::ylab("Colless (Yule)") +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
-                   strip.background = ggplot2::element_blank(),
-                   strip.text.x = ggplot2::element_blank(),
-                   axis.line.x = ggplot2::element_blank())
-
-  sackin_plot <- ggplot2::ggplot(dplyr::filter(plot_data, balance == "Sackin")) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = beta_n)) +
-    ggplot2::facet_wrap(. ~ offset, nrow = 1) +
-    ggplot2::scale_y_continuous() +
-    ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
-    ggplot2::ylab("Sackin (Yule)") +
-    ggplot2::xlab(expression(beta[italic(Phi)])) +
-    ggplot2::theme(strip.background = ggplot2::element_blank(),
-                   strip.text.x = ggplot2::element_blank())
-
-  # Tree Balance indices by Beta_Phi, . ~ Offset, grouped by Beta_N
-  pd_offsets_plot <- blum_plot +
-    ggplot2::ggtitle(bquote("Tree Balance indices of PD, comparisions between offset methods, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
-    colless_plot +
-    sackin_plot +
-    patchwork::plot_layout(ncol = 1, guides = "collect") &
-    ggplot2::labs(fill = expression(beta[italic(N)]))
-
-  if (save_plot == TRUE) {
-    save_with_rates(rates = rates,
-                    plot = pd_offsets_plot,
-                    which = "balance_pd_offsets",
-                    path = path,
-                    device = "png",
-                    width = 10, height = 8,
-                    dpi = "retina")
-  } else {
-    return(pd_offsets_plot)
-  }
-}
-
-
 edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
-  mu_num <- rates[2]
 
   lambda <- as.character(rates[1])
-  mu <- as.character(rates[2])
   offset_char <- as.character(offset)
 
   plot_data_pd <- dplyr::filter(stat_balance,
                                 lambda == lambda_num &
-                                  mu == mu_num &
                                   metric == "pd" &
                                   offset == offset_char)
 
   plot_data_ed <- dplyr::filter(stat_balance,
                                 lambda == lambda_num &
-                                  mu == mu_num &
                                   metric == "ed")
 
   plot_data_nnd <- dplyr::filter(stat_balance,
                                  lambda == lambda_num &
-                                   mu == mu_num &
                                    metric == "nnd")
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
-  plot_data_blum <- dplyr::filter(plot_data, balance == "Blum")
   plot_data_colless <- dplyr::filter(plot_data, balance == "Colless")
-  plot_data_sackin <- dplyr::filter(plot_data, balance == "Sackin")
 
-  blum_plot <- ggplot2::ggplot(plot_data_blum) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
-    ggplot2::facet_wrap(. ~ beta_n, labeller = as_labeller(
-      ~paste0("beta[italic(N)]:", .x), label_parsed
-    )) +
-    ggplot2::scale_y_continuous(trans = "sqrt") +
-    ggplot2::ylab("Blum (sqrt)") +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
-                   axis.line.x = ggplot2::element_blank())
+  sts <- boxplot.stats(plot_data_colless$value)$stats
 
   colless_plot <- ggplot2::ggplot(plot_data_colless) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
-    ggplot2::facet_wrap(. ~ beta_n) +
-    #ggplot2::scale_y_continuous(trans = "sqrt") +
+    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+    ggplot2::facet_grid(mu ~ beta_n,
+                        labeller = labeller(beta_n = as_labeller(~paste0("beta[italic(N)]:", .x), label_parsed),
+                                            mu = as_labeller(~paste0("mu[0]:", .x), label_parsed))) +
+    ggplot2::xlab(bquote(beta[italic(Phi)])) +
     ggplot2::ylab("Colless (Yule)") +
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
-                   axis.ticks.x = ggplot2::element_blank(),
-                   axis.line.x = ggplot2::element_blank(),
-                   strip.background = ggplot2::element_blank(),
-                   strip.text.x = ggplot2::element_blank())
-
-  sackin_plot <- ggplot2::ggplot(plot_data_sackin) +
-    ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric)) +
-    ggplot2::facet_wrap(. ~ beta_n) +
-    #ggplot2::scale_y_continuous(trans = "sqrt") +
     ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
-    ggplot2::ylab("Sackin (Yule)") +
-    ggplot2::xlab(expression(beta[italic(Phi)])) +
+    ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
-                   strip.text.x = ggplot2::element_blank())
+                   panel.background = ggplot2::element_blank(),
+                   panel.grid = ggplot2::element_blank())
 
-  pd_ed_plot <- blum_plot +
-    ggplot2::ggtitle(bquote("Tree Balance indices, comparisons between PD (" ~ .(offset) ~ "), ED and NND, " ~ lambda ~ "=" ~ .(lambda) ~ mu ~ "=" ~ .(mu))) +
-    colless_plot +
-    sackin_plot +
-    patchwork::plot_layout(nrow = 3, guides = "collect") &
+  pd_ed_plot <- colless_plot +
+    ggplot2::ggtitle(bquote("Colless balance index" ~ lambda[0] ~ "=" ~ .(lambda))) +
     ggplot2::labs(fill = "Metric")
 
   if (save_plot == TRUE) {
@@ -1574,7 +1473,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                                       save_plot = FALSE,
                                       path = NULL) {
   sample_rep <- sample_rep %>%
-    filter(lambda == 0.6, mu == 0.2, beta_n == 0) %>%
+    filter(lambda == 0.6, mu == 0, beta_n == 0) %>%
     filter(!(metric == "pd" & offset == "none"))
 
   tally <- tally_by_group(sample_rep, "metric")
@@ -1607,7 +1506,8 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
       ggplot2::xlab(NULL) +
       ggplot2::ggtitle(NULL) +
       ggplot2::theme(aspect.ratio = NULL,
-                     panel.background = ggplot2::element_blank()) +
+                     panel.background = ggplot2::element_blank(),
+                     panel.grid = ggplot2::element_blank()) +
       patchwork::plot_layout(nrow = 2)
 
 
@@ -1619,7 +1519,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
   plot_balance <- edd_plot_balance_single(raw_data)
 
   plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_balance, nrow = 1, widths = c(8, 1)) +
-    patchwork::plot_annotation(title = bquote("Phylogenetic patterns (birth-death, no species richness effect)"),
+    patchwork::plot_annotation(title = bquote("Phylogenetic patterns (pure birth, no species richness effect)"),
                                subtitle = bquote(lambda[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ mu[0] ~ "=" ~ .(sample_rep$mu[1]) ~ beta[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
   # best_histrees <- lapply(indexes, function(x) {

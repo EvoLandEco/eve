@@ -213,8 +213,6 @@ save_with_rates <-
         which,
         "_",
         rates[1],
-        "_",
-        rates[2],
         ".png"
       ),
       plot = plot,
