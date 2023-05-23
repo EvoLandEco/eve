@@ -49,10 +49,8 @@ edd_stat <- function(raw_data, method = "treestats", strategy = "sequential",
   check_parallel_arguments(strategy, workers, verbose)
   check_raw_data(raw_data)
 
-  edd_summarize_cached <- R.cache::addMemoization(edd_summarize)
-
   statistics <- furrr::future_map(.x = raw_data,
-                                  .f =  edd_summarize_cached,
+                                  .f =  edd_summarize,
                                   method = method)
 
   # Binding metadata
