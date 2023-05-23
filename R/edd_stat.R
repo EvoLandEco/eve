@@ -2,17 +2,17 @@ edd_summarize <- function(raw_data, method = NULL) {
   nrep <- length(raw_data$tes)
   statistics <- data.frame(id = 1:nrep)
 
-  colless <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Colless")
-  j_one <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "J-One")
-  tci <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "TCI")
-  steps <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Steps")
-  branch <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Branch")
-  b1 <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "B1")
-  b2 <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "B2")
-  gamma <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Gamma")
-  mbl <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "MBL")
-  pd <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "PD")
-  mntd <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "MNTD")
+  colless <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "Colless")
+  j_one <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "J-One")
+  tci <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "TCI")
+  steps <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "Steps")
+  branch <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "Branch")
+  b1 <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "B1")
+  b2 <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "B2")
+  gamma <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "Gamma")
+  mbl <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "MBL")
+  pd <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "PD")
+  mntd <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "MNTD")
 
   result <- cbind(Colless = unlist(colless), J_One = unlist(j_one), TCI = unlist(tci),
                    Steps = unlist(steps), Branch = unlist(branch), B1 = unlist(b1), B2 = unlist(b2),
