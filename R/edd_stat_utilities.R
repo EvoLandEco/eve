@@ -53,77 +53,48 @@ NumericMatrix get_stats_cpp(const List& brts_list,
 }')
 
 
-calculate_tree_balance <- function(phy = NULL, method = "treestats", metric = "Aldous") {
+calculate_tree_stats <- function(phy = NULL, min_size = 3, method = "treestats", metric = "Aldous") {
   if (!ape::is.ultrametric.phylo(phy)) {
     stop("Ultrametric tree required, considering using tree with only extant taxa")
   }
 
-  if (method == "treestats") {
-    if (metric == "Aldous") {
-      return(treestats::beta_statistic(phy))
-    } else if (metric == "Sackin") {
-      return(treestats::sackin(phy, normalization = "yule"))
-    } else if (metric == "Colless") {
-      return(treestats::colless(phy, normalization = "yule"))
-    } else if (metric == "Blum") {
-      return(treestats::blum(phy))
+  if ((phy$Nnode + 1) >= min_size) {
+    if (method == "treestats") {
+      if (metric == "Aldous") {
+        return(treestats::beta_statistic(phy))
+      } else if (metric == "Sackin") {
+        return(treestats::sackin(phy, normalization = "yule"))
+      } else if (metric == "Colless") {
+        return(treestats::colless(phy, normalization = "yule"))
+      } else if (metric == "Blum") {
+        return(treestats::blum(phy))
+      } else if (metric == "J-One") {
+        return(treestats::j_one(phy))
+      } else if (metric == "TCI") {
+        return(treestats::tot_coph(phy, normalization = "yule"))
+      } else if (metric == "Steps") {
+        return(treestats::imbalance_steps(phy, normalize = TRUE))
+      } else if (metric == "Branch") {
+        return(calc_branch_colless(phy))
+      } else if (metric == "B1") {
+        return(treestats::b1(phy, normalization = "none"))
+      } else if (metric == "B2") {
+        return(treestats::b2(phy, normalization = "yule"))
+      } else if (metric == "Gamma") {
+        return(treestats::gamma_statistic(phy))
+      } else if (metric == "MBL") {
+        return(treestats::mean_branch_length(phy))
+      } else if (metric == "PD") {
+        return(treestats::phylogenetic_diversity(phy))
+      } else if (metric == "MNTD") {
+        return(treestats::mntd(phy))
+        stop("Invalid metric")
+      }
     } else {
-      stop("Invalid metric")
+      stop("No such method")
     }
   } else {
-    stop("No such method")
-  }
-}
-
-
-calculate_mean_branch_length <- function(phy = NULL, method = "treestats") {
-  if (!ape::is.ultrametric.phylo(phy)) {
-    stop("Ultrametric tree required, considering using tree with only extant taxa")
-  }
-
-  if (method == "treestats") {
-    return(treestats::mean_branch_length(phy))
-  } else {
-    stop("No such method")
-  }
-}
-
-
-calculate_gamma_statistics <- function(phy = NULL, method = "treestats") {
-  if (!ape::is.ultrametric.phylo(phy)) {
-    stop("Ultrametric tree required, considering using tree with only extant taxa")
-  }
-
-  if (method == "treestats") {
-    return(treestats::gamma_statistic(phy))
-  } else {
-    stop("No such method")
-  }
-}
-
-
-calculate_phylogenetic_diversity <- function(phy = NULL, method = "treestats") {
-  if (!ape::is.ultrametric.phylo(phy)) {
-    stop("Ultrametric tree required, considering using tree with only extant taxa")
-  }
-
-  if (method == "treestats") {
-    return(treestats::phylogenetic_diversity(phy))
-  } else {
-    stop("No such method")
-  }
-}
-
-
-calculate_mean_nearest_neighbor_distance <- function(phy = NULL, method = "treestats") {
-  if (!ape::is.ultrametric.phylo(phy)) {
-    stop("Ultrametric tree required, considering using tree with only extant taxa")
-  }
-
-  if (method == "treestats") {
-    return(treestats::mntd(phy))
-  } else {
-    stop("No such method")
+    return(NA)
   }
 }
 

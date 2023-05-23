@@ -359,41 +359,40 @@ get_tree_sizes <- function(trees) {
 
 
 # Function to calculate the sum of branch lengths for a given subtree
-subtree_branch_length_sum <- function(envir = parent.frame(), tree, node) {
-  if (node <= (tree$Nnode + 1)) {
-    return(0)
+calc_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
+  to_analyze <- cbind(phy$edge, phy$edge.length)
+
+  internal_nodes <- sort(unique(to_analyze[, 1]))
+  root_no <- min(internal_nodes)
+
+  delta_bl <- rep(0, length(internal_nodes))
+  sum_bl <- rep(0, length(internal_nodes))
+
+  # we iterate through internal nodes, starting from the youngest internal
+  # node
+  for (i in rev(internal_nodes)) {
+    local_analysis <- subset(to_analyze, to_analyze[, 1] == i)
+
+    index <- i - root_no + 1 # this is the index in delta_bl and sum_bl
+    # we use a modified index to reduce memory usage
+
+    # the next part can probably be speed-optimized
+    bl <- c()
+    for (j in 1:2) {
+      bl[j] <- local_analysis[j, 3]
+      if (local_analysis[j, 2] > root_no) {
+        bl[j] <- bl[j] + sum_bl[ local_analysis[j, 2] - root_no + 1]
+      }
+    }
+
+    if (ew == TRUE) {
+      delta_bl[index] <- abs(bl[1] - bl[2]) / (bl[1] + bl[2])
+    } else {
+      delta_bl[index] <- abs(bl[1] - bl[2])
+    }
+
+    if (i != root_no) sum_bl[index] <- sum(bl) # no need to do this for root.
   }
 
-  edges <- which(tree$edge[, 1] == node)
-  child_nodes <- tree$edge[edges, 2]
-  child_edges_lengths <- tree$edge.length[edges]
-
-  envir$subtree_sum <- envir$subtree_sum + sum(child_edges_lengths)
-
-  for (i in seq_along(child_nodes)) {
-    subtree_branch_length_sum(envir = envir, tree = tree, node = child_nodes[i])
-  }
-}
-
-
-
-mass_weighted_balance <- function(tree) {
-  diff_vec <- numeric(tree$Nnode)
-
-  for (node in 1:tree$Nnode) {
-    internal_node <- node + tree$Nnode + 1
-    edges <- which(tree$edge[, 1] == internal_node)
-    child_nodes <- tree$edge[edges, 2]
-
-    subtree_sum <- 0
-    subtree_branch_length_sum(tree = tree, node = child_nodes[1])
-    left_subtree_sum <- subtree_sum + tree$edge.length[edges[1]]
-    subtree_sum <- 0
-    subtree_branch_length_sum(tree = tree, node = child_nodes[2])
-    right_subtree_sum <-  + subtree_sum + tree$edge.length[edges[2]]
-
-    diff_vec[node] <- abs(left_subtree_sum - right_subtree_sum)
-  }
-
-  return(sum(diff_vec))
+  return(sum(delta_bl))
 }

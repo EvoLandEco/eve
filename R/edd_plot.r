@@ -827,8 +827,8 @@ edd_plot_grouped_eds <- function(raw_data = NULL, group = "metric", save_plot = 
 #' @keywords phylogenetics
 #' @export edd_plot_balance
 edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
-  stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
-  stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", Sackin, Colless, Blum)
+  stat_balance <- edd_stat(raw_data$data, method = method)
+  stat_balance <- tidyr::pivot_longer(stat_balance, cols = -(lambda:offset), names_to = "balance", values_to = "value")
   stat_balance <- transform_data(stat_balance)
 
   rates <- levels(stat_balance$lambda)
@@ -842,8 +842,8 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
 
 
 edd_plot_balance_single <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
-  stat_balance <- edd_stat(raw_data$data, stat = "balance", method = method)
-  stat_balance <- tidyr::gather(stat_balance, key = "balance", value = "value", Sackin, Colless, Blum)
+  stat_balance <- edd_stat(raw_data$data, method = method)
+  stat_balance <- tidyr::pivot_longer(stat_balance, cols = -(lambda:offset), names_to = "balance", values_to = "value")
   stat_balance <- transform_data(stat_balance)
 
   lambda <- 0.6
@@ -949,7 +949,7 @@ edd_plot_balance_pd_ed <- function(rates, stat_balance, params, offset = NULL, s
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
-  plot_data_colless <- dplyr::filter(plot_data, balance == "Colless")
+  plot_data_colless <- dplyr::filter(plot_data, balance == "Gamma")
 
   sts <- boxplot.stats(plot_data_colless$value)$stats
 
@@ -1031,7 +1031,7 @@ edd_plot_balance_significance <- function(params, stat_balance, save_plot = FALS
 #' @keywords phylogenetics
 #' @export edd_plot_branch
 edd_plot_branch <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
-  stat_branch <- edd_stat(raw_data$data, stat = c("mbl", "pd", "mntd"), method = method)
+  stat_branch <- edd_stat(raw_data$data, method = method)
   stat_branch <- transform_data(stat_branch)
 
   lambdas <- levels(stat_branch$lambda)

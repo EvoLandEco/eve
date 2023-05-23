@@ -1,40 +1,24 @@
-edd_summarize <- function(raw_data, stat = NULL, method = NULL) {
+edd_summarize <- function(raw_data, method = NULL) {
   nrep <- length(raw_data$tes)
   statistics <- data.frame(id = 1:nrep)
 
-  if ("all" %in% stat | "balance" %in% stat) {
-    sackin <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Sackin")
-    colless <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Colless")
-    blum <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Blum")
-    balance <- cbind(Sackin = unlist(sackin), Colless = unlist(colless), Blum = unlist(blum))
+  colless <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Colless")
+  j_one <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "J-One")
+  tci <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "TCI")
+  steps <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Steps")
+  branch <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Branch")
+  b1 <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "B1")
+  b2 <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "B2")
+  gamma <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "Gamma")
+  mbl <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "MBL")
+  pd <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "PD")
+  mntd <- lapply(raw_data$tes, calculate_tree_balance, method = method, metric = "MNTD")
 
-    statistics <- cbind(statistics, balance)
-  }
+  result <- cbind(Colless = unlist(colless), J_One = unlist(j_one), TCI = unlist(tci),
+                   Steps = unlist(steps), Branch = unlist(branch), B1 = unlist(b1), B2 = unlist(b2),
+                   Gamma = unlist(gamma), MBL = unlist(mbl), PD = unlist(pd), MNTD = unlist(mntd))
 
-  if ("all" %in% stat | "mbl" %in% stat) {
-    mean_branch_length <- lapply(raw_data$tes, calculate_mean_branch_length, method = method)
-    statistics <- cbind(statistics, MBL = unlist(mean_branch_length))
-  }
-
-  if ("all" %in% stat | "gamma" %in% stat) {
-    gamma_statistics <- lapply(raw_data$tes, calculate_gamma_statistics, method = method)
-    statistics <- cbind(statistics, Gamma = unlist(gamma_statistics))
-  }
-
-  if ("all" %in% stat | "pd" %in% stat) {
-    phylogenetic_diversity <- lapply(raw_data$tes, calculate_phylogenetic_diversity, method = method)
-    statistics <- cbind(statistics, PD = unlist(phylogenetic_diversity))
-  }
-
-  if ("all" %in% stat | "mntd" %in% stat) {
-    mean_nearest_neighbor_distance <- lapply(raw_data$tes, calculate_mean_nearest_neighbor_distance, method = method)
-    statistics <- cbind(statistics, MNTD = unlist(mean_nearest_neighbor_distance))
-  }
-
-  if ("all" %in% stat | "sr" %in% stat) {
-    tree_sizes <- get_tree_sizes(raw_data$tes)
-    statistics <- cbind(statistics, SR = tree_sizes)
-  }
+  statistics <- cbind(statistics, result)
 
   return(within(statistics, rm(id)))
 }
@@ -60,14 +44,15 @@ edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "se
 
 
 
-edd_stat <- function(raw_data, stat = "all", method = "treestats", strategy = "sequential",
+edd_stat <- function(raw_data, method = "treestats", strategy = "sequential",
                      workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
   check_raw_data(raw_data)
 
+  edd_summarize_cached <- R.cache::addMemoization(edd_summarize)
+
   statistics <- furrr::future_map(.x = raw_data,
-                                  .f = edd_summarize,
-                                  stat = stat,
+                                  .f =  edd_summarize_cached,
                                   method = method)
 
   # Binding metadata
