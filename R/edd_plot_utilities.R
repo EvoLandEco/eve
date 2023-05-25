@@ -440,6 +440,38 @@ check_pars_list <- function(pars_list) {
 }
 
 
+check_pars_list <- function(pars_list) {
+  if (is.null(pars_list$model)) {
+    stop("Model not specified")
+  }
+
+  if (pars_list$model == "dsce2") {
+    if (is.null(pars_list$lambda) |
+      is.null(pars_list$mu) |
+      is.null(pars_list$beta_n) |
+      is.null(pars_list$beta_phi) |
+      is.null(pars_list$age) |
+      is.null(pars_list$metric) |
+      is.null(pars_list$offset)) {
+      stop("Parameter set incomplete")
+    }
+  } else if (pars_list$model == "dsde2") {
+    if (is.null(pars_list$lambda) |
+      is.null(pars_list$mu) |
+      is.null(pars_list$beta_n) |
+      is.null(pars_list$beta_phi) |
+      is.null(pars_list$gamma_n) |
+      is.null(pars_list$gamma_phi) |
+      is.null(pars_list$age) |
+      is.null(pars_list$metric) |
+      is.null(pars_list$offset)) {
+      stop("Parameter set incomplete")
+    }
+  } else {
+    stop("No such model")
+  }
+}
+
 
 # quickly find the replicate ID of a row in the statistics table
 find_rep_id <- function(row_id, nrep) {

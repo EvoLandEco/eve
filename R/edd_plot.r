@@ -860,6 +860,10 @@ edd_plot_stats <- function(raw_data = NULL, method = "treestats", save_plot = FA
 
 
 edd_plot_stats_graph <- function(rates, stats, params, offset = NULL, name = NULL, save_plot = FALSE, path = NULL) {
+  if (!inherits(name, "character")) {
+    stop("Stat name must be of type character")
+  }
+
   lambda_num <- rates[1]
 
   lambda <- as.character(rates[1])
@@ -943,29 +947,49 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
 }
 
 
-edd_plot_balance_single <- function(raw_data = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
-  stat_balance <- edd_stat(raw_data$data, method = method)
-  stat_balance <- tidyr::pivot_longer(stat_balance, cols = -(lambda:offset), names_to = "balance", values_to = "value")
-  stat_balance <- transform_data(stat_balance)
+edd_plot_stats_single <- function(raw_data = NULL, name = "J_One", method = "treestats", save_plot = FALSE, path = NULL) {
+  if (!inherits(name, "character")) {
+    stop("Stat name must be of type character")
+  }
+
+  stats <- edd_stat_cached(raw_data$data, method = method)
+
+  stats_names <- colnames(stats)
+  model <- raw_data$params$model[1]
+  if (model == "dsce2") {
+    stats_names <- stats_names[-(1:8)]
+  } else if (model == "dsde2") {
+    stats_names <- stats_names[-(1:10)]
+  } else {
+    stop("Model not supported")
+  }
+
+  if (!(name %in% stats_names)) {
+    stop("Stat does not exist. Must be one of the following: ", paste(stats_names, collapse = ", "))
+  }
+
+  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
 
   lambda <- 0.6
   mu <- 0
   beta_n <- 0
   rates <- c(lambda, mu, beta_n)
 
-  plot_pd_ed_simtime <- edd_plot_balance_pd_ed_single(rates,
-                                                      stat_balance = stat_balance,
+  plot_between_metric <- edd_plot_stats_single_between_metric(rates,
+                                                      name,
+                                                      stats = stats,
                                                       offset = "Simulation time",
                                                       save_plot = save_plot,
                                                       path = path)
 
   if (save_plot != TRUE) {
-    return(plot_pd_ed_simtime)
+    return(plot_between_metric)
   }
 }
 
 
-edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, save_plot = FALSE, path = NULL) {
+edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NULL, save_plot = FALSE, path = NULL) {
   lambda_num <- rates[1]
   mu_num <- rates[2]
   beta_n_num <- rates[3]
@@ -974,25 +998,25 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
   mu <- as.character(rates[2])
   offset_char <- as.character(offset)
 
-  plot_data_pd <- dplyr::filter(stat_balance,
+  plot_data_pd <- dplyr::filter(stats,
                                 lambda == lambda_num &
                                   mu == mu_num &
                                   metric == "pd" &
                                   offset == offset_char)
 
-  plot_data_ed <- dplyr::filter(stat_balance,
+  plot_data_ed <- dplyr::filter(stats,
                                 lambda == lambda_num &
                                   mu == mu_num &
                                   metric == "ed")
 
-  plot_data_nnd <- dplyr::filter(stat_balance,
+  plot_data_nnd <- dplyr::filter(stats,
                                  lambda == lambda_num &
                                    mu == mu_num &
                                    metric == "nnd")
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
-  plot_data_colless <- plot_data %>% dplyr::filter(balance == "Colless") %>%
+  plot_data_colless <- plot_data %>% dplyr::filter(balance == name) %>%
     dplyr::filter(beta_n == beta_n_num)
 
   sts <- boxplot.stats(plot_data_colless$value)$stats
@@ -1003,7 +1027,7 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
     ggplot2::scale_y_continuous(position = "right") +
     ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
     ggplot2::ylab(NULL) +
-    ggplot2::ggtitle("Colless (Yule)") +
+    ggplot2::ggtitle(name) +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
                    axis.line.x = ggplot2::element_blank(),
@@ -1019,7 +1043,7 @@ edd_plot_balance_pd_ed_single <- function(rates, stat_balance, offset = NULL, sa
     save_with_rates_offset(rates = rates[1:2],
                            offset = offset,
                            plot = pd_ed_plot,
-                           which = "balance_pd_ed_single",
+                           which = "stats_single",
                            path = path,
                            device = "png",
                            width = 2, height = 20,
@@ -1571,6 +1595,7 @@ edd_plot_best_histrees <- function(raw_data = NULL,
 edd_plot_grouped_histrees <- function(raw_data = NULL,
                                       sample_rep = NULL,
                                       which = "las",
+                                      name = "J_One",
                                       drop_extinct = FALSE,
                                       save_plot = FALSE,
                                       path = NULL) {
@@ -1618,9 +1643,11 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
 
   plot_grouped_histrees <- patchwork::wrap_plots(plots, nrow = tally$rows)
 
-  plot_balance <- edd_plot_balance_single(raw_data)
+  plot_stat <- edd_plot_stats_single(raw_data, name = name)
 
-  plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_balance, nrow = 1, widths = c(8, 1)) +
+
+
+  plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_stat, nrow = 1, widths = c(8, 1)) +
     patchwork::plot_annotation(title = bquote("Phylogenetic patterns (pure birth, no species richness effect)"),
                                subtitle = bquote(lambda[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ mu[0] ~ "=" ~ .(sample_rep$mu[1]) ~ beta[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
