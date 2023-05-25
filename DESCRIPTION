@@ -12,7 +12,8 @@ License: GPL (>= 3)
 Depends: R (>= 3.5.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
+LinkingTo: Rcpp
 Imports: 
     ape,
     dplyr,
@@ -29,6 +30,7 @@ Imports:
     progressr,
     purrr,
     phylobase,
+    Rcpp,
     RCurl,
     Rfast,
     readr,

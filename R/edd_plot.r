@@ -947,7 +947,7 @@ edd_plot_balance <- function(raw_data = NULL, method = "treestats", save_plot = 
 }
 
 
-edd_plot_stats_single <- function(raw_data = NULL, name = "J_One", method = "treestats", save_plot = FALSE, path = NULL) {
+edd_plot_stats_single <- function(raw_data = NULL, rates = NULL, name = "J_One", method = "treestats", save_plot = FALSE, path = NULL) {
   if (!inherits(name, "character")) {
     stop("Stat name must be of type character")
   }
@@ -970,11 +970,6 @@ edd_plot_stats_single <- function(raw_data = NULL, name = "J_One", method = "tre
 
   stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
   stats <- transform_data(stats)
-
-  lambda <- 0.6
-  mu <- 0
-  beta_n <- 0
-  rates <- c(lambda, mu, beta_n)
 
   plot_between_metric <- edd_plot_stats_single_between_metric(rates,
                                                       name,
@@ -1016,12 +1011,12 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
 
   plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
 
-  plot_data_colless <- plot_data %>% dplyr::filter(balance == name) %>%
+  plot_data_stats <- plot_data %>% dplyr::filter(stats == name) %>%
     dplyr::filter(beta_n == beta_n_num)
 
-  sts <- boxplot.stats(plot_data_colless$value)$stats
+  sts <- boxplot.stats(plot_data_stats$value)$stats
 
-  colless_plot <- ggplot2::ggplot(plot_data_colless) +
+  stats_plot <- ggplot2::ggplot(plot_data_stats) +
     ggplot2::facet_wrap(. ~ beta_phi, ncol = 1) +
     ggplot2::geom_boxplot(ggplot2::aes(metric, value, fill = metric), outlier.shape = NA) +
     ggplot2::scale_y_continuous(position = "right") +
@@ -1036,7 +1031,7 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
                    panel.background = ggplot2::element_blank(),
                    panel.grid = ggplot2::element_blank())
 
-  pd_ed_plot <- colless_plot +
+  plot_final <- stats_plot +
     ggplot2::labs(fill = "Metric")
 
   if (save_plot == TRUE) {
@@ -1049,7 +1044,7 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
                            width = 2, height = 20,
                            dpi = "retina")
   } else {
-    return(pd_ed_plot)
+    return(plot_final)
   }
 }
 
@@ -1599,8 +1594,31 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                                       drop_extinct = FALSE,
                                       save_plot = FALSE,
                                       path = NULL) {
+  rates <- expand.grid(unique(raw_data$params$lambda),
+                       unique(raw_data$params$mu),
+                       unique(raw_data$params$beta_n))
+
+  plots <- apply(rates, 1, edd_plot_grouped_histrees_core,
+                 raw_data = raw_data,
+                 sample_rep = sample_rep,
+                 name = name,
+                 which = which,
+                 drop_extinct = drop_extinct,
+                 save_plot = save_plot, path = path)
+
+  if (save_plot == FALSE) {
+    return(plots)
+  }
+}
+
+
+edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, which, drop_extinct, save_plot, path) {
+  lambda_num <- rates[1]
+  mu_num <- rates[2]
+  beta_n_num <- rates[3]
+
   sample_rep <- sample_rep %>%
-    filter(lambda == 0.6, mu == 0, beta_n == 0) %>%
+    filter(lambda == lambda_num, mu == mu_num, beta_n == beta_n_num) %>%
     filter(!(metric == "pd" & offset == "none"))
 
   tally <- tally_by_group(sample_rep, "metric")
@@ -1611,7 +1629,7 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
     plots[[j]] <- edd_plot_histree(raw_data$data[[sample_rep$pars_id[i]]],
                                    rep_id = sample_rep$rep_id[i],
                                    which = which,
-                                   drop_extinct = FALSE,
+                                   drop_extinct = drop_extinct,
                                    save_plot = FALSE) +
       ggplot2::theme(legend.position = "none")
     if (j <= tally$groups) {
@@ -1643,12 +1661,22 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
 
   plot_grouped_histrees <- patchwork::wrap_plots(plots, nrow = tally$rows)
 
-  plot_stat <- edd_plot_stats_single(raw_data, name = name)
+  plot_stat <- edd_plot_stats_single(raw_data, rates = rates, name = name, save_plot = FALSE)
 
+  title_str <- "Phylogenetic patterns ("
 
+  if (mu_num == 0) {
+    title_str <- paste0(title_str, "pure birth, ")
+  }
+
+  if (beta_n_num == 0) {
+    title_str <- paste0(title_str, "no species richness effect")
+  } else {
+    title_str <- paste0(title_str, "with species richness effect")
+  }
 
   plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_stat, nrow = 1, widths = c(8, 1)) +
-    patchwork::plot_annotation(title = bquote("Phylogenetic patterns (pure birth, no species richness effect)"),
+    patchwork::plot_annotation(title = title_str,
                                subtitle = bquote(lambda[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ mu[0] ~ "=" ~ .(sample_rep$mu[1]) ~ beta[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
   # best_histrees <- lapply(indexes, function(x) {

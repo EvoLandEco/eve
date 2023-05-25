@@ -119,18 +119,16 @@ reconstruct_temporal_dynamics <- function(l_table = NULL, age = NULL) {
 
 sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
   phy <- treestats::l_to_phylo_ed(l_table, age, drop_extinct = drop_extinct)
-  Blum <- calculate_tree_balance(phy, metric = "Blum")
-  Colless <- calculate_tree_balance(phy, metric = "Colless")
-  Sackin <- calculate_tree_balance(phy, metric = "Sackin")
-  PD <- calculate_phylogenetic_diversity(phy)
-  MNTD <- calculate_mean_nearest_neighbor_distance(phy)
-  MBL <- calculate_mean_branch_length(phy)
+  J_One <- calculate_tree_stats(phy, metric = "J-One")
+  Gamma <- calculate_tree_stats(phy, metric = "Gamma")
+  PD <- calculate_tree_stats(phy, metric = "PD")
+  MNTD <- calculate_tree_stats(phy, metric = "MNTD")
+  MBL <- calculate_tree_stats(phy, metric = "MBL")
 
   return(data.frame(Age = age,
                     Event = event,
-                    Blum = Blum,
-                    Colless = Colless,
-                    Sackin = Sackin,
+                    J_One = J_One,
+                    Gamma = Gamma,
                     PD = PD,
                     MNTD = MNTD,
                     MBL = MBL))
@@ -395,4 +393,33 @@ calc_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
   }
 
   return(sum(delta_bl))
+}
+
+
+#' Convert an reverse-timescale L table to phylo object,
+#' only use it with PDD simulation
+#' @param ltab ltable
+#' @param t simulation time when converting it to phylogeny
+#' @param drop_extinct should extinct species be dropped from the phylogeny?
+#' @return phylo object
+#' @export
+l_to_phylo_ed <- function(ltab, t, drop_extinct = TRUE) {
+
+  newick_str <- l_to_newick_ed(ltab, t, drop_extinct)
+  phylo_tree <- ape::read.tree(text = newick_str)
+
+  return(phylo_tree)
+}
+
+#' Convert an reverse-timescale L table to newick format string
+#' @param ltab ltable
+#' @param t simulation time when converting it to phylogeny
+#' @param drop_extinct should extinct species be dropped from the phylogeny?
+#' @return newick string
+#' @export
+l_to_newick_ed <- function(ltab, t, drop_extinct = TRUE) {
+
+  newick_str <- l_to_newick_ed_cpp(ltab, t, drop_extinct)
+
+  return(newick_str)
 }

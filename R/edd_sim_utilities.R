@@ -16,7 +16,7 @@
 #' @export L2ED_cpp
 L2ED_cpp <- function(L, t) {
   dist_tips <-
-    ape::cophenetic.phylo(treestats::l_to_phylo_ed(L, t, drop_extinct = TRUE))
+    ape::cophenetic.phylo(l_to_phylo_ed(L, t, drop_extinct = TRUE))
   dist_means <- rowSums(dist_tips) / (dim(dist_tips)[1] - 1)
   dist_means_sorted <-
     dist_means[gtools::mixedorder(names(dist_means))]
@@ -44,7 +44,7 @@ L2ED_cpp <- function(L, t) {
 #' @export L2NND
 L2NND <- function(L, t) {
   dist_tips <-
-    ape::cophenetic.phylo(treestats::l_to_phylo_ed(L, t, drop_extinct = TRUE))
+    ape::cophenetic.phylo(l_to_phylo_ed(L, t, drop_extinct = TRUE))
   # find the second smallest value of each row of the distance matrix
   nearest_neighbor <- apply(dist_tips, MARGIN = 1, FUN = Rfast::nth, 2)
   nearest_neighbor_sorted <-
@@ -107,9 +107,9 @@ L2ED <- function(L, t) {
 L2Phi_cpp <- function(L, t, metric) {
   # metrics
   if (metric == "pd") {
-    return(sum(treestats::l_to_phylo_ed(L, t, drop_extinct = T)$edge.length))
+    return(sum(l_to_phylo_ed(L, t, drop_extinct = T)$edge.length))
   } else if (metric == "mpd") {
-    phy <- treestats::l_to_phylo_ed(L, t, drop_extinct = T)
+    phy <- l_to_phylo_ed(L, t, drop_extinct = T)
     n <- length(phy$tip.label)
     dist <- ape::dist.nodes(phy)[1:n, 1:n]
     return(mean(dist[lower.tri(dist)]))

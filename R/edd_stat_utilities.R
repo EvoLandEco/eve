@@ -137,29 +137,22 @@ reverse_l_table <- function(l_table, age) {
 }
 
 
-distance_to_mean <- function(cols, means) {
-  sqrt(sum((cols - means)^2))
-}
-
-
 find_best_rep_ids <- function(raw_data) {
-  stats <- edd_stat(raw_data$data)
+  stats <- edd_stat_cached(raw_data$data)
   stats <- stats %>%
-    dplyr::select(-Sackin, -Blum, -Gamma, -MBL, -MNTD) %>%
+    dplyr::select(-Colless, -TCI, -Steps, -Branch, -B1, -B2) %>%
     dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model, metric, offset)) %>%
     dplyr::group_by(group)
 
   cols <- stats %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset, -group) %>%
-    mutate_all(~(scale(.) %>% as.vector))
+    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset) %>%
+    dplyr::mutate_all(~(scale(.) %>% as.vector))
 
-  col_means <- cols %>% colMeans()
+  col_means <- cols %>% dplyr::mutate_all(~ .x - mean(.x, na.rm = TRUE)) %>% dplyr::ungroup() %>% dplyr::select(-group)
 
-  stats$distance <- apply(cols, 1, distance_to_mean, means = col_means)
+  stats$distance <- apply(col_means, 1, function(x) sqrt(sum(x^2)))
 
   rep_ids <- stats %>%
-    dplyr::group_by(group) %>%
     dplyr::mutate(rep_id = dplyr::row_number()) %>%
     dplyr::slice_min(n = 1, order_by = distance) %>%
     dplyr::ungroup() %>%
