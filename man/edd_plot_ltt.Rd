@@ -10,6 +10,7 @@ edd_plot_ltt(
   save_plot = FALSE,
   path = NULL,
   annotation = TRUE,
+  ribbon = TRUE,
   trans = "log10"
 )
 }
@@ -23,6 +24,8 @@ edd_plot_ltt(
 \item{path}{The path to save the plots}
 
 \item{annotation}{Logical, decide whether to add annotation to the plot}
+
+\item{ribbon}{Logical, decide whether to add ribbon of confidence interval to the plot}
 
 \item{trans}{Specify the transformation of the y axis}
 }

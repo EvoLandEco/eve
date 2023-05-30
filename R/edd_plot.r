@@ -308,6 +308,7 @@ edd_plot_nltt <- function(raw_data = NULL,
 #' @param save_plot true or false, to decide whether to save the plots to files
 #' @param path The path to save the plots
 #' @param annotation Logical, decide whether to add annotation to the plot
+#' @param ribbon Logical, decide whether to add ribbon of confidence interval to the plot
 #' @param trans Specify the transformation of the y axis
 #' @return an plot object
 #' @author Tianjian Qin
@@ -319,6 +320,7 @@ edd_plot_ltt <-
            save_plot = FALSE,
            path = NULL,
            annotation = TRUE,
+           ribbon = TRUE,
            trans = "log10"
   ) {
     pars_list <- extract_parameters(raw_data)
@@ -338,8 +340,6 @@ edd_plot_ltt <-
     plot_ltt <-
       ggplot2::ggplot(df) +
         ggplot2::geom_line(ggplot2::aes(t, mean)) +
-        ggplot2::geom_ribbon(ggplot2::aes(t, mean, ymax =
-          maxalpha, ymin = minalpha), alpha = 0.2) +
         ggplot2::theme(legend.position = "none",
                        aspect.ratio = 3 / 4) +
         ggplot2::xlab("Age") +
@@ -363,6 +363,11 @@ edd_plot_ltt <-
           ),
           fill = "#E8CB9C"
         )
+    }
+
+    if (ribbon == TRUE) {
+      plot_ltt <- plot_ltt + ggplot2::geom_ribbon(ggplot2::aes(t, mean, ymax =
+        maxalpha, ymin = minalpha), alpha = 0.2)
     }
 
     if (save_plot == TRUE) {
@@ -1646,7 +1651,8 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
                                               axis.line.y = ggplot2::element_blank()) +
       edd_plot_ltt(raw_data$data[[sample_rep$pars_id[i]]],
                    save_plot = FALSE,
-                   annotation = FALSE) +
+                   annotation = FALSE,
+                   ribbon = TRUE) +
       ggplot2::ylab(NULL) +
       ggplot2::xlab(NULL) +
       ggplot2::ggtitle(NULL) +
