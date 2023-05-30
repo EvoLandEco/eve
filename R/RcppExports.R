@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 l_to_newick_ed_cpp <- function(ltable_R, t, drop_extinct) {
-    .Call('_eve_l_to_newick_ed_cpp', PACKAGE = 'eve', ltable_R, t, drop_extinct)
+    .Call(`_eve_l_to_newick_ed_cpp`, ltable_R, t, drop_extinct)
 }
 

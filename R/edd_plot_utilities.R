@@ -189,6 +189,49 @@ save_with_parameters <-
 
 
 
+save_with_rates_and_index_name <-
+  function(rates = NULL,
+           plot = NULL,
+           which = NULL,
+           name,
+           path = stop("Path not specified"),
+           device = "png",
+           width = 5,
+           height = 4,
+           dpi = "retina") {
+    if (is.null(which)) {
+      stop("Plot type not specified")
+    }
+
+    save_path <- file.path(path, "plot", which)
+
+    check_path(save_path, verbose = FALSE)
+
+    ggplot2::ggsave(
+      filename = paste0(
+        save_path,
+        "/",
+        which,
+        "_",
+        name,
+        "_",
+        rates[1],
+        "_",
+        rates[2],
+        "_",
+        rates[3],
+        ".png"
+      ),
+      plot = plot,
+      device = device,
+      width = width,
+      height = height,
+      dpi = dpi
+    )
+  }
+
+
+
 save_with_rates <-
   function(rates = NULL,
            plot = NULL,

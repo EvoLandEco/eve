@@ -1670,9 +1670,9 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
   }
 
   if (beta_n_num == 0) {
-    title_str <- paste0(title_str, "no species richness effect")
+    title_str <- paste0(title_str, "no species richness effect)")
   } else {
-    title_str <- paste0(title_str, "with species richness effect")
+    title_str <- paste0(title_str, "with species richness effect)")
   }
 
   plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_stat, nrow = 1, widths = c(8, 1)) +
@@ -1694,9 +1694,10 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
   # patchwork::wrap_plots(best_histrees, nrow = tally$rows)
 
   if (save_plot == TRUE) {
-    save_with_parameters(pars_list = extract_parameters(raw_data$data[[i]]),
+    save_with_rates_and_index_name(rates = rates,
                          plot = plot_final,
                          which = "grouped_histrees",
+                         name = name,
                          path = path,
                          device = "png",
                          width = 10,
