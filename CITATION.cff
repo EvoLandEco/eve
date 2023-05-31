@@ -1,0 +1,10 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Qin
+    given-names: Tianjian
+    orcid: https://orcid.org/0000-0003-2540-1778
+title: "eve - Evolution emulator, phylogenetically dependent"
+version: 0.1.0
+doi: 10.5281/zenodo.8475
+date-released: 2023-05-31
