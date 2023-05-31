@@ -25,6 +25,7 @@ library(eve)
 status](https://www.r-pkg.org/badges/version/eve)](https://cran.r-project.org/package=eve)
 [![R build
 status](https://github.com/DEvoLandEco/eve/workflows/R-CMD-check/badge.svg)](https://github.com/EvoLandEco/eve/actions)
+[![DOI](https://zenodo.org/badge/382378337.svg)](https://zenodo.org/badge/latestdoi/382378337)
 
 ## Overview
 
