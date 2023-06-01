@@ -191,7 +191,7 @@ find_best_rep_ids <- function(raw_data = NULL, method = "euclidean", metrics = N
     dplyr::group_by(group) %>%
     dplyr::mutate(rep_id = dplyr::row_number()) %>%
     na.omit() %>%
-    dplyr::mutate(distance = calculate_tree_distance(dplyr::cur_data()[, dplyr::all_of(metrics)], method)) %>%
+    dplyr::mutate(distance = calculate_tree_distance_cached(dplyr::cur_data()[, dplyr::all_of(metrics)], method)) %>%
     dplyr::slice_min(n = 1, order_by = distance) %>%
     dplyr::ungroup() %>%
     dplyr::select(-group) %>%
