@@ -1702,7 +1702,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
   if (save_plot == TRUE) {
     save_with_rates_and_index_name(rates = rates,
                          plot = plot_final,
-                         which = "grouped_histrees",
+                         which = paste0("grouped_histrees_", name),
                          name = name,
                          path = path,
                          device = "png",
