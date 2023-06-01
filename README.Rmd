@@ -33,7 +33,7 @@ The package `eve` is an evolution emulator which provides pipelines to
 do phylogenetic-diversity-dependent simulation, analyse outputs and
 generate publication-ready plots and statistics conveniently. 
 
-`eve` supports mainly three different scenarios, the species diversification process is regualated by ***phylogenetic diversity (PD)*** or ***evolutionary distinctiveness (ED)*** or ***nearest neighbor distance (NND)*** respectively. 
+`eve` supports mainly three different scenarios, the species diversification process is regulated by ***phylogenetic diversity (PD)*** or ***evolutionary distinctiveness (ED)*** or ***nearest neighbor distance (NND)*** respectively.
 
 `eve` supports parallel computing , this feature is implemented with [furrr](https://furrr.futureverse.org/), read through its documentation before using this feature. Note that parralel computing may use a huge amount of memory and may have large overhead.
 
@@ -74,43 +74,43 @@ combo[1:3]
 
 All the unique and possible combinations of parameters will be created automatically. 
 
-`eve` supports parallel simulation, the following example shows how to do a 8-session parallel EDD simulation given the combo, with 3 replications for each parameter set . The result will be saved to `/result/example`. If `name` is not specified, a folder will be created according to time and date at the moment. 
+`eve` supports parallel simulation, the following example shows how to do an 8-session parallel EDD simulation given the combo, with 3 replications for each parameter set . The result will be saved to `/result/example`. If `name` is not specified, a folder will be created according to time and date at the moment.
 
 ```{r edd_go}
 # result will be save as .RData file
-edd_go(
-  combo = combo,
-  nrep = 3,
-  name = "example",
-  strategy = future::multisession,
-  workers = 8
-)
+# edd_go(
+#   combo = combo,
+#   nrep = 3,
+#   name = "example",
+#   strategy = future::multisession,
+#   workers = 8
+# )
 ```
 
 `edd_go` will not return any object unless you set `name = "no_save"`.
 
-``` r
+```{r}
 # set name = "no_save" if you want to assign the output to a variable
-output <- edd_go(
-  combo = combo,
-  nrep = 3,
-  name = "no_save",
-  strategy = future::multisession,
-  workers = 8
-)
+# output <- edd_go(
+#   combo = combo,
+#   nrep = 3,
+#   name = "no_save",
+#   strategy = future::multisession,
+#   workers = 8
+# )
 
 # examine the result
-output[[1]]
+# output[[1]]
 ```
 
 Sequential simulation is also possible:
 
 ```{r sequential}
-edd <- edd_go(
-    combo = combo,
-    nrep = 3,
-    name = "example2",
-    strategy = future::sequential,
-    workers = 8
-  )
+# edd <- edd_go(
+#     combo = combo,
+#     nrep = 3,
+#     name = "example2",
+#     strategy = future::sequential,
+#     workers = 8
+#   )
 ```
