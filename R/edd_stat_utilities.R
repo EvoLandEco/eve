@@ -139,27 +139,94 @@ reverse_l_table <- function(l_table, age) {
 }
 
 
-find_best_rep_ids <- function(raw_data) {
+get_stats_names <- function(raw_data, stats) {
+  stats_names <- colnames(stats)
+  model <- raw_data$params$model[1]
+  if (model == "dsce2") {
+    stats_names <- stats_names[-(1:8)]
+  } else if (model == "dsde2") {
+    stats_names <- stats_names[-(1:10)]
+  } else {
+    stop("Model not supported")
+  }
+  return(stats_names)
+}
+
+
+check_stats_names <- function(raw_data, stats, name) {
+  if (!all(is.character(name))) {
+    stop("Statistic name must be character")
+  }
+
+  duplicates <- duplicated(name)
+  if (any(duplicates)) {
+    stop("Duplicated statistic names: ", paste(name[duplicates], collapse = ", "))
+  }
+
+  stats_names <- get_stats_names(raw_data, stats)
+
+  result <- name %in% stats_names
+
+  if (FALSE %in% result) {
+    stop("Statistic(s) does not exist. Available statistic(s): ", paste(stats_names, collapse = ", "))
+  }
+}
+
+
+find_best_rep_ids <- function(raw_data = NULL, method = "euclidean", metrics = NULL) {
   stats <- edd_stat_cached(raw_data$data)
-  stats <- stats %>%
-    dplyr::select(-Colless, -TCI, -Steps, -Branch, -B1, -B2) %>%
-    dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model, metric, offset)) %>%
-    dplyr::group_by(group)
 
-  cols <- stats %>%
-    dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset) %>%
-    dplyr::mutate_all(~(scale(.) %>% as.vector))
+  if (is.null(metrics)) {
+    message("No metrics specified, using all")
+    metrics <- get_stats_names(raw_data, stats)
+  } else {
+    check_stats_names(raw_data, stats, metrics)
+  }
 
-  col_means <- cols %>% dplyr::mutate_all(~ .x - mean(.x, na.rm = TRUE)) %>% dplyr::ungroup() %>% dplyr::select(-group)
-
-  stats$distance <- apply(col_means, 1, function(x) sqrt(sum(x^2)))
+  excluded_metrics <- setdiff(get_stats_names(raw_data, stats), metrics)
 
   rep_ids <- stats %>%
+    dplyr::mutate(group = interaction(lambda, mu, beta_n, beta_phi, age, model, metric, offset)) %>%
+    dplyr::select(-dplyr::all_of(excluded_metrics)) %>%
+    dplyr::group_by(group) %>%
     dplyr::mutate(rep_id = dplyr::row_number()) %>%
+    na.omit() %>%
+    dplyr::mutate(distance = calculate_tree_distance(dplyr::cur_data()[, dplyr::all_of(metrics)], method)) %>%
     dplyr::slice_min(n = 1, order_by = distance) %>%
     dplyr::ungroup() %>%
     dplyr::select(-group) %>%
-    dplyr::mutate(pars_id = row_number())
+    dplyr::mutate(pars_id = dplyr::row_number())
+
+  # cols <- stats %>%
+  #   dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset) %>%
+  #   dplyr::mutate_all(~(scale(.) %>% as.vector))
+  #
+  # col_means <- cols %>% dplyr::mutate_all(~ .x - mean(.x, na.rm = TRUE)) %>% dplyr::ungroup() %>% dplyr::select(-group)
+  #
+  # stats$distance <- apply(col_means, 1, function(x) sqrt(sum(x^2)))
+
+  # rep_ids <- stats %>%
+  #   dplyr::mutate(rep_id = dplyr::row_number()) %>%
+  #   dplyr::slice_min(n = 1, order_by = distance) %>%
+  #   dplyr::ungroup() %>%
+  #   dplyr::select(-group) %>%
+  #   dplyr::mutate(pars_id = row_number())
 
   return(rep_ids)
+}
+
+
+calculate_tree_distance <- function(stats = NULL, method = "euclidean") {
+  if (method == "euclidean") {
+    mean_stats <- colMeans(stats)
+    return(sqrt(rowSums((stats - mean_stats)^2)))
+  } else if (method == "manhattan") {
+    mean_stats <- colMeans(stats)
+    return(rowSums(abs(stats - mean_stats)))
+  } else if (method == "mahalanobis") {
+    mean_stats <- colMeans(stats)
+    return(mahalanobis(stats, mean_stats, cov(stats)))
+  } else {
+    stop("The specified method is not supported. Choose from 'euclidean', 'manhattan', 'mahalanobis'.")
+  }
 }

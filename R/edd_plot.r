@@ -959,19 +959,7 @@ edd_plot_stats_single <- function(raw_data = NULL, rates = NULL, name = "J_One",
 
   stats <- edd_stat_cached(raw_data$data, method = method)
 
-  stats_names <- colnames(stats)
-  model <- raw_data$params$model[1]
-  if (model == "dsce2") {
-    stats_names <- stats_names[-(1:8)]
-  } else if (model == "dsde2") {
-    stats_names <- stats_names[-(1:10)]
-  } else {
-    stop("Model not supported")
-  }
-
-  if (!(name %in% stats_names)) {
-    stop("Stat does not exist. Must be one of the following: ", paste(stats_names, collapse = ", "))
-  }
+  check_stats_names(raw_data, stats, name)
 
   stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
   stats <- transform_data(stats)
