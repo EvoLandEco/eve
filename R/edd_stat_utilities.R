@@ -1,10 +1,12 @@
-#' @name calculate_CI
+#' @name calculate_CI_alt
 #' @param brts_list A list containing branching times of a simulation
 #' @param tt Time table
 #' @param alpha Resolution
 #' @title Calculating confidence interval for LTT plot (reversed time scale)
+#' @description Function to calculate confidence interval for LTT plot, its an Rcpp alternative version of the
+#' native C++ function, used for debugging
 #' @author Thijs Janzen; Tianjian Qin
-calculate_CI <- Rcpp::cppFunction('
+calculate_CI_alt <- Rcpp::cppFunction('
 NumericMatrix get_stats_cpp(const List& brts_list,
                             const NumericVector& tt,
                             const float alpha) {
