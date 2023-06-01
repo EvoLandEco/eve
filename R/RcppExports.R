@@ -5,3 +5,7 @@ l_to_newick_ed_cpp <- function(ltable_R, t, drop_extinct) {
     .Call(`_eve_l_to_newick_ed_cpp`, ltable_R, t, drop_extinct)
 }
 
+calculate_CI <- function(brts_list, tt, alpha) {
+    .Call(`_eve_calculate_CI`, brts_list, tt, alpha)
+}
+

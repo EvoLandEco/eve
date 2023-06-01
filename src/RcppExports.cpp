@@ -23,9 +23,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calculate_CI
+NumericMatrix calculate_CI(const List& brts_list, const NumericVector& tt, const float alpha);
+RcppExport SEXP _eve_calculate_CI(SEXP brts_listSEXP, SEXP ttSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type brts_list(brts_listSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type tt(ttSEXP);
+    Rcpp::traits::input_parameter< const float >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_CI(brts_list, tt, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_eve_l_to_newick_ed_cpp", (DL_FUNC) &_eve_l_to_newick_ed_cpp, 3},
+    {"_eve_calculate_CI", (DL_FUNC) &_eve_calculate_CI, 3},
     {NULL, NULL, 0}
 };
 
