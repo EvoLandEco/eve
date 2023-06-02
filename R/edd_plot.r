@@ -1631,7 +1631,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
     }
     if ((j + tally$groups - 1) %% tally$groups == 0) {
       plots[[j]] <- plots[[j]] +
-        ggplot2::ylab(bquote(beta[italic(Phi)] ~ "=" ~ .(sample_rep$beta_phi[i])))
+        ggplot2::ylab(bquote(italic(β)[italic(Φ)] ~ "=" ~ .(sample_rep$beta_phi[i])))
     }
     plots[[j]] <- plots[[j]] + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                                               axis.line.x = ggplot2::element_blank(),
@@ -1671,7 +1671,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
 
   plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_stat, nrow = 1, widths = c(8, 1)) +
     patchwork::plot_annotation(title = title_str,
-                               subtitle = bquote(lambda[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ mu[0] ~ "=" ~ .(sample_rep$mu[1]) ~ beta[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
+                               subtitle = bquote(italic(λ)[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ italic(μ)[0] ~ "=" ~ .(sample_rep$mu[1]) ~ italic(β)[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
   # best_histrees <- lapply(indexes, function(x) {
   #   plots <- lapply(x, function(y) {
