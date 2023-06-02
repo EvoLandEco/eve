@@ -1713,3 +1713,119 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
     return(plot_final)
   }
 }
+
+
+edd_plot_stats_grouped_single <- function(raw_data = NULL, method = "treestats", by = "lambda", name = NULL, save_plot = FALSE, path = NULL) {
+  if (length(name) > 1) {
+    stop("Only one statistic can be specified")
+  }
+
+  if (!is.character(name)) {
+    stop("Statistic name must be a character")
+  }
+
+  if (!(by %in% c("lambda", "mu"))) {
+    stop("by must be one of 'lambda' or 'mu'")
+  }
+
+  stats <- edd_stat_cached(raw_data$data, method = method)
+
+  check_stats_names(raw_data, stats, name)
+
+  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
+
+  if (by == "lambda") {
+    rates <- levels(stats$lambda)
+  } else {
+    rates <- levels(stats$mu)
+  }
+
+  plot_pd_ed_simtime <- lapply(rates, edd_plot_stats_grouped_single_core, stats = stats, by = by, name = name, params = raw_data$params, offset = "Simulation time", save_plot = save_plot, path = path)
+
+  if (save_plot != TRUE) {
+    return(plot_pd_ed_simtime)
+  }
+}
+
+edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, offset = NULL, save_plot = FALSE, path = NULL) {
+  rate_num <- rates[1]
+  rate_char <- as.character(rate_num)
+
+  if (by == "lambda") {
+    greek <- "λ"
+    other <- "mu"
+    other_greek <- "μ"
+  } else {
+    greek <- "μ"
+    other <- "lambda"
+    other_greek <- "λ"
+  }
+
+  offset_char <- as.character(offset)
+
+  plot_data_pd <- dplyr::filter(stats,
+                                !!as.symbol(by) == rate_num &
+                                  metric == "pd" &
+                                  offset == offset_char)
+
+  plot_data_ed <- dplyr::filter(stats,
+                                !!as.symbol(by) == rate_num &
+                                  metric == "ed")
+
+  plot_data_nnd <- dplyr::filter(stats,
+                                 !!as.symbol(by) == rate_num &
+                                   metric == "nnd")
+
+  plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
+
+  plot_data_stats <- dplyr::filter(plot_data, stats == name)
+
+  sts <- boxplot.stats(plot_data_stats$value)$stats
+
+  if (by == "lambda") {
+    stats_plot <- ggplot2::ggplot(plot_data_stats) +
+      ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+      ggplot2::facet_grid(reformulate(other, "beta_n"),
+                          labeller = labeller(beta_n = as_labeller(~paste0("italic(β)[italic(N)]:", .x), label_parsed),
+                                              mu = as_labeller(~paste0("italic(",other_greek,")","[0]:", .x), label_parsed))) +
+      ggplot2::xlab(bquote(β[italic(Φ)])) +
+      ggplot2::ylab(name) +
+      ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+      ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
+      ggplot2::theme(strip.background = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_blank(),
+                     panel.grid = ggplot2::element_blank())
+  } else {
+    stats_plot <- ggplot2::ggplot(plot_data_stats) +
+      ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+      ggplot2::facet_grid(reformulate(other, "beta_n"),
+                          labeller = labeller(beta_n = as_labeller(~paste0("italic(β)[italic(N)]:", .x), label_parsed),
+                                              lambda = as_labeller(~paste0("italic(",other_greek,")","[0]:", .x), label_parsed))) +
+      ggplot2::xlab(bquote(β[italic(Φ)])) +
+      ggplot2::ylab(name) +
+      ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+      ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
+      ggplot2::theme(strip.background = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_blank(),
+                     panel.grid = ggplot2::element_blank())
+
+  }
+
+  final_plot <- stats_plot +
+    ggplot2::ggtitle(bquote(.(name) ~ ~ italic(.(greek))[0] ~ "=" ~ .(rate_char))) +
+    ggplot2::labs(fill = "Metric")
+
+  if (save_plot == TRUE) {
+    save_with_rates_offset(rates = rates,
+                           offset = offset,
+                           plot = final_plot,
+                           which = paste("stat_single", by, name, sep = "_"),
+                           path = path,
+                           device = "png",
+                           width = 10, height = 8,
+                           dpi = "retina")
+  } else {
+    return(final_plot)
+  }
+}
