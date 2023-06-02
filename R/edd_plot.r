@@ -1587,6 +1587,11 @@ edd_plot_grouped_histrees <- function(raw_data = NULL,
                                       drop_extinct = FALSE,
                                       save_plot = FALSE,
                                       path = NULL) {
+  duplicates <- duplicated(name)
+  if (any(duplicates)) {
+    stop("Duplicated statistic names: ", paste(name[duplicates], collapse = ", "))
+  }
+
   rates <- expand.grid(unique(raw_data$params$lambda),
                        unique(raw_data$params$mu),
                        unique(raw_data$params$beta_n))
@@ -1655,7 +1660,14 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
 
   plot_grouped_histrees <- patchwork::wrap_plots(plots, nrow = tally$rows)
 
-  plot_stat <- edd_plot_stats_single(raw_data, rates = rates, name = name, save_plot = FALSE)
+  plots <- list()
+  plots[[1]] <- plot_grouped_histrees
+
+  j <- 2
+  for (i in name) {
+    plots[[j]] <- edd_plot_stats_single(raw_data, rates = rates, name = i, save_plot = FALSE)
+    j <- j + 1
+  }
 
   title_str <- "Phylogenetic patterns ("
 
@@ -1669,7 +1681,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
     title_str <- paste0(title_str, "with species richness effect)")
   }
 
-  plot_final <- patchwork::wrap_plots(plot_grouped_histrees, plot_stat, nrow = 1, widths = c(8, 1)) +
+  plot_final <- patchwork::wrap_plots(plots, nrow = 1, widths = c(8, rep(1, length(plots) - 1)), guides = "collect") +
     patchwork::plot_annotation(title = title_str,
                                subtitle = bquote(italic(λ)[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ italic(μ)[0] ~ "=" ~ .(sample_rep$mu[1]) ~ italic(β)[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
@@ -1690,11 +1702,11 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
   if (save_plot == TRUE) {
     save_with_rates_and_index_name(rates = rates,
                          plot = plot_final,
-                         which = paste0("grouped_histrees_", name),
-                         name = name,
+                         which = paste0("grouped_histrees_", paste(name, collapse = "_")),
+                         name = paste(name, collapse = "_"),
                          path = path,
                          device = "png",
-                         width = 10,
+                         width = 9 + length(name) * 1,
                          height = 15,
                          dpi = "retina")
   } else {
