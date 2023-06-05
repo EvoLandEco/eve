@@ -122,11 +122,14 @@ transform_data <- function(stat) {
   if (!is.null(stat$beta_phi)) {
     stat$beta_phi <- as.factor(stat$beta_phi)
   }
-  if (!is.null(stat$gamma_n)) {
-    stat$gamma_n <- as.factor(stat$gamma_n)
-  }
-  if (!is.null(stat$gamma_phi)) {
-    stat$gamma_phi <- as.factor(stat$gamma_phi)
+
+  if (stat$model[1] == "dsde2") {
+    if (!is.null(stat$gamma_n)) {
+      stat$gamma_n <- as.factor(stat$gamma_n)
+    }
+    if (!is.null(stat$gamma_phi)) {
+      stat$gamma_phi <- as.factor(stat$gamma_phi)
+    }
   }
 
   return(stat)

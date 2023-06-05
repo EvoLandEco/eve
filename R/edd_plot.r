@@ -217,7 +217,7 @@ edd_plot_histree <- function(raw_data = NULL,
                    axis.ticks.y = element_blank()) +
     ggplot2::labs(x = NULL, y = NULL) +
     ggplot2::guides(title = "State") +
-    viridis::scale_color_viridis(discrete = FALSE, option = "D")
+    viridis::scale_color_viridis(discrete = FALSE, option = "turbo")
 
   if (save_plot == TRUE) {
     stop("Saving plots to files is not supported for this function")
@@ -1007,13 +1007,19 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
   plot_data_stats <- plot_data %>% dplyr::filter(stats == name) %>%
     dplyr::filter(beta_n == beta_n_num)
 
-  sts <- boxplot.stats(plot_data_stats$value)$stats
+  sts <- plot_data_stats %>% dplyr::group_by(metric) %>%
+    dplyr::reframe(bp = boxplot.stats(value)$stats) %>% select(-metric)
 
+  if (name == "J_One") {
+    coord_lim <- c(min(sts) , 1)
+  } else {
+    coord_lim <- c(min(sts), max(sts))
+  }
   stats_plot <- ggplot2::ggplot(plot_data_stats) +
     ggplot2::facet_wrap(. ~ beta_phi, ncol = 1) +
     ggplot2::geom_boxplot(ggplot2::aes(metric, value, fill = metric), outlier.shape = NA) +
     ggplot2::scale_y_continuous(position = "right") +
-    ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
+    ggplot2::coord_cartesian(ylim = coord_lim) +
     ggplot2::ylab(NULL) +
     ggplot2::ggtitle(name) +
     ggplot2::theme(axis.title.x = ggplot2::element_blank(),
@@ -1030,7 +1036,7 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
   if (save_plot == TRUE) {
     save_with_rates_offset(rates = rates[1:2],
                            offset = offset,
-                           plot = pd_ed_plot,
+                           plot = plot_final,
                            which = "stats_single",
                            path = path,
                            device = "png",
@@ -1681,7 +1687,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
     title_str <- paste0(title_str, "with species richness effect)")
   }
 
-  plot_final <- patchwork::wrap_plots(plots, nrow = 1, widths = c(8, rep(1, length(plots) - 1)), guides = "collect") +
+  plot_final <- patchwork::wrap_plots(plots, nrow = 1, widths = c(8, rep(1.1, length(plots) - 1)), guides = "collect") +
     patchwork::plot_annotation(title = title_str,
                                subtitle = bquote(italic(λ)[0] ~ "=" ~ .(sample_rep$lambda[1]) ~ italic(μ)[0] ~ "=" ~ .(sample_rep$mu[1]) ~ italic(β)[italic(N)] ~ "=" ~ .(sample_rep$beta_n[1])))
 
@@ -1706,7 +1712,7 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
                          name = paste(name, collapse = "_"),
                          path = path,
                          device = "png",
-                         width = 9 + length(name) * 1,
+                         width = 9 + length(name) * 1.1,
                          height = 15,
                          dpi = "retina")
   } else {
@@ -1783,6 +1789,12 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
 
   sts <- boxplot.stats(plot_data_stats$value)$stats
 
+  if ((name == "MBL") | name == "MNTD") {
+    coord_lim <- c(min(sts) * 1.2, max(sts) * 1.2)
+  } else {
+    coord_lim <- c(min(sts) * 1.1, max(sts) * 1.1)
+  }
+
   if (by == "lambda") {
     stats_plot <- ggplot2::ggplot(plot_data_stats) +
       ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
@@ -1792,7 +1804,7 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
       ggplot2::xlab(bquote(β[italic(Φ)])) +
       ggplot2::ylab(name) +
       ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
-      ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
+      ggplot2::coord_cartesian(ylim = coord_lim) +
       ggplot2::theme(strip.background = ggplot2::element_blank(),
                      panel.background = ggplot2::element_blank(),
                      panel.grid = ggplot2::element_blank())
@@ -1805,7 +1817,7 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
       ggplot2::xlab(bquote(β[italic(Φ)])) +
       ggplot2::ylab(name) +
       ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
-      ggplot2::coord_cartesian(ylim = c(min(sts) * 1.1, max(sts) * 1.1)) +
+      ggplot2::coord_cartesian(ylim = coord_lim) +
       ggplot2::theme(strip.background = ggplot2::element_blank(),
                      panel.background = ggplot2::element_blank(),
                      panel.grid = ggplot2::element_blank())
