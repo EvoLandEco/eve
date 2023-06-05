@@ -1008,7 +1008,7 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
     dplyr::filter(beta_n == beta_n_num)
 
   sts <- plot_data_stats %>% dplyr::group_by(metric) %>%
-    dplyr::reframe(bp = boxplot.stats(value)$stats) %>% select(-metric)
+    dplyr::reframe(bp = boxplot.stats(value)$stats) %>% dplyr::select(-metric)
 
   if (name == "J_One") {
     coord_lim <- c(min(sts) , 1)
@@ -1787,12 +1787,13 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
 
   plot_data_stats <- dplyr::filter(plot_data, stats == name)
 
-  sts <- boxplot.stats(plot_data_stats$value)$stats
+  sts <- plot_data_stats %>% dplyr::group_by(metric) %>%
+    dplyr::reframe(bp = boxplot.stats(value)$stats) %>% dplyr::select(-metric)
 
-  if ((name == "MBL") | name == "MNTD") {
-    coord_lim <- c(min(sts) * 1.2, max(sts) * 1.2)
+  if (name == "J_One") {
+    coord_lim <- c(min(sts) , 1)
   } else {
-    coord_lim <- c(min(sts) * 1.1, max(sts) * 1.1)
+    coord_lim <- c(min(sts), max(sts))
   }
 
   if (by == "lambda") {
