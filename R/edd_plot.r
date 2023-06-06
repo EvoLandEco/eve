@@ -1842,3 +1842,124 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
     return(final_plot)
   }
 }
+
+
+edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
+                                       by = "lambda", name = NULL, save_plot = FALSE, path = NULL) {
+  if (length(name) > 1) {
+    stop("Only one statistic can be specified")
+  }
+
+  if (!is.character(name)) {
+    stop("Statistic name must be a character")
+  }
+
+  if (!(by %in% c("lambda", "mu", "beta_phi"))) {
+    stop("by must be one of 'lambda', 'mu' or 'beta_phi'")
+  }
+
+  name_title <- index_name_to_title(name)
+
+  stats <- edd_stat_cached(raw_data$data, method = method)
+
+  check_stats_names(raw_data, stats, name)
+
+  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
+
+  plot_data_pd <- dplyr::filter(stats,
+                                metric == "pd" &
+                                  offset == offset_char)
+
+  plot_data_ed <- dplyr::filter(stats,
+                                metric == "ed")
+
+  plot_data_nnd <- dplyr::filter(stats,
+                                 metric == "nnd")
+  plot_data <- rbind(plot_data_pd, plot_data_ed, plot_data_nnd)
+
+  plot_data_stats <- dplyr::filter(plot_data, stats == name)
+
+  sts <- plot_data_stats %>% dplyr::group_by(metric) %>%
+    dplyr::reframe(bp = boxplot.stats(value)$stats) %>% dplyr::select(-metric)
+
+  if (name == "J_One") {
+    coord_lim <- c(min(sts) , 1)
+  } else {
+    coord_lim <- c(min(sts), max(sts))
+  }
+
+  if (by == "beta_phi") {
+    stats_plot <- ggplot2::ggplot(plot_data_stats) +
+      ggplot2::geom_boxplot(ggplot2::aes(beta_n, value, fill = metric), outlier.shape = NA) +
+      ggplot2::facet_grid(reformulate("mu", "lambda"),
+                          labeller = labeller(lambda = as_labeller(~paste0("italic(λ)[0]:", .x), label_parsed),
+                                              mu = as_labeller(~paste0("italic(μ)[0]:", .x), label_parsed))) +
+      ggplot2::xlab(bquote(italic(β)[italic(N)])) +
+      ggplot2::ylab(NULL) +
+      ggplot2::scale_x_discrete(labels = format(unique(params$beta_n), scientific = FALSE)) +
+      ggplot2::coord_cartesian(ylim = coord_lim) +
+      ggplot2::theme(strip.background = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_blank(),
+                     panel.grid = ggplot2::element_blank(),
+                     plot.title = element_markdown()) +
+      gganimate::transition_states(states = beta_phi, transition_length = 1, state_length = 1) +
+      labs(title = paste0(name_title, " *β*<sub>*Φ*</sub> = ", "{closest_state}"))
+  } else {
+    if (by == "lambda") {
+      greek <- "λ"
+      other <- "mu"
+      other_greek <- "μ"
+    } else {
+      greek <- "μ"
+      other <- "lambda"
+      other_greek <- "λ"
+    }
+
+    if (by == "lambda") {
+      stats_plot <- ggplot2::ggplot(plot_data_stats) +
+        ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+        ggplot2::facet_grid(reformulate(other, "beta_n"),
+                            labeller = labeller(beta_n = as_labeller(~paste0("italic(β)[italic(N)]:", .x), label_parsed),
+                                                mu = as_labeller(~paste0("italic(",other_greek,")","[0]:", .x), label_parsed))) +
+        ggplot2::xlab(bquote(italic(β)[italic(Φ)])) +
+        ggplot2::ylab(NULL) +
+        ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+        ggplot2::coord_cartesian(ylim = coord_lim) +
+        ggplot2::theme(strip.background = ggplot2::element_blank(),
+                       panel.background = ggplot2::element_blank(),
+                       panel.grid = ggplot2::element_blank(),
+                       plot.title = element_markdown()) +
+        gganimate::transition_states(states = !!as.symbol(by), transition_length = 1, state_length = 1) +
+        labs(title = paste0(name_title, " *", greek, "*<sub>0</sub> = ", "{closest_state}"))
+    } else if (by == "mu") {
+      stats_plot <- ggplot2::ggplot(plot_data_stats) +
+        ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+        ggplot2::facet_grid(reformulate(other, "beta_n"),
+                            labeller = labeller(beta_n = as_labeller(~paste0("italic(β)[italic(N)]:", .x), label_parsed),
+                                                lambda = as_labeller(~paste0("italic(",other_greek,")","[0]:", .x), label_parsed))) +
+        ggplot2::xlab(bquote(italic(β)[italic(Φ)])) +
+        ggplot2::ylab(NULL) +
+        ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+        ggplot2::coord_cartesian(ylim = coord_lim) +
+        ggplot2::theme(strip.background = ggplot2::element_blank(),
+                       panel.background = ggplot2::element_blank(),
+                       panel.grid = ggplot2::element_blank(),
+                       plot.title = element_markdown()) +
+        gganimate::transition_states(states = !!as.symbol(by), transition_length = 1, state_length = 1) +
+        labs(title = paste0(name_title, " *", greek, "*<sub>0</sub> = ", "{closest_state}"))
+    }
+
+  }
+
+  if (save_plot == TRUE) {
+    save_path <- file.path(path, "plot", "animate")
+    check_path(save_path)
+    gganimate::anim_save(filename = paste0(by, "_", name, ".gif"),
+                         animation = stats_plot,
+                         path = save_path,
+                         width = 10, height = 8, units = "in", res = 300)
+  } else {
+    return(stats_plot)
+  }
+}

@@ -571,3 +571,20 @@ pars_to_title2 <- function(params) {
 
   return(plot_title)
 }
+
+
+index_name_to_title <- function(name) {
+  if (name == "J_One") {
+    return("J-One balance index")
+  } else if (name == "Gamma") {
+    return("Gamma statistic")
+  } else if (name == "PD") {
+    return("Phylogenetic diversity")
+  } else if (name == "MBL") {
+    return("Mean branch length")
+  } else if (name == "MNTD") {
+    return("Mean nearest taxon distance")
+  } else {
+    stop("No such statistic or statistic not yet implemented")
+  }
+}
