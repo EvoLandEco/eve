@@ -1965,8 +1965,9 @@ edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
         gganimate::transition_states(states = !!as.symbol(by), transition_length = 1, state_length = 1) +
         labs(title = paste0(name_title, " *", greek, "*<sub>0</sub> = ", "{closest_state}"))
     }
-
   }
+
+  stats_plot <- stats_plot + scale_fill_discrete(name = "Scenario", labels = c("PD", "ED", "NND"))
 
   if (save_plot == TRUE) {
     save_path <- file.path(path, "plot", "animate")
