@@ -1854,8 +1854,8 @@ edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
     stop("Statistic name must be a character")
   }
 
-  if (!(by %in% c("lambda", "mu", "beta_phi"))) {
-    stop("by must be one of 'lambda', 'mu' or 'beta_phi'")
+  if (!(by %in% c("lambda", "mu", "beta_phi", "beta_n"))) {
+    stop("by must be one of 'lambda', 'mu', 'beta_phi' or 'beta_n'")
   }
 
   name_title <- index_name_to_title(name)
@@ -1905,6 +1905,22 @@ edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
                      plot.title = element_markdown()) +
       gganimate::transition_states(states = beta_phi, transition_length = 1, state_length = 1) +
       labs(title = paste0(name_title, " *β*<sub>*Φ*</sub> = ", "{closest_state}"))
+  } else if (by == "beta_n") {
+    stats_plot <- ggplot2::ggplot(plot_data_stats) +
+      ggplot2::geom_boxplot(ggplot2::aes(beta_phi, value, fill = metric), outlier.shape = NA) +
+      ggplot2::facet_grid(reformulate("mu", "lambda"),
+                          labeller = labeller(lambda = as_labeller(~paste0("italic(λ)[0]:", .x), label_parsed),
+                                              mu = as_labeller(~paste0("italic(μ)[0]:", .x), label_parsed))) +
+      ggplot2::xlab(bquote(italic(β)[italic(Φ)])) +
+      ggplot2::ylab(NULL) +
+      ggplot2::scale_x_discrete(labels = format(unique(params$beta_phi), scientific = FALSE)) +
+      ggplot2::coord_cartesian(ylim = coord_lim) +
+      ggplot2::theme(strip.background = ggplot2::element_blank(),
+                     panel.background = ggplot2::element_blank(),
+                     panel.grid = ggplot2::element_blank(),
+                     plot.title = element_markdown()) +
+      gganimate::transition_states(states = beta_n, transition_length = 1, state_length = 1) +
+      labs(title = paste0(name_title, " *β*<sub>*N*</sub> = ", "{closest_state}"))
   } else {
     if (by == "lambda") {
       greek <- "λ"
