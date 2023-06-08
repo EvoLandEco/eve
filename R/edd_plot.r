@@ -1844,28 +1844,13 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
 }
 
 
-edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
-                                       by = "lambda", name = NULL, save_plot = FALSE, path = NULL) {
-  if (length(name) > 1) {
-    stop("Only one statistic can be specified")
-  }
+edd_animate_grouped_single_core <- function(pairs, stats = stats, save_plot = FALSE, path = NULL) {
+  by <- pairs[1]
+  name <- pairs[2]
 
-  if (!is.character(name)) {
-    stop("Statistic name must be a character")
-  }
-
-  if (!(by %in% c("lambda", "mu", "beta_phi", "beta_n"))) {
-    stop("by must be one of 'lambda', 'mu', 'beta_phi' or 'beta_n'")
-  }
+  message(paste0("Now plotting ", by, " against ", name))
 
   name_title <- index_name_to_title(name)
-
-  stats <- edd_stat_cached(raw_data$data, method = method)
-
-  check_stats_names(raw_data, stats, name)
-
-  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
-  stats <- transform_data(stats)
 
   plot_data_pd <- dplyr::filter(stats,
                                 metric == "pd" &
@@ -1978,5 +1963,30 @@ edd_animate_grouped_single <- function(raw_data = NULL, method = "treestats",
                          width = 10, height = 8, units = "in", res = 300)
   } else {
     return(stats_plot)
+  }
+}
+
+
+edd_animate_grouped_single <- function(raw_data = NULL, name = NULL, method = "treestats", save_plot = FALSE, path = NULL) {
+  stats <- edd_stat_cached(raw_data$data, method = method)
+
+  if (is.null(name)) {
+    name <- c("J_One", "Gamma", "PD", "MBL", "MNTD")
+  }
+
+  check_stats_names(raw_data, stats, name)
+
+  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
+
+  by <- c("lambda", "mu", "beta_n", "beta_phi")
+
+  pairs <- expand.grid(by = by, name = name)
+
+  plots <- apply(pairs, 1, edd_animate_grouped_single_core,
+                  stats = stats, save_plot = save_plot, path = path)
+
+  if (save_plot != TRUE) {
+    return(plots)
   }
 }
