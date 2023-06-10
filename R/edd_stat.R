@@ -24,7 +24,6 @@ edd_summarize <- function(raw_data, method = NULL) {
 }
 
 
-
 edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "sequential",
                                             workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
@@ -43,7 +42,6 @@ edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "se
 }
 
 
-
 edd_stat <- function(raw_data, method = "treestats", strategy = "sequential",
                      workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
@@ -54,6 +52,39 @@ edd_stat <- function(raw_data, method = "treestats", strategy = "sequential",
                                   method = method)
 
   # Binding metadata
+  nrep <- length(raw_data$`1`$tes)
+  meta <- lapply(raw_data, function(x) {
+    meta_data <- as.data.frame(extract_parameters(x))
+    dplyr::slice(meta_data, rep(1, nrep))
+  })
+  meta <- dplyr::bind_rows(meta)
+  statistics <- dplyr::bind_rows(statistics)
+  statistics <- cbind(meta, statistics)
+
+  return(statistics)
+}
+
+
+edd_stat_phylogenetic_evenness <- function(raw_data = NULL) {
+  nrep <- length(raw_data$tes)
+  statistics <- data.frame(id = 1:nrep)
+
+  ERE <- mapply(calculate_phylogenetic_evenness, raw_data$tes, raw_data$eds)
+  result <- data.frame(ERE = unlist(ERE))
+  statistics <- cbind(statistics, result)
+
+  return(within(statistics, rm(id)))
+}
+
+
+edd_phylogenetic_evenness <- function(raw_data = NULL, strategy = "sequential",
+                              workers = 1, verbose = TRUE) {
+  check_parallel_arguments(strategy, workers, verbose)
+  check_raw_data(raw_data)
+
+  statistics <- furrr::future_map(.x = raw_data,
+                                  .f =  edd_stat_phylogenetic_evenness)
+
   nrep <- length(raw_data$`1`$tes)
   meta <- lapply(raw_data, function(x) {
     meta_data <- as.data.frame(extract_parameters(x))

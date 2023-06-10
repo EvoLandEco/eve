@@ -1030,8 +1030,7 @@ edd_plot_stats_single_between_metric <- function(rates, name, stats, offset = NU
                    panel.background = ggplot2::element_blank(),
                    panel.grid = ggplot2::element_blank())
 
-  plot_final <- stats_plot +
-    ggplot2::labs(fill = "Metric")
+  plot_final <- stats_plot + scale_fill_discrete(name = "Scenario", labels = c("PD", "ED", "NND"))
 
   if (save_plot == TRUE) {
     save_with_rates_offset(rates = rates[1:2],
@@ -1844,9 +1843,10 @@ edd_plot_stats_grouped_single_core <- function(rates, stats, by, name, params, o
 }
 
 
-edd_animate_grouped_single_core <- function(pairs, stats = stats, save_plot = FALSE, path = NULL) {
+edd_animate_grouped_single_core <- function(pairs, stats = NULL, params = NULL, save_plot = FALSE, path = NULL) {
   by <- pairs[1]
   name <- pairs[2]
+  offset_char <- "Simulation time"
 
   message(paste0("Now plotting ", by, " against ", name))
 
@@ -1984,7 +1984,30 @@ edd_animate_grouped_single <- function(raw_data = NULL, name = NULL, method = "t
   pairs <- expand.grid(by = by, name = name)
 
   plots <- apply(pairs, 1, edd_animate_grouped_single_core,
-                  stats = stats, save_plot = save_plot, path = path)
+                  stats = stats, params = raw_data$params, save_plot = save_plot, path = path)
+
+  if (save_plot != TRUE) {
+    return(plots)
+  }
+}
+
+
+edd_animate_phylogenetic_evenness <- function(raw_data = NULL, save_plot = FALSE, path = NULL, strategy = "sequential",
+                                      workers = 1, verbose = TRUE) {
+  stats <- edd_phylogenetic_evenness(raw_data$data, strategy = strategy,
+                             workers = workers, verbose = verbose)
+
+  stats <- tidyr::pivot_longer(stats, cols = -(lambda:offset), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
+
+  name <- "ERE"
+
+  by <- c("lambda", "mu", "beta_n", "beta_phi")
+
+  pairs <- expand.grid(by = by, name = name)
+
+  plots <- apply(pairs, 1, edd_animate_grouped_single_core,
+                 stats = stats, params = raw_data$params, save_plot = save_plot, path = path)
 
   if (save_plot != TRUE) {
     return(plots)

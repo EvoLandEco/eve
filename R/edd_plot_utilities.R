@@ -584,6 +584,8 @@ index_name_to_title <- function(name) {
     return("Mean branch length")
   } else if (name == "MNTD") {
     return("Mean nearest taxon distance")
+  } else if (name == "ERE") {
+    return("Evolutionary relatedness evenness")
   } else {
     stop("No such statistic or statistic not yet implemented")
   }

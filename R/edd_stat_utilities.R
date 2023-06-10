@@ -200,21 +200,6 @@ find_best_rep_ids <- function(raw_data = NULL, method = "euclidean", metrics = N
     dplyr::select(-group) %>%
     dplyr::mutate(pars_id = dplyr::row_number())
 
-  # cols <- stats %>%
-  #   dplyr::select(-lambda, -mu, -beta_n, -beta_phi, -age, -model, -metric, -offset) %>%
-  #   dplyr::mutate_all(~(scale(.) %>% as.vector))
-  #
-  # col_means <- cols %>% dplyr::mutate_all(~ .x - mean(.x, na.rm = TRUE)) %>% dplyr::ungroup() %>% dplyr::select(-group)
-  #
-  # stats$distance <- apply(col_means, 1, function(x) sqrt(sum(x^2)))
-
-  # rep_ids <- stats %>%
-  #   dplyr::mutate(rep_id = dplyr::row_number()) %>%
-  #   dplyr::slice_min(n = 1, order_by = distance) %>%
-  #   dplyr::ungroup() %>%
-  #   dplyr::select(-group) %>%
-  #   dplyr::mutate(pars_id = row_number())
-
   return(rep_ids)
 }
 
@@ -233,3 +218,16 @@ calculate_tree_distance <- function(stats = NULL, method = "euclidean") {
     stop("The specified method is not supported. Choose from 'euclidean', 'manhattan', 'mahalanobis'.")
   }
 }
+
+
+calculate_phylogenetic_evenness <- function(tree, ed) {
+  if (tree$Nnode == 1) {
+    return(NA)
+  } else {
+    ed <- as.data.frame(tail(ed, 1))
+    rownames(ed) <- "ed"
+    pse <- picante::pse(ed, tree)$PSEs
+    return(pse)
+  }
+}
+
