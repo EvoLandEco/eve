@@ -9,10 +9,10 @@ check_parallel_arguments <- function(strategy = NULL,
     strategy <- eval(parse(text = paste0("future::", strategy)))
     future::plan(strategy)
   } else if (!(workers %% 1 == 0)) {
-    stop("number of workers should be an integer")
+    stop("Number of workers should be an integer")
   } else {
     if (strategy %in% c("multisession", "multicore", "cluster")) {
-      message("Warning: parallel computing with large dataset may use very large memory")
+      message("Parallel computing with large dataset may use huge memory. More workers will create more overhead, thus the speed-up is not linear. Please consider using a cluster with more computational power and memory.")
       if (verbose == TRUE) {
         message(paste0(
           "Running ",
@@ -25,7 +25,7 @@ check_parallel_arguments <- function(strategy = NULL,
       strategy <- eval(parse(text = paste0("future::", strategy)))
       future::plan(strategy, workers = workers)
     } else {
-      stop("incorrect parallel computing strategy")
+      stop("Incorrect parallel computing strategy")
     }
   }
 }
