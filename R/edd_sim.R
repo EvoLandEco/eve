@@ -398,8 +398,8 @@ edd_sim <- function(pars,
     }
   }
 
-  tes <- treestats::l_to_phylo_ed(l_table, age, drop_extinct = TRUE)
-  tas <- treestats::l_to_phylo_ed(l_table, age, drop_extinct = FALSE)
+  tes <- l_to_phylo_ed(l_table, age, drop_extinct = TRUE)
+  tas <- l_to_phylo_ed(l_table, age, drop_extinct = FALSE)
 
   ltt <-
     data.frame("time" = t[-length(t)],
