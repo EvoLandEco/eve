@@ -38,14 +38,13 @@ find_extinct <- function(phy, tolerance = NULL, which = "edge_number") {
 }
 
 
-
 mark_extinct_tips <- function(phy) {
   # Mark extinct tips with different linetype
   tree_data <- as(phy, "phylo4")
   extinct_tips <- find_extinct(phy, which = "tip_label")
   extinct_data <- data.frame(linetype = rep(1, length(phy$tip.label)))
   rownames(extinct_data) <- phy$tip.label
-  extinct_data[extinct_tips, ] <- 2
+  extinct_data[extinct_tips,] <- 2
   extinct_data$linetype <- as.factor(extinct_data$linetype)
   tree_data <- phylobase::phylo4d(tree_data, extinct_data)
   internal_node_data <- data.frame(linetype = rep(1, phylobase::nNodes(tree_data)),
@@ -56,15 +55,14 @@ mark_extinct_tips <- function(phy) {
 }
 
 
-
 # Reconstruct the growth of the phylo tree from the present L-table, with simulation time provided.
 # Will output Blum, Colless, Sackin, PD, MNTD and MBL statistics for each time step.
 reconstruct_temporal_dynamics <- function(l_table = NULL, age = NULL) {
   if (is.null(l_table)) {
-      stop("No L-table provided")
+    stop("No L-table provided")
   }
   if (is.null(age)) {
-      stop("No age provided")
+    stop("No age provided")
   }
   time_speciation <- unique(l_table[, 1])
   time_extinction <- unique(l_table[l_table[, 4] > 0, 4])
@@ -116,7 +114,6 @@ reconstruct_temporal_dynamics <- function(l_table = NULL, age = NULL) {
 }
 
 
-
 sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
   phy <- treestats::l_to_phylo_ed(l_table, age, drop_extinct = drop_extinct)
   J_One <- calculate_tree_stats(phy, metric = "J-One")
@@ -133,7 +130,6 @@ sample_tree_metrics <- function(l_table, age, event, drop_extinct) {
                     MNTD = MNTD,
                     MBL = MBL))
 }
-
 
 
 sample_end_state <- function(l_table, params, which = stop("Please specify which end state to sample")) {
@@ -187,7 +183,6 @@ sample_end_state <- function(l_table, params, which = stop("Please specify which
 }
 
 
-
 #' @name stat_histree
 #' @title Mapping historical states to a phylo tree
 #' @description Function to map historical states to a phylo tree and output a data frame of segments of the tree
@@ -200,7 +195,7 @@ sample_end_state <- function(l_table, params, which = stop("Please specify which
 #' @author Tianjian Qin
 #' @keywords phylogenetics
 #' @export stat_histree
-stat_histree <- function(phy, history){
+stat_histree <- function(phy, history) {
   # get the skeleton of the phylo tree, get all the key coordinates
   xs <- ape::node.depth.edgelength(phy)
   ys <- ape::node.height(phy)
@@ -212,15 +207,14 @@ stat_histree <- function(phy, history){
 
   segments <- data.frame()
   # an iterator function to look up and draw the state history of two daughter edges connected to a node
-  draw_daughter_lineages(parent_node =  root_node,
+  draw_daughter_lineages(parent_node = root_node,
                          phy = phy,
-                         history= history,
+                         history = history,
                          nodes = nodes,
                          tolerance = 1e-8)
 
   return(segments)
 }
-
 
 
 #' @name draw_daughter_lineages
@@ -346,14 +340,12 @@ draw_daughter_lineages <- function(envir = parent.frame(), parent_node, phy, his
 }
 
 
-
 get_tree_sizes <- function(trees) {
   sizes <- lapply(trees, function(x) {
     length(x$tip.label)
   })
   return(unlist(sizes))
 }
-
 
 
 # Function to calculate the sum of branch lengths for a given subtree
@@ -379,7 +371,7 @@ calc_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
     for (j in 1:2) {
       bl[j] <- local_analysis[j, 3]
       if (local_analysis[j, 2] > root_no) {
-        bl[j] <- bl[j] + sum_bl[ local_analysis[j, 2] - root_no + 1]
+        bl[j] <- bl[j] + sum_bl[local_analysis[j, 2] - root_no + 1]
       }
     }
 
@@ -410,6 +402,7 @@ l_to_phylo_ed <- function(ltab, t, drop_extinct = TRUE) {
 
   return(phylo_tree)
 }
+
 
 #' Convert an reverse-timescale L table to newick format string
 #' @param ltab ltable
