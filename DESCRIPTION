@@ -25,6 +25,7 @@ Imports:
     ggtree,
     gtools,
     magrittr,
+    memoise,
     nLTT,
     patchwork,
     progressr,
