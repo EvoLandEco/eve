@@ -13,10 +13,14 @@ edd_summarize <- function(raw_data, method = NULL) {
   mbl <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "MBL")
   pd <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "PD")
   mntd <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "MNTD")
+  mpd <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "MPD")
+  rogers <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "Rogers")
+  sr <- lapply(raw_data$tes, calculate_tree_stats, method = method, metric = "SR")
 
   result <- cbind(Colless = unlist(colless), J_One = unlist(j_one), TCI = unlist(tci),
-                   Steps = unlist(steps), Branch = unlist(branch), B1 = unlist(b1), B2 = unlist(b2),
-                   Gamma = unlist(gamma), MBL = unlist(mbl), PD = unlist(pd), MNTD = unlist(mntd))
+                  Steps = unlist(steps), Branch = unlist(branch), B1 = unlist(b1), B2 = unlist(b2),
+                  Gamma = unlist(gamma), MBL = unlist(mbl), PD = unlist(pd),
+                  MNTD = unlist(mntd), MPD = unlist(mpd), Rogers = unlist(rogers), SR = unlist(sr))
 
   statistics <- cbind(statistics, result)
 
@@ -69,7 +73,7 @@ edd_stat_phylogenetic_evenness <- function(raw_data = NULL) {
   nrep <- length(raw_data$tes)
   statistics <- data.frame(id = 1:nrep)
 
-  ERE <- mapply(calculate_phylogenetic_evenness, raw_data$tes, raw_data$eds)
+  ERE <- mapply(calculate_phylogenetic_evenness, raw_data$tes, raw_data$las)
   result <- data.frame(ERE = unlist(ERE))
   statistics <- cbind(statistics, result)
 

@@ -77,7 +77,7 @@ calculate_tree_stats <- function(phy = NULL, min_size = 3, method = "treestats",
       } else if (metric == "Steps") {
         return(treestats::imbalance_steps(phy, normalize = TRUE))
       } else if (metric == "Branch") {
-        return(calc_branch_colless(phy))
+        return(calculate_branch_colless(phy))
       } else if (metric == "B1") {
         return(treestats::b1(phy, normalization = "none"))
       } else if (metric == "B2") {
@@ -90,7 +90,14 @@ calculate_tree_stats <- function(phy = NULL, min_size = 3, method = "treestats",
         return(treestats::phylogenetic_diversity(phy))
       } else if (metric == "MNTD") {
         return(treestats::mntd(phy))
-        stop("Invalid metric")
+      } else if (metric == "MPD") {
+        return(treestats::mean_pair_dist(phy, normalization = "tips")) # or tips
+      } else if (metric == "Rogers") {
+        return(treestats::rogers(phy, normalization = "tips"))
+      } else if (metric == "SR") {
+        return(phy$Nnode + 1)
+      } else {
+        stop("No such metric")
       }
     } else {
       stop("No such method")
@@ -218,16 +225,3 @@ calculate_tree_distance <- function(stats = NULL, method = "euclidean") {
     stop("The specified method is not supported. Choose from 'euclidean', 'manhattan', 'mahalanobis'.")
   }
 }
-
-
-calculate_phylogenetic_evenness <- function(tree, ed) {
-  if (tree$Nnode == 1) {
-    return(NA)
-  } else {
-    ed <- as.data.frame(tail(ed, 1))
-    rownames(ed) <- "ed"
-    pse <- picante::pse(ed, tree)$PSEs
-    return(pse)
-  }
-}
-

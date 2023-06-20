@@ -348,8 +348,19 @@ get_tree_sizes <- function(trees) {
 }
 
 
+filter_small_tree <- function(trees, min_nodes = 1) {
+  trees <- lapply(trees, function(x) {
+    if (x$Nnode > min_nodes) {
+      return(x)
+    }
+  })
+  trees <- trees[!sapply(trees, is.null)]
+  return(trees)
+}
+
+
 # Function to calculate the sum of branch lengths for a given subtree
-calc_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
+calculate_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
   to_analyze <- cbind(phy$edge, phy$edge.length)
 
   internal_nodes <- sort(unique(to_analyze[, 1]))
@@ -385,6 +396,42 @@ calc_branch_colless <- function(phy, ew = FALSE, normalize = FALSE) {
   }
 
   return(sum(delta_bl))
+}
+
+
+# Modified from pse() in picante
+calculate_phylogenetic_evenness <- function(tree, samp)
+{
+  if (tree$Nnode == 1) {
+    return(NA)
+  } else {
+    samp <- as.data.frame(tail(samp, 1))
+    rownames(samp) <- "ed"
+  }
+
+  samp <- as.matrix(samp)
+  samp <- samp[, tree$tip.label, drop = FALSE]
+  Cmatrix <- ape::vcv.phylo(tree, corr = TRUE)
+
+  ntraits <- dim(samp)[1]
+  PSEs <- NULL
+  for (i in 1:ntraits) {
+    index <- seq(1, ncol(Cmatrix))[samp[i, ] > 0]
+    n <- length(index)
+    if (n > 1) {
+      C <- Cmatrix[index, index]
+      N <- sum(samp[i, ])
+      M <- samp[i, samp[i, ] > 0]
+      mbar <- mean(M)
+      PSE <- (N * t(diag(as.matrix(C))) %*% M - t(M) %*%
+        as.matrix(C) %*% M)/(N^2 - N * mbar)
+    } else {
+      PSE <- NA
+    }
+    PSEs <- c(PSEs, PSE)
+  }
+
+  return(data.frame(PSEs)$PSEs)
 }
 
 

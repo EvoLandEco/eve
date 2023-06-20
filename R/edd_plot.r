@@ -1708,7 +1708,6 @@ edd_plot_grouped_histrees_core <- function(rates, raw_data, sample_rep, name, wh
     save_with_rates_and_index_name(rates = rates,
                          plot = plot_final,
                          which = paste0("grouped_histrees_", paste(name, collapse = "_")),
-                         name = paste(name, collapse = "_"),
                          path = path,
                          device = "png",
                          width = 9 + length(name) * 1.1,

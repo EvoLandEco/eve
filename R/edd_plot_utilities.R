@@ -193,7 +193,6 @@ save_with_rates_and_index_name <-
   function(rates = NULL,
            plot = NULL,
            which = NULL,
-           name,
            path = stop("Path not specified"),
            device = "png",
            width = 5,
@@ -211,10 +210,6 @@ save_with_rates_and_index_name <-
       filename = paste0(
         save_path,
         "/",
-        which,
-        "_",
-        name,
-        "_",
         rates[1],
         "_",
         rates[2],
@@ -585,7 +580,13 @@ index_name_to_title <- function(name) {
   } else if (name == "MNTD") {
     return("Mean nearest taxon distance")
   } else if (name == "ERE") {
-    return("Evolutionary relatedness evenness")
+    return("Speciation rate evenness")
+  } else if (name == "MPD") {
+    return("Mean pairwise distance")
+  } else if (name == "SR") {
+    return("Number of lineages")
+  } else if (name == "Rogers") {
+    return("Rogers J index of (im)balance")
   } else {
     stop("No such statistic or statistic not yet implemented")
   }
