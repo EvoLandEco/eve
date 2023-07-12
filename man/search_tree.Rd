@@ -13,7 +13,8 @@ search_tree(
   size = NULL,
   n = 1,
   history = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  size_limit = 1e+06
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ dividing pd value by species richness; "both" for applying both "simtime" and
 
 \item{verbose}{Logical, for debugging purpose, indicating whether to print
 simulation info at each step in the console, and save running time to a file}
+
+\item{size_limit}{Specifies the maximum number of tips in the tree to be}
 
 \item{converter}{Either "cpp" or "r", choose which version of L2phylo to use.}
 }

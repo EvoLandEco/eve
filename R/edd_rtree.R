@@ -1,5 +1,6 @@
+#' @export edd_rtree
 edd_rtree <- function(pars, age, model, metric, offset, size = NULL, n = 1,
-                      history = FALSE, verbose = FALSE) {
+                      history = FALSE, verbose = FALSE, size_limit = 1e6) {
   if (!(n %% 1 == 0)) {
     stop("n must be an integer")
   }
@@ -42,7 +43,8 @@ edd_rtree <- function(pars, age, model, metric, offset, size = NULL, n = 1,
                   metric = metric,
                   offset = offset,
                   history = history,
-                  verbose = verbose)
+                  verbose = verbose,
+                  size_limit = size_limit)
     if (is.null(size)) {
       i <- i + 1
       trees[[i]] <- rs$tes
@@ -60,6 +62,7 @@ edd_rtree <- function(pars, age, model, metric, offset, size = NULL, n = 1,
 }
 
 
+#' @export ddd_rtree
 ddd_rtree <- function(pars, age, ddmodel, size = NULL, n = 1) {
   if (!(n %% 1 == 0)) {
     stop("n must be an integer")
@@ -144,13 +147,14 @@ ddd_rtree <- function(pars, age, ddmodel, size = NULL, n = 1) {
 #' @param verbose Logical, for debugging purpose, indicating whether to print
 #' simulation info at each step in the console, and save running time to a file
 #' @param converter Either "cpp" or "r", choose which version of L2phylo to use.
+#' @param size_limit Specifies the maximum number of tips in the tree to be
 #' @return a list of trees
 #' @author Tianjian Qin
 #' @export search_tree
 search_tree <- function(pars, age, model, metric, offset, size = NULL, n = 1,
-                        history = FALSE, verbose = FALSE) {
+                        history = FALSE, verbose = FALSE, size_limit = 1e6) {
   progressr::with_progress({
     edd_rtree(pars = pars, age = age, model = model, metric = metric, offset = offset, size = size, n = n,
-              history = history, verbose = verbose)
+              history = history, verbose = verbose, size_limit = size_limit)
   })
 }

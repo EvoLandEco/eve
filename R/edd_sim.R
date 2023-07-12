@@ -193,6 +193,7 @@ edd_sample_event <- function(las, mus, linlist) {
 #' @param verbose Logical, for debugging purpose, indicating whether to print
 #' simulation info at each step in the console, and save running time to a file
 #' @param converter Either "cpp" or "r", choose which version of L2phylo to use.
+#' @param size_limit The maximum number of species allowed in the simulation.
 #' @return \item{ out }{ A list with the following nine elements: The first
 #' element is the tree of extant species in phylo format \cr The second element
 #' is the tree of all species, including extinct species, in phylo format \cr
@@ -226,7 +227,8 @@ edd_sim <- function(pars,
                     offset = "none",
                     history = TRUE,
                     verbose = FALSE,
-                    converter = "cpp") {
+                    converter = "cpp",
+                    size_limit = 1e6) {
   edd_pars_check(pars, age, model, metric, offset)
   if (verbose == TRUE) {
     edd_message_info(pars, age, model, metric, offset)
@@ -266,7 +268,7 @@ edd_sim <- function(pars,
       times <- rep(0, 1)
     }
 
-    while (t[i + 1] <= age) {
+    while (t[i + 1] <= age & num[i] < size_limit) {
       i <- i + 1
       if (verbose == TRUE) {
         start_time <- Sys.time()

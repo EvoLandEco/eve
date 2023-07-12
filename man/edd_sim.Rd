@@ -13,7 +13,8 @@ edd_sim(
   offset = "none",
   history = TRUE,
   verbose = FALSE,
-  converter = "cpp"
+  converter = "cpp",
+  size_limit = 1e+06
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ dividing pd value by species richness; "both" for applying both "simtime" and
 simulation info at each step in the console, and save running time to a file}
 
 \item{converter}{Either "cpp" or "r", choose which version of L2phylo to use.}
+
+\item{size_limit}{The maximum number of species allowed in the simulation.}
 }
 \value{
 \item{ out }{ A list with the following nine elements: The first
