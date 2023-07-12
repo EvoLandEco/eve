@@ -400,8 +400,13 @@ edd_sim <- function(pars,
     }
   }
 
-  tes <- l_to_phylo_ed(l_table, age, drop_extinct = TRUE)
-  tas <- l_to_phylo_ed(l_table, age, drop_extinct = FALSE)
+  if (size_limit < 1e6) {
+    tes <- l_to_phylo_ed(l_table, t[i] + 0.01, drop_extinct = TRUE)
+    tas <- l_to_phylo_ed(l_table, t[i] + 0.01, drop_extinct = FALSE)
+  } else {
+    tes <- l_to_phylo_ed(l_table, age, drop_extinct = TRUE)
+    tas <- l_to_phylo_ed(l_table, age, drop_extinct = FALSE)
+  }
 
   ltt <-
     data.frame("time" = t[-length(t)],
