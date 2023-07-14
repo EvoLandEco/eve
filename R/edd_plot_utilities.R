@@ -587,6 +587,14 @@ index_name_to_title <- function(name) {
     return("Number of lineages")
   } else if (name == "Rogers") {
     return("Rogers J index of (im)balance")
+  } else if (name == "Colless") {
+    return("Colless index of (im)balance")
+  } else if (name == "Sackin") {
+    return("Sackin index of (im)balance")
+  } else if (name == "TCI") {
+    return("Total cophenetic index")
+  } else if (name == "B1") {
+    return("B1 index of (im)balance")
   } else {
     stop("No such statistic or statistic not yet implemented")
   }
