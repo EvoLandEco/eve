@@ -28,6 +28,26 @@ edd_summarize <- function(raw_data, method = NULL) {
 }
 
 
+#' @title Function to calculate tree statistics of search_tree results
+#' @param data A list of trees
+#' @param combo A list of parameter combinations
+#' @return a data frame of tree statistics
+#' @author Tianjian Qin
+#' @export edd_stat_rtree
+edd_stat_rtree <- function(data, combo) {
+  params <- combo_to_tibble(combo)
+  meta <- params[rep(seq_len(nrow(params)), each = 1000), ]
+  statistics <- lapply(data, edd_summarize, method = "treestats")
+
+  stats <- cbind(meta, dplyr::bind_rows(statistics))
+
+  stats <- tidyr::pivot_longer(stats, cols = -(age:beta_phi), names_to = "stats", values_to = "value")
+  stats <- transform_data(stats)
+
+  return(stats)
+}
+
+
 edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "sequential",
                                             workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
@@ -46,6 +66,15 @@ edd_summarize_temporal_dynamics <- function(raw_data, rep_id = 1, strategy = "se
 }
 
 
+#' @title Function to calculate tree statistics of simulation results
+#' @param raw_data Results of simulation
+#' @param method Method to calculate tree statistics, default is "treestats"
+#' @param strategy Parallel strategy, default is "sequential"
+#' @param workers Number of workers, default is 1
+#' @param verbose Whether to print progress, default is TRUE
+#' @return a data frame of tree statistics
+#' @author Tianjian Qin
+#' @export edd_stat
 edd_stat <- function(raw_data, method = "treestats", strategy = "sequential",
                      workers = 1, verbose = TRUE) {
   check_parallel_arguments(strategy, workers, verbose)
