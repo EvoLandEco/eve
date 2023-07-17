@@ -35,14 +35,16 @@ edd_summarize <- function(raw_data, method = NULL) {
 #' @author Tianjian Qin
 #' @export edd_stat_rtree
 edd_stat_rtree <- function(data, combo) {
+  data <- lapply(data, function (x) {
+    x <- list(tes = x)
+    return(x)
+  })
+
   params <- combo_to_tibble(combo)
-  meta <- params[rep(seq_len(nrow(params)), each = 1000), ]
+  meta <- params[rep(seq_len(nrow(params)), each = length(data[[1]]$tes)), ]
   statistics <- lapply(data, edd_summarize, method = "treestats")
 
   stats <- cbind(meta, dplyr::bind_rows(statistics))
-
-  stats <- tidyr::pivot_longer(stats, cols = -(age:beta_phi), names_to = "stats", values_to = "value")
-  stats <- transform_data(stats)
 
   return(stats)
 }
