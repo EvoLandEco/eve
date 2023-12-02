@@ -228,7 +228,7 @@ edd_sim <- function(pars,
                     history = TRUE,
                     verbose = FALSE,
                     converter = "cpp",
-                    size_limit = 1e6) {
+                    size_limit = 2000) {
   edd_pars_check(pars, age, model, metric, offset)
   if (verbose == TRUE) {
     edd_message_info(pars, age, model, metric, offset)
@@ -390,6 +390,12 @@ edd_sim <- function(pars,
 
       if (verbose == TRUE) {
         message("One of the crown lineage is extinct, simulation will start over")
+      }
+    } else if (num[i] >= size_limit) {
+      done <- 0
+      
+      if (verbose == TRUE) {
+        warning("Tree exceeded size limit, simulation will start over")
       }
     } else {
       done <- 1
