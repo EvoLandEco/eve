@@ -75,7 +75,7 @@ calculate_tree_stats <- function(phy = NULL, min_size = 3, method = "treestats",
       } else if (metric == "TCI") {
         return(treestats::tot_coph(phy, normalization = "yule"))
       } else if (metric == "Steps") {
-        return(treestats::imbalance_steps(phy, normalize = TRUE))
+        return(treestats::imbalance_steps(phy, normalization = TRUE))
       } else if (metric == "Branch") {
         return(calculate_branch_colless(phy))
       } else if (metric == "B1") {
